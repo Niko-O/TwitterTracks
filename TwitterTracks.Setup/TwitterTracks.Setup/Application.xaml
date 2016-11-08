@@ -1,0 +1,45 @@
+﻿<Application
+    x:Class="Application"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l="clr-namespace:TwitterTracks.Setup"
+    xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
+    xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
+    StartupUri="MainWindow/MainWindow.xaml"
+>
+    <Application.Resources>
+        <c:BooleanToBrushConverter x:Key="ErrorBrushConverter" TrueBrush="White" FalseBrush="#ffaaaa"/>
+        <c:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
+        <c:ObjectToVisibilityConverter x:Key="ReverseObjectToVisibilityConverter" Invert="True"/>
+        <c:BooleanNotConverter x:Key="BooleanNotConverter"/>
+        <c:ObjectToBooleanConverter x:Key="ObjectToBooleanConverter"/>
+        <c:ObjectToBooleanConverter x:Key="ReverseObjectToBooleanConverter" Invert="True"/>
+        <Style TargetType="{x:Type ListBox}">
+            <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+            <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
+        <Style TargetType="{x:Type ListBoxItem}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="(ListBoxItem.IsSelected)">
+                                    <DiscreteBooleanKeyFrame KeyTime="0" Value="True"/>
+                                </BooleanAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!--<Style TargetType="{x:Type Window}">
+            <Setter Property="Icon" Value="pack://application:,,,/Resources/AppIcon.png"/>
+        </Style>-->
+        <Style TargetType="{x:Type Image}">
+            <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
+        </Style>
+    </Application.Resources>
+</Application>

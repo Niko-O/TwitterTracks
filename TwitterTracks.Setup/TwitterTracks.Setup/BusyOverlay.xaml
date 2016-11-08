@@ -1,0 +1,18 @@
+﻿<UserControl
+	x:Class="BusyOverlay"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="clr-namespace:TwitterTracks.Setup"
+    xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
+    xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
+    mc:Ignorable="d"
+>
+    <Grid>
+        <ContentPresenter x:Name="MainContentPresenter" Grid.Column="0"/>
+        <Border x:Name="Overlay" Background="#70ffffff" BorderBrush="#70AAAAAA" BorderThickness="10">
+            <TextBlock x:Name="OverlayTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20">Loading...</TextBlock>
+        </Border>
+    </Grid>
+</UserControl>
