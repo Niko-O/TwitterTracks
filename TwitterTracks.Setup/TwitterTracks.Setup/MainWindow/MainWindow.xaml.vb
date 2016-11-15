@@ -270,7 +270,22 @@ Class MainWindow
     End Sub
 
     Private Sub CreateTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
-
+        Dim CreateTrackResult As TwitterTracks.DatabaseAccess.TrackDatabase.CreateTrackResult
+        DoMySqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
+            "The Track could not be created", _
+            Sub()
+                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName))
+                CreateTrackResult = TrackDatabase.CreateTrack(ViewModel.AdministratorToolsVM.CreateTrackVM.Password)
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Add(CreateTrackResult.Track)
+                    ViewModel.AdministratorToolsVM.TracksVM.SelectedAvailableTrack = CreateTrackResult.Track
+                    ViewModel.AdministratorToolsVM.CreateTrackVM.CreatedResearcherId = CreateTrackResult.ResearcherUser.Name
+                End If
+                Return Nothing
+            End Function)
     End Sub
 
 #End Region
