@@ -60,7 +60,7 @@ Class MainWindow
                                          End If
                                      Else
                                          Dim ErrorMessage = ErrorDescriptor & ":" & Environment.NewLine & ErrorException.GetType.Name & " (Error Code " & ErrorException.Number & "): " & ErrorException.Message
-                                         If ResultMessageOverride.Item1 IsNot Nothing Then
+                                         If ResultMessageOverride IsNot Nothing AndAlso ResultMessageOverride.Item1 IsNot Nothing Then
                                              ErrorMessage &= Environment.NewLine & "Additional information: " & ResultMessageOverride.Item1
                                          End If
                                          StatusMessageVM.SetStatus(ErrorMessage, StatusMessageKindType.Error)
