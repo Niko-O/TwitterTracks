@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:l="clr-namespace:TwitterTracks.Setup"
+    xmlns:CommonUI.Controls="clr-namespace:TwitterTracks.Common.UI.Controls;assembly=TwitterTracks.Common"
     xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
     xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
     Title="MainWindow"
@@ -22,17 +23,17 @@
         </TabControl.Resources>
         <!-- Connection -->
         <TabItem Header="Connection">
-            <l:BusyOverlay ShowOverlay="{Binding Path=IsBusy}">
+            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=IsBusy}">
                 <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
                     <StackPanel>
                         <TextBlock TextWrapping="Wrap">
                             Enter your MySQL User credentials. The setup program cannot check whether you have sufficient rights beforehand. It will fail when you try to perform actions you have no permission for.
                         </TextBlock>
-                        <l:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
+                        <CommonUI.Controls:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
                         <TextBox Grid.Column="0" IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Text="{Binding Path=ConnectionVM.OpenConnectionVM.DatabaseHost, UpdateSourceTrigger=PropertyChanged}" o:DefaultSelectedBehavior.IsDefaultSelected="True"/>
-                        <l:HelpLabel MainContent="User Name:" HelpContent="The MySQL User Name which us used for database authentication."/>
+                        <CommonUI.Controls:HelpLabel MainContent="User Name:" HelpContent="The MySQL User Name which us used for database authentication."/>
                         <TextBox Grid.Column="0" IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Text="{Binding Path=ConnectionVM.OpenConnectionVM.UserName, UpdateSourceTrigger=PropertyChanged}"/>
-                        <l:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
+                        <CommonUI.Controls:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
                         <o:BindablePasswordBox IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Password="{Binding Path=ConnectionVM.OpenConnectionVM.Password}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -44,18 +45,18 @@
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
-            </l:BusyOverlay>
+            </CommonUI.Controls:BusyOverlay>
         </TabItem>
         <!-- Root -->
         <TabItem Header="Root">
-            <l:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
+            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
                 <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
                     <StackPanel>
                         <!-- Databases -->
                         <GroupBox Header="Databases">
                             <StackPanel>
-                                <l:HelpLabel ButtonContent=" ! ">
-                                    <l:HelpLabel.HelpContent>
+                                <CommonUI.Controls:HelpLabel ButtonContent=" ! ">
+                                    <CommonUI.Controls:HelpLabel.HelpContent>
                                         <TextBlock>
                                             This is a list of all databases you have access to.<LineBreak/>
                                             This could also include databases which do not contain Tracks!<LineBreak/>
@@ -63,9 +64,9 @@
                                             if you are not careful, which could make a lot of people very angry.<LineBreak/>
                                             <Run FontSize="16" Foreground="Red">Act responsibly!</Run>
                                         </TextBlock>
-                                    </l:HelpLabel.HelpContent>
+                                    </CommonUI.Controls:HelpLabel.HelpContent>
                                     <Button HorizontalAlignment="Left" Padding="4" Click="RefreshDatabaseList">Refresh</Button>
-                                </l:HelpLabel>
+                                </CommonUI.Controls:HelpLabel>
                                 <o:AutoScrollingListBox
                                     MaxHeight="150"
                                     ScrollMode="ScrollIntoView"
@@ -94,20 +95,20 @@
                         <GroupBox Header="Create Database">
                             <StackPanel>
                                 <!---->
-                                <l:HelpLabel MainContent="Database Name:" HelpContent="The name of the new database. Even though pretty much all kinds of special characters are allowed you should stick to basic letters and numbers and avoid spaces."/>
-                                <l:HelpLabel HelpContent="This name is not valid." HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid}">
-                                    <l:HelpLabel.MainContent>
+                                <CommonUI.Controls:HelpLabel MainContent="Database Name:" HelpContent="The name of the new database. Even though pretty much all kinds of special characters are allowed you should stick to basic letters and numbers and avoid spaces."/>
+                                <CommonUI.Controls:HelpLabel HelpContent="This name is not valid." HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid}">
+                                    <CommonUI.Controls:HelpLabel.MainContent>
                                         <TextBox Text="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseName, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
-                                    </l:HelpLabel.MainContent>
-                                </l:HelpLabel>
+                                    </CommonUI.Controls:HelpLabel.MainContent>
+                                </CommonUI.Controls:HelpLabel>
                                 <!---->
-                                <l:HelpLabel MainContent="Administrator Password:" HelpContent="The MySQL Password which will be used by the new Administrator for database authentication."/>
+                                <CommonUI.Controls:HelpLabel MainContent="Administrator Password:" HelpContent="The MySQL Password which will be used by the new Administrator for database authentication."/>
                                 <o:BindablePasswordBox Password="{Binding Path=RootToolsVM.CreateDatabaseVM.Password}"/>
                                 <!---->
-                                <l:HelpLabel MainContent="Administrator Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Administrator User's password again."/>
-                                <l:HelpLabel HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
+                                <CommonUI.Controls:HelpLabel MainContent="Administrator Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Administrator User's password again."/>
+                                <CommonUI.Controls:HelpLabel HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
                                     <o:BindablePasswordBox Password="{Binding Path=RootToolsVM.CreateDatabaseVM.RetypePassword}"/>
-                                </l:HelpLabel>
+                                </CommonUI.Controls:HelpLabel>
                                 <!---->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -121,17 +122,17 @@
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
-            </l:BusyOverlay>
+            </CommonUI.Controls:BusyOverlay>
         </TabItem>
         <!-- Administrator -->
         <TabItem Header="Administrator">
-            <l:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
+            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
                 <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
                     <StackPanel>
                         <!-- Select Database -->
                         <GroupBox Header="Select a database">
                             <StackPanel>
-                                <l:HelpLabel MainContent="Database Name:" HelpContent="The name of the database you are the Administrator of."/>
+                                <CommonUI.Controls:HelpLabel MainContent="Database Name:" HelpContent="The name of the database you are the Administrator of."/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -143,7 +144,7 @@
                                 <TextBlock Visibility="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessageBackground}"/>
                             </StackPanel>
                         </GroupBox>
-                        <l:BusyOverlay OverlayText="Please select a database first." ShowOverlay="{Binding Path=AdministratorToolsVM.ShowInnerBusyOverlay}">
+                        <CommonUI.Controls:BusyOverlay OverlayText="Please select a database first." ShowOverlay="{Binding Path=AdministratorToolsVM.ShowInnerBusyOverlay}">
                             <StackPanel>
                                 <!-- Tracks -->
                                 <GroupBox Header="Tracks">
@@ -183,16 +184,16 @@
                                 <GroupBox Header="Create Track">
                                     <StackPanel>
                                         <!---->
-                                        <!--<l:HelpLabel MainContent="Track Name:" HelpContent="The name of the new Track."/>
+                                        <!--<CommonUI.Controls:HelpLabel MainContent="Track Name:" HelpContent="The name of the new Track."/>
                                         <TextBox Text="{Binding Path=AdministratorToolsVM.CreateTrackVM.TrackName, UpdateSourceTrigger=PropertyChanged}"/>-->
                                         <!---->
-                                        <l:HelpLabel MainContent="Researcher Password:" HelpContent="The MySQL Password which will be used by the new Researcher for database authentication."/>
+                                        <CommonUI.Controls:HelpLabel MainContent="Researcher Password:" HelpContent="The MySQL Password which will be used by the new Researcher for database authentication."/>
                                         <o:BindablePasswordBox Password="{Binding Path=AdministratorToolsVM.CreateTrackVM.Password}"/>
                                         <!---->
-                                        <l:HelpLabel MainContent="Researcher Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Researcher User's password again."/>
-                                        <l:HelpLabel HelpIsVisible="{Binding Path=AdministratorToolsVM.CreateTrackVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
+                                        <CommonUI.Controls:HelpLabel MainContent="Researcher Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Researcher User's password again."/>
+                                        <CommonUI.Controls:HelpLabel HelpIsVisible="{Binding Path=AdministratorToolsVM.CreateTrackVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
                                             <o:BindablePasswordBox Password="{Binding Path=AdministratorToolsVM.CreateTrackVM.RetypePassword}"/>
-                                        </l:HelpLabel>
+                                        </CommonUI.Controls:HelpLabel>
                                         <!---->
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -205,20 +206,20 @@
                                     </StackPanel>
                                 </GroupBox>
                             </StackPanel>
-                        </l:BusyOverlay>
+                        </CommonUI.Controls:BusyOverlay>
                     </StackPanel>
                 </ScrollViewer>
-            </l:BusyOverlay>
+            </CommonUI.Controls:BusyOverlay>
         </TabItem>
         <!-- Researcher -->
         <TabItem Header="Researcher">
-            <l:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
+            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
                 <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
                     <StackPanel>
                         
                     </StackPanel>
                 </ScrollViewer>
-            </l:BusyOverlay>
+            </CommonUI.Controls:BusyOverlay>
         </TabItem>
     </TabControl>
 </Window>

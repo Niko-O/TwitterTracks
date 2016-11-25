@@ -60,6 +60,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="TwitterTracks.Common">
+      <HintPath>..\..\TwitterTracks.Common\TwitterTracks.Common\bin\Release\TwitterTracks.Common.dll</HintPath>
+    </Reference>
     <Reference Include="TwitterTracks.DatabaseAccess">
       <HintPath>..\..\TwitterTracks.DatabaseAccess\TwitterTracks.DatabaseAccess\bin\Release\TwitterTracks.DatabaseAccess.dll</HintPath>
     </Reference>
@@ -74,15 +77,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="MainWindow\AdministratorTools\MainWindowViewModel_AdministratorTools_Tracks.vb" />
-    <Compile Include="StatusMessageViewModel.vb" />
-    <Page Include="BusyOverlay.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="HelpLabel.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -91,17 +85,10 @@
       <DependentUpon>Application.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BusyOverlay.xaml.vb">
-      <DependentUpon>BusyOverlay.xaml</DependentUpon>
-    </Compile>
     <Compile Include="DebugConstants.vb" />
-    <Compile Include="HelpLabel.xaml.vb">
-      <DependentUpon>HelpLabel.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MainWindow\AdministratorTools\MainWindowViewModel_AdministratorTools_CreateTrack.vb" />
     <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection_OpenConnection.vb" />
     <Compile Include="MainWindow\RootTools\MainWindowViewModel_RootTools_Databases.vb" />
-    <Compile Include="StatusMessageKindType.vb" />
     <Compile Include="MainWindow\MainWindowViewModel.vb" />
     <Compile Include="MainWindow\MainWindow.xaml.vb">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -129,6 +116,7 @@
     <Import Include="OnUtils.Extensions" />
     <Import Include="OnUtils.Streams" />
     <Import Include="OnUtils.Wpf" />
+    <Import Include="TwitterTracks.Common.UI" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindow\AdministratorTools\MainWindowViewModel_AdministratorTools.vb" />

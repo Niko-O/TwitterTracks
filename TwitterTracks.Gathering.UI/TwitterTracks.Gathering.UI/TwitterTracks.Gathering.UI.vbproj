@@ -57,6 +57,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="TwitterTracks.Common">
+      <HintPath>..\..\TwitterTracks.Common\TwitterTracks.Common\bin\Release\TwitterTracks.Common.dll</HintPath>
+    </Reference>
     <Reference Include="TwitterTracks.DatabaseAccess">
       <HintPath>..\..\TwitterTracks.DatabaseAccess\TwitterTracks.DatabaseAccess\bin\Release\TwitterTracks.DatabaseAccess.dll</HintPath>
     </Reference>
