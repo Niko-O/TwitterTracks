@@ -48,6 +48,10 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Nicht meine\MySqlConnectorNet\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -76,7 +80,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -84,8 +88,12 @@
       <DependentUpon>Application.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindowViewModel.vb" />
-    <Compile Include="MainWindow.xaml.vb">
+    <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection_DatabaseConnection.vb" />
+    <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection_TwitterConnection.vb" />
+    <Compile Include="MainWindow\MainWindowViewModel.vb" />
+    <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection.vb" />
+    <Compile Include="MainWindow\TweetData\MainWindowViewModel_TweetData.vb" />
+    <Compile Include="MainWindow\MainWindow.xaml.vb">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -113,6 +121,7 @@
     <Import Include="OnUtils.Wpf" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainWindow\TweetData\TweetMediaToAdd.vb" />
     <Compile Include="My Project\AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>

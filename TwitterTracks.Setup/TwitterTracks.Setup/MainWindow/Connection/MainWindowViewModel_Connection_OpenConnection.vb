@@ -1,7 +1,7 @@
 ﻿Public Class MainWindowViewModel_Connection_OpenConnection
     Inherits ViewModelBase
 
-    Dim _DatabaseHost As String = DebugConstants.DatabaseHost
+    Dim _DatabaseHost As String = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseHost
     Public Property DatabaseHost As String
         <DebuggerStepThrough()>
         Get
@@ -12,7 +12,7 @@
         End Set
     End Property
 
-    Dim _UserName As String = DebugConstants.DatabaseUserName
+    Dim _UserName As String = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseUserName
     Public Property UserName As String
         <DebuggerStepThrough()>
         Get
@@ -23,7 +23,7 @@
         End Set
     End Property
 
-    Dim _Password As String = DebugConstants.DatabasePassword
+    Dim _Password As String = TwitterTracks.Common.UI.Resources.DebugConstants.DatabasePassword
     Public Property Password As String
         <DebuggerStepThrough()>
         Get

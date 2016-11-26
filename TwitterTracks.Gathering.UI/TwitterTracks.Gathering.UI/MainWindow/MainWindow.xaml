@@ -1,0 +1,86 @@
+﻿<Window
+    x:Class="MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l="clr-namespace:TwitterTracks.Gathering.UI"
+    xmlns:CommonUI.Controls="clr-namespace:TwitterTracks.Common.UI.Controls;assembly=TwitterTracks.Common"
+    xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
+    xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
+    Title="MainWindow"
+    Width="551"
+    Height="542"
+>
+    <Window.DataContext>
+        <l:MainWindowViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <TabControl>
+            <TabItem Header="Connection">
+                <StackPanel>
+                    <GroupBox Header="Database">
+                        <StackPanel>
+                            <CommonUI.Controls:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
+                            <TextBox Grid.Column="0" Text="{Binding Path=ConnectionVM.DatabaseConnectionVM.DatabaseHost, UpdateSourceTrigger=PropertyChanged}" o:DefaultSelectedBehavior.IsDefaultSelected="True"/>
+                            <CommonUI.Controls:HelpLabel MainContent="Researcher ID:" HelpContent="The ID of the Researcher which us used for database authentication."/>
+                            <CommonUI.Controls:HelpLabel HelpContent="The entered ID cannot possibly be valid as it must be a positive integer." HelpIsVisible="{Binding Path=ConnectionVM.DatabaseConnectionVM.ResearcherIdIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
+                                <TextBox Grid.Column="0" Text="{Binding Path=ConnectionVM.DatabaseConnectionVM.ResearcherIdText, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ConnectionVM.DatabaseConnectionVM.ResearcherIdIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                            </CommonUI.Controls:HelpLabel>
+                            <CommonUI.Controls:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
+                            <o:BindablePasswordBox Password="{Binding Path=ConnectionVM.DatabaseConnectionVM.Password}"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Twitter">
+                        <StackPanel>
+                            <CommonUI.Controls:HelpLabel MainContent="Twitter Authentication Token:" HelpContent="The authentication token data used to connect to the Twitter API."/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Column="0" Grid.Row="0">Consumer Key:</TextBlock>
+                                <TextBlock Grid.Column="0" Grid.Row="1">Consumer Secret:</TextBlock>
+                                <TextBlock Grid.Column="0" Grid.Row="2">Access Token:</TextBlock>
+                                <TextBlock Grid.Column="0" Grid.Row="3">Access Token Secret:</TextBlock>
+                                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=ConnectionVM.TwitterConnectionVM.ConsumerKey, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ConnectionVM.TwitterConnectionVM.ConsumerKeyIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Path=ConnectionVM.TwitterConnectionVM.ConsumerSecret, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ConnectionVM.TwitterConnectionVM.ConsumerSecretIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Path=ConnectionVM.TwitterConnectionVM.AccessToken, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ConnectionVM.TwitterConnectionVM.AccessTokenIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding Path=ConnectionVM.TwitterConnectionVM.AccessTokenSecret, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ConnectionVM.TwitterConnectionVM.AccessTokenSecretIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Tweet">
+                <StackPanel>
+                    <CommonUI.Controls:HelpLabel MainContent="Tweet Text:" HelpContent="The main text of the Tweet. Can contain @Mentions, #Hashtags, https://links and any other normal text, up to 140 characters. The counting rules are funky and not straight forward."/>
+                    <TextBox TextWrapping="Wrap" AcceptsReturn="True" FontSize="16" MinHeight="50" MaxHeight="200" Text="{Binding Path=TweetDataVM.TweetText}"/>
+                    <CommonUI.Controls:HelpLabel MainContent="Media:" HelpContent="Files which will be attached to the tweet. Can be 1 to 4 static images, 1 gif or 1 video. Please consult the Twitter documentation for exact details on limitations."/>
+                    <Button HorizontalAlignment="Left" Padding="10,5" Click="AddMediaToAdd">Add</Button>
+                    <ListBox
+                        ItemsSource="{Binding Path=TweetDataVM.MediasToAdd}"
+                    >
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Path=FilePath}" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1" Command="{Binding Path=RemoveCommand}">Remove</Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock TextWrapping="Wrap" Background="{StaticResource ResourceKey=ErrorBrush}" Visibility="{Binding Path=TweetDataVM.TooManyMediasToAdd, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}">Adding up to 4 files is only allowed for static images. Adding more than 4 files is definitely not allowed by twitter as of this writing. You can continue, but the upload may fail.</TextBlock>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

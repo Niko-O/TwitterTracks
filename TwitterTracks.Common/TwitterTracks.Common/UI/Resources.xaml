@@ -5,6 +5,7 @@
     xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
     xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
 >
+    <SolidColorBrush x:Key="ErrorBrush" Color="#ffaaaa"/>
     <c:BooleanToBrushConverter x:Key="ErrorBrushConverter" TrueBrush="White" FalseBrush="#ffaaaa"/>
     <c:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
     <c:ObjectToVisibilityConverter x:Key="ReverseObjectToVisibilityConverter" Invert="True"/>
