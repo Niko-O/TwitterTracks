@@ -118,8 +118,18 @@ Namespace OpenTrackDialog
         End Sub
 
         Private Sub BeginTwitterConnectionGoForward()
-            ViewModel.StatusMessageVM.ClearStatus()
-            ViewModel.CurrentTabIndex = DialogTabIndex.Summary
+            Dim Token As New TwitterTracks.TweetinviInterop.AuthenticationToken(ViewModel.TwitterConnectionVM.ConsumerKey, ViewModel.TwitterConnectionVM.ConsumerSecret, ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
+            Tasks.StartTask(Sub()
+                                Dim ValidationResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.ValidateAuthenticationToken(Token)
+                                If ValidationResult.IsValid Then
+                                    Tasks.FinishTask(Sub()
+                                                         ViewModel.StatusMessageVM.ClearStatus()
+                                                         ViewModel.CurrentTabIndex = DialogTabIndex.Summary
+                                                     End Sub)
+                                Else
+                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus(ValidationResult.ErrorMessage, Common.UI.StatusMessageKindType.Error))
+                                End If
+                            End Sub)
         End Sub
 
     End Class
