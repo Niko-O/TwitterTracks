@@ -67,6 +67,8 @@
     <Import Include="OnUtils.Streams" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticationToken.vb" />
+    <Compile Include="ITwitterService.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -77,6 +79,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ServiceProvider.vb" />
+    <Compile Include="ValidationResult.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

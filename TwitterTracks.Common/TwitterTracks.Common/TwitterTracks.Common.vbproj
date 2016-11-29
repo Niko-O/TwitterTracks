@@ -58,6 +58,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="TwitterTracks.TweetinviInterop">
+      <HintPath>..\..\TwitterTracks.TweetinviInterop\TwitterTracks.TweetinviInterop\bin\Release\TwitterTracks.TweetinviInterop.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

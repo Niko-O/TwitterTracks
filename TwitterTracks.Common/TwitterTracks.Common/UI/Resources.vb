@@ -23,10 +23,7 @@ Namespace UI
             Public Const TweetText As String = "This is a Test #TestIt #MoreTests"
 
             Class Twitter
-                Public Shared ReadOnly TwitterConsumerKey As String = ""
-                Public Shared ReadOnly TwitterConsumerSecret As String = ""
-                Public Shared ReadOnly TwitterAccessToken As String = ""
-                Public Shared ReadOnly TwitterAccessTokenSecret As String = ""
+                Public Shared ReadOnly AccessToken As TwitterTracks.TweetinviInterop.AuthenticationToken
                 Shared Sub New()
                     'Case 1: When the code is executed in the XAML designer this is the absolute directory path of the solution directory of the project which calls this code (e.g. "C:\Blah\Solution").
                     'Case 2: But when the code is executed in the debugger or by running an exe directly, this is the working directory of the exe (e.g. "C:\Blah\Solution\Project\bin\Debug").
@@ -46,10 +43,7 @@ Namespace UI
                     End If
                     Dim Lines = System.IO.File.ReadAllLines(FilePath, System.Text.Encoding.UTF8)
                     'Lines(0) leaves room for a comment.
-                    TwitterConsumerKey = Lines(1)
-                    TwitterConsumerSecret = Lines(2)
-                    TwitterAccessToken = Lines(3)
-                    TwitterAccessTokenSecret = Lines(4)
+                    AccessToken = New TwitterTracks.TweetinviInterop.AuthenticationToken(Lines(1), Lines(2), Lines(3), Lines(4))
                 End Sub
             End Class
 
@@ -69,10 +63,7 @@ Namespace UI
             Public Const TweetText As String = ""
 
             Class Twitter
-                Public Const TwitterConsumerKey As String = ""
-                Public Const TwitterConsumerSecret As String = ""
-                Public Const TwitterAccessToken As String = ""
-                Public Const TwitterAccessTokenSecret As String = ""
+                Public Shared ReadOnly AccessToken As New TwitterTracks.TweetinviInterop.AuthenticationToken("", "", "", "")
             End Class
 
 #End If
