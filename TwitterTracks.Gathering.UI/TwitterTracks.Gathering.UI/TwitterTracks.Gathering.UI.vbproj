@@ -80,6 +80,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DebugTweetinviInterop\DebugService.vb" />
+    <Compile Include="OpenTrackDialog\DialogTabIndex.vb" />
+    <Compile Include="OpenTrackDialog\DialogTabIndexToIntConverter.vb" />
+    <Compile Include="OpenTrackDialog\OpenTrackDialog.xaml.vb">
+      <DependentUpon>OpenTrackDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel.vb" />
     <Page Include="MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -88,15 +95,19 @@
       <DependentUpon>Application.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection_DatabaseConnection.vb" />
-    <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection_TwitterConnection.vb" />
+    <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_DatabaseConnection.vb" />
+    <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_Summary.vb" />
+    <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_TwitterConnection.vb" />
     <Compile Include="MainWindow\MainWindowViewModel.vb" />
-    <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection.vb" />
-    <Compile Include="MainWindow\TweetData\MainWindowViewModel_TweetData.vb" />
+    <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_TweetData.vb" />
     <Compile Include="MainWindow\MainWindow.xaml.vb">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="OpenTrackDialog\OpenTrackDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System.Linq" />
@@ -121,7 +132,7 @@
     <Import Include="OnUtils.Wpf" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow\TweetData\TweetMediaToAdd.vb" />
+    <Compile Include="OpenTrackDialog\TweetMediaToAdd.vb" />
     <Compile Include="My Project\AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>

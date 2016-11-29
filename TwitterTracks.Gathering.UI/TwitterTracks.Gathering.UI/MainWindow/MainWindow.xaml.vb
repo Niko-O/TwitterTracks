@@ -7,13 +7,15 @@
         ViewModel = DirectCast(Me.DataContext, MainWindowViewModel)
     End Sub
 
-    Private Sub AddMediaToAdd(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        Dim Dlg As New Microsoft.Win32.OpenFileDialog With {.CheckFileExists = True, .CheckPathExists = True, .Multiselect = True, .RestoreDirectory = True, .Title = "Select a file to attach to the Tweet"}
-        If Dlg.ShowDialog Then
-            For Each i In Dlg.FileNames
-                ViewModel.TweetDataVM.MediasToAdd.Add(New TweetMediaToAdd(i))
-            Next
-        End If
+    Protected Overrides Sub OnContentRendered(e As System.EventArgs)
+        MyBase.OnContentRendered(e)
+        Dim Dlg As New OpenTrackDialog.OpenTrackDialog
+        Dlg.ShowDialog()
+        Me.Close()
+    End Sub
+
+    Private Sub TestStuff(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        
     End Sub
 
 End Class

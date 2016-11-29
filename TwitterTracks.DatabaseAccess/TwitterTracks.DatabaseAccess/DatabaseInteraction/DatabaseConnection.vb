@@ -35,6 +35,9 @@ Public Class DatabaseConnection
             _Connection.Dispose()
         End If
         Dim NewConnection = New Sql.MySqlConnection(ConnectionStringSource.GetConnectionString)
+        If DatabaseBase.DebugPrintQueries Then
+            Helpers.DebugPrint("Opening Connection: {0}", NewConnection.ConnectionString)
+        End If
         NewConnection.Open()
         _Connection = NewConnection
     End Sub

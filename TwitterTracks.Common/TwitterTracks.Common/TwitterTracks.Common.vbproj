@@ -46,6 +46,9 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data">
+      <HintPath>..\..\..\..\..\Nicht meine\MySqlConnectorNet\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -61,9 +64,18 @@
     <Reference Include="C:\Projects\VB\_Libs\OnUtils\OnUtils\bin\Release\OnUtils.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UI\Controls\IfContent.xaml.vb">
+      <DependentUpon>IfContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Resources.vb" />
     <Compile Include="UI\StatusMessageKindType.vb" />
     <Compile Include="UI\StatusMessageViewModel.vb" />
+    <Compile Include="UI\Tasks\UnhandledTaskException.vb" />
+    <Compile Include="UI\Tasks\WindowTaskManager.vb" />
+    <Page Include="UI\Controls\IfContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Resources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

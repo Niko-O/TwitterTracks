@@ -1,4 +1,5 @@
-﻿
+﻿Imports System.Windows.Controls
+
 Namespace UI.Controls
 
     <System.Windows.Markup.ContentProperty("MainContent")>

@@ -1,7 +1,7 @@
 ﻿Public Class MainWindowViewModel_RootTools_CreateDatabase
     Inherits ViewModelBase
 
-    Dim _DatabaseName As String = DebugConstants.DatabaseName
+    Dim _DatabaseName As String = TwitterTracks.Common.UI.Resources.DebugConstants.TrackDatabaseName
     Public Property DatabaseName As String
         <DebuggerStepThrough()>
         Get

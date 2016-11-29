@@ -72,6 +72,9 @@
   <ItemGroup>
     <Compile Include="DatabaseInteraction\CommandParameter.vb" />
     <Compile Include="ConnectionStrings\MySqlConnectionStringBuilderSource.vb" />
+    <Compile Include="DatabaseInteraction\DatabaseBase.vb" />
+    <Compile Include="DatabaseInteraction\PublicDatabaseAccessor.vb" />
+    <Compile Include="DatabaseInteraction\ResearcherDatabase.vb" />
     <Compile Include="Extensions.vb" />
     <Compile Include="Identifiers\EscapedIdentifier.vb" />
     <Compile Include="Identifiers\SqlQueryString.vb" />

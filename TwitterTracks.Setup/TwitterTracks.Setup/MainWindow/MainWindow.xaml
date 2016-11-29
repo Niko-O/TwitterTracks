@@ -7,8 +7,8 @@
     xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
     xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
     Title="MainWindow"
-    Width="399"
-    Height="530"
+    Width="449"
+    Height="570"
 >
     <Window.DataContext>
         <l:MainWindowViewModel/>
@@ -29,19 +29,21 @@
                         <TextBlock TextWrapping="Wrap">
                             Enter your MySQL User credentials. The setup program cannot check whether you have sufficient rights beforehand. It will fail when you try to perform actions you have no permission for.
                         </TextBlock>
-                        <CommonUI.Controls:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
-                        <TextBox Grid.Column="0" IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Text="{Binding Path=ConnectionVM.OpenConnectionVM.DatabaseHost, UpdateSourceTrigger=PropertyChanged}" o:DefaultSelectedBehavior.IsDefaultSelected="True"/>
-                        <CommonUI.Controls:HelpLabel MainContent="User Name:" HelpContent="The MySQL User Name which us used for database authentication."/>
-                        <TextBox Grid.Column="0" IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Text="{Binding Path=ConnectionVM.OpenConnectionVM.UserName, UpdateSourceTrigger=PropertyChanged}"/>
-                        <CommonUI.Controls:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
-                        <o:BindablePasswordBox IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Password="{Binding Path=ConnectionVM.OpenConnectionVM.Password}"/>
+                        <StackPanel IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
+                            <CommonUI.Controls:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
+                            <TextBox Grid.Column="0" Text="{Binding Path=ConnectionVM.OpenConnectionVM.DatabaseHost, UpdateSourceTrigger=PropertyChanged}" o:DefaultSelectedBehavior.IsDefaultSelected="True"/>
+                            <CommonUI.Controls:HelpLabel MainContent="User Name:" HelpContent="The MySQL User Name which us used for database authentication."/>
+                            <TextBox Grid.Column="0" Text="{Binding Path=ConnectionVM.OpenConnectionVM.UserName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <CommonUI.Controls:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
+                            <o:BindablePasswordBox Password="{Binding Path=ConnectionVM.OpenConnectionVM.Password}"/>
+                        </StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" Click="ConnectToDatabaseOrCloseConnection" Content="{Binding Path=ConnectionVM.OpenConnectionVM.ToggleConnectionButtonText}"/>
-                            <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Path=ConnectionVM.OpenConnectionVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=ConnectionVM.OpenConnectionVM.StatusMessageVM.StatusMessageBackground}"/>
+                            <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=ConnectionVM.OpenConnectionVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=ConnectionVM.OpenConnectionVM.StatusMessageVM.StatusMessageBackground}"/>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
@@ -49,8 +51,8 @@
         </TabItem>
         <!-- Root -->
         <TabItem Header="Root">
-            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
-                <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
+            <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">    
+                <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
                     <StackPanel>
                         <!-- Databases -->
                         <GroupBox Header="Databases">
@@ -88,7 +90,7 @@
                                         <Button Padding="15,10" Click="DeleteSelectedDatabase">Delete</Button>
                                     </StackPanel>
                                 </GroupBox>
-                                <TextBlock Visibility="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessageBackground}"/>
+                                <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessageVisibility}" Text="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessageBackground}"/>
                             </StackPanel>
                         </GroupBox>
                         <!-- Create Database -->
@@ -116,18 +118,18 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=RootToolsVM.CreateDatabaseVM.CanCreateDatabase}" Click="CreateDatabase">Create database</Button>
-                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessageBackground}"/>
+                                    <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessageBackground}"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
-                </ScrollViewer>
-            </CommonUI.Controls:BusyOverlay>
+                </CommonUI.Controls:BusyOverlay>
+            </ScrollViewer>
         </TabItem>
         <!-- Administrator -->
         <TabItem Header="Administrator">
-            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
-                <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
+            <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
+                <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
                     <StackPanel>
                         <!-- Select Database -->
                         <GroupBox Header="Select a database">
@@ -141,7 +143,7 @@
                                     <TextBox Grid.Column="0" IsEnabled="{Binding Path=AdministratorToolsVM.DatabaseIsSelected, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Text="{Binding Path=AdministratorToolsVM.DatabaseName, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Button Grid.Column="1" Content="{Binding Path=AdministratorToolsVM.ToggleDatabaseSelectionButtonText}" Click="ToggleSelectedAdministratorDatabase"/>
                                 </Grid>
-                                <TextBlock Visibility="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessageBackground}"/>
+                                <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessageBackground}"/>
                             </StackPanel>
                         </GroupBox>
                         <CommonUI.Controls:BusyOverlay OverlayText="Please select a database first." ShowOverlay="{Binding Path=AdministratorToolsVM.ShowInnerBusyOverlay}">
@@ -177,7 +179,7 @@
                                                 <Button Padding="15,10" Click="DeleteSelectedTrack">Delete</Button>
                                             </StackPanel>
                                         </GroupBox>
-                                        <TextBlock Visibility="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessageBackground}"/>
+                                        <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessageBackground}"/>
                                     </StackPanel>
                                 </GroupBox>
                                 <!-- Create Track -->
@@ -201,25 +203,25 @@
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=AdministratorToolsVM.CreateTrackVM.CanCreateTrack}" Click="CreateTrack">Create Track</Button>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessageBackground}"/>
+                                            <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessageBackground}"/>
                                         </Grid>
                                     </StackPanel>
                                 </GroupBox>
                             </StackPanel>
                         </CommonUI.Controls:BusyOverlay>
                     </StackPanel>
-                </ScrollViewer>
-            </CommonUI.Controls:BusyOverlay>
+                </CommonUI.Controls:BusyOverlay>
+            </ScrollViewer>
         </TabItem>
         <!-- Researcher -->
         <TabItem Header="Researcher">
-            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
-                <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
+            <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
+                <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
                     <StackPanel>
-                        
+
                     </StackPanel>
-                </ScrollViewer>
-            </CommonUI.Controls:BusyOverlay>
+                </CommonUI.Controls:BusyOverlay>
+            </ScrollViewer>
         </TabItem>
     </TabControl>
 </Window>

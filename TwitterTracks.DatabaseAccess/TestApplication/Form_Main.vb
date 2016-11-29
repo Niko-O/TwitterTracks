@@ -1,49 +1,90 @@
-﻿Public Class Form_Main
+﻿
+Imports TwitterTracks.DatabaseAccess
+
+Public Class Form_Main
 
     Public Sub New()
         InitializeComponent()
 
     End Sub
 
+    Private Sub Foo()
+        Using Connection = New MySql.Data.MySqlClient.MySqlConnection(New MySql.Data.MySqlClient.MySqlConnectionStringBuilder() With { _
+            .Server = "localhost", _
+            .CharacterSet = "utf8", _
+            .SslMode = MySql.Data.MySqlClient.MySqlSslMode.Preferred, _
+            .Password = "", _
+            .UserID = "root"}.ConnectionString)
+
+            Connection.Open()
+
+            Using Command = Connection.CreateCommand
+                Command.CommandText = "CREATE USER `Nik``o`@`localhost` IDENTIFIED BY @Password;"
+                Command.Prepare()
+                'Command.Parameters.AddWithValue("@Name", "Niko")
+                Command.Parameters.AddWithValue("@Password", "Geheim")
+                Command.ExecuteNonQuery()
+            End Using
+
+        End Using
+        Dim bp = 0
+    End Sub
+
     Protected Overrides Sub OnShown(e As EventArgs)
         MyBase.OnShown(e)
 
-        Debug.Print("")
-        Debug.Print("")
-        Debug.Print("New Session -----------------------------------------------")
+        Helpers.DebugPrint("")
+        Helpers.DebugPrint("")
+        Helpers.DebugPrint("New Session -----------------------------------------------")
 
-        Debug.Print("Opening Connection")
-        Dim Connection As New TwitterTracks.DatabaseAccess.DatabaseConnection(New DebugConnectionStringSource)
+        DatabaseBase.DebugPrintQueries = True
+        Foo()
+        Helpers.DebugPrint("Opening Connection")
+        Dim Connection = DatabaseConnection.PlainConnection("localhost", "root", "")
         Connection.Open()
 
-        Debug.Print("Getting Tables")
-        Dim Database As New TwitterTracks.DatabaseAccess.Database(Connection)
-        Dim AllDatabaseNames = Database.GetAllDatabaseNames.ToList
+        Dim Database As New Database(Connection)
+        Dim Accessor As New PublicDatabaseAccessor(Database)
+        Dim ExecuteNonQuery = Sub(QueryText As SqlQueryString, Parameters As CommandParameter())
+                                  Using Command = Accessor.PrepareCommand(QueryText, Parameters)
+                                      Command.ExecuteNonQuery()
+                                  End Using
+                              End Sub
 
-        Dim TrackDatabase As TwitterTracks.DatabaseAccess.TrackDatabase
-        Dim TestDatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier("Bo'b`sT''ra``cks")
-        If AllDatabaseNames.Contains(TestDatabaseName) Then
-            Debug.Print("Table exists")
-            TrackDatabase = New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, TestDatabaseName)
-        Else
-            Debug.Print("Creating Table")
-            TrackDatabase = Database.CreateTrackDatabase(TestDatabaseName, "").TrackDatabase
-        End If
+        'Dim DatabaseName As New VerbatimIdentifier("BobsDatabase")
+        'Dim AdministratorName As String = "Sepp" 'Relations.UserNames.AdministratorUserName(DatabaseName)
+        'Dim AdministratorHost As String = "localhost" 'Relations.UserNames.AdministratorUserName(DatabaseName)
+        'Dim AdministratorPassword As String = "asdf"
+        'Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
 
-        Debug.Print("Deleting Table")
-        TrackDatabase.DeleteDatabase()
+        'ExecuteNonQuery(PublicDatabaseAccessor.FormatSqlIdentifiers("CREATE DATABASE {0}", DatabaseName.Escape), {})
 
-        Debug.Print("Creating Researcher Objects")
-        Dim ResearcherData = TrackDatabase.CreateTrack("Pas's`wo''r``d2")
+        'ExecuteNonQuery(New SqlQueryString( _
+        '    "CREATE TABLE " & TrackTableIdentifier.EscapedText & " ( " & _
+        '    "  `Id` INT NOT NULL AUTO_INCREMENT,                     " & _
+        '    "  PRIMARY KEY (`Id`))                                   " & _
+        '    "ENGINE = InnoDB;                                        "), {})
 
-        Debug.Print("Getting all Tweets")
-        Dim Tracks = From Track In TrackDatabase.GetAllTracksWithoutMetadata.ToList
-                     Let Tweets = TrackDatabase.GetAllTweets(Track.EntityId).ToList
+        'Dim bp = 0
 
-        Debug.Print("Getting new Tweets")
-        Dim NewTweets = TrackDatabase.GetTweetsSinceEntityId(Tracks(0).Track.EntityId, Tracks(0).Tweets.Last.EntityId)
 
-        Dim bp = 0
+        'ExecuteNonQuery(PublicDatabaseAccessor.FormatSqlIdentifiers("CREATE USER 'Sepp'@'localhost' IDENTIFIED BY @AdministratorPassword;"), _
+        '                    {New CommandParameter("@AdministratorName", AdministratorName), _
+        '                     New CommandParameter("@AdministratorHost", AdministratorHost), _
+        '                     New CommandParameter("@AdministratorPassword", AdministratorPassword)})
+
+
+        'ExecuteNonQuery(PublicDatabaseAccessor.FormatSqlIdentifiers("GRANT ALL ON `*`.`*` TO @AdministratorName;"), _
+        '                    {New CommandParameter("@AdministratorName", AdministratorName)})
+
+        'ExecuteNonQuery(PublicDatabaseAccessor.FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO @AdministratorName;", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable)), _
+        '                {New CommandParameter("@AdministratorName", AdministratorName)})
+        'ExecuteNonQuery(PublicDatabaseAccessor.FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @AdministratorName;", TrackTableIdentifier), _
+        '                {New CommandParameter("@AdministratorName", AdministratorName)})
+        'ExecuteNonQuery(PublicDatabaseAccessor.FormatSqlIdentifiers("FLUSH PRIVILEGES;"), {})
+
     End Sub
+
+
 
 End Class

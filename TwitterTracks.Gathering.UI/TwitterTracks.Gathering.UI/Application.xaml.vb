@@ -6,7 +6,7 @@
     Private Sub Application_Startup(sender As Object, e As System.Windows.StartupEventArgs) Handles Me.Startup
         Debug.Print("")
         With DateTime.Now
-            Debug.Print("------------------------- New Instance  {0}:{1}:{2} ----------------------------", .Hour, .Minute, .Second)
+            Helpers.DebugPrint("------------------------- New Instance  {0}:{1}:{2};   GUI Thread ID: {3} ----------------------------", .Hour, .Minute, .Second, System.Threading.Thread.CurrentThread.ManagedThreadId)
         End With
     End Sub
 

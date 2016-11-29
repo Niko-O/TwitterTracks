@@ -35,9 +35,22 @@ Namespace UI
                         Return Brushes.White
                     Case StatusMessageKindType.Error
                         Return Resources.ErrorBackgroundBrush
+                    Case StatusMessageKindType.Warning
+                        Return Resources.WarningBackgroundBrush
                     Case Else
                         Throw New NopeException
                 End Select
+            End Get
+        End Property
+
+        <Dependency("StatusMessage")>
+        Public ReadOnly Property StatusMessageVisibility As Visibility
+            Get
+                If String.IsNullOrEmpty(StatusMessage) Then
+                    Return Visibility.Collapsed
+                Else
+                    Return Visibility.Visible
+                End If
             End Get
         End Property
 

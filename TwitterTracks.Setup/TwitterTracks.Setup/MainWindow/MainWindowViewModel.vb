@@ -52,6 +52,7 @@
         End Get
         Set(value As Boolean)
             ExtendedChangeIfDifferent(_IsConnectedToDatabase, value, "IsConnectedToDatabase")
+            ConnectionVM.OpenConnectionVM.Owner_IsConnectedToDatabase = value
             AdministratorToolsVM.Owner_IsConnectedToDatabase = value
         End Set
     End Property
