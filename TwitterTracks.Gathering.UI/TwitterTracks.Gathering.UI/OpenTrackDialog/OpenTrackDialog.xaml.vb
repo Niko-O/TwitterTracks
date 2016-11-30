@@ -3,6 +3,8 @@ Namespace OpenTrackDialog
 
     Public Class OpenTrackDialog
 
+        Private Shared ReadOnly HashtagRegex As New System.Text.RegularExpressions.Regex("(^|\s)(?<Hashtag>#.*?)(\s|$)", Text.RegularExpressions.RegexOptions.Compiled)
+
         Dim Connection As TwitterTracks.DatabaseAccess.DatabaseConnection
         Dim ExistingTweetMetadata As TwitterTracks.DatabaseAccess.TrackMetadata
         
@@ -29,17 +31,23 @@ Namespace OpenTrackDialog
             End If
         End Sub
 
+        Private Sub AddKeywordToAdd(sender As System.Object, e As System.Windows.RoutedEventArgs)
+            ViewModel.KeywordsVM.Keywords.Add(New KeywordToAdd With {.IsCustom = True})
+        End Sub
+
         Private Sub GoBack(sender As System.Object, e As System.Windows.RoutedEventArgs)
             Select Case ViewModel.CurrentTabIndex
                 Case DialogTabIndex.DatabaseConnection
                     Throw New NopeException
                 Case DialogTabIndex.TweetData
                     ViewModel.CurrentTabIndex = DialogTabIndex.DatabaseConnection
+                Case DialogTabIndex.Keywords
+                    ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
                 Case DialogTabIndex.TwitterConnection
                     If ViewModel.SummaryVM.TweetAlreadyPublished Then
                         ViewModel.CurrentTabIndex = DialogTabIndex.DatabaseConnection
                     Else
-                        ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
+                        ViewModel.CurrentTabIndex = DialogTabIndex.Keywords
                     End If
                 Case DialogTabIndex.Summary
                     ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
@@ -54,6 +62,8 @@ Namespace OpenTrackDialog
                     BeginDatabaseGoForward()
                 Case DialogTabIndex.TweetData
                     BeginTweetDataGoForward()
+                Case DialogTabIndex.Keywords
+                    BeginKeywordsGoForward()
                 Case DialogTabIndex.TwitterConnection
                     BeginTwitterConnectionGoForward()
                 Case DialogTabIndex.Summary
@@ -99,6 +109,7 @@ Namespace OpenTrackDialog
                                                          ExistingTweetMetadata = Metadata.Value
                                                          ViewModel.SummaryVM.PublishedTweetId = ExistingTweetMetadata.InitialTweetId
                                                          ViewModel.SummaryVM.TweetText = ExistingTweetMetadata.InitialTweetFullText
+                                                         ViewModel.SummaryVM.Keywords = String.Join(" ", ExistingTweetMetadata.RelevantKeywords)
                                                          ViewModel.StatusMessageVM.SetStatus("The initial Tweet already exists in the database.", Common.UI.StatusMessageKindType.JustText)
                                                          ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
                                                      Else
@@ -112,6 +123,21 @@ Namespace OpenTrackDialog
         Private Sub BeginTweetDataGoForward()
             If Not ViewModel.SummaryVM.TweetAlreadyPublished Then
                 ViewModel.SummaryVM.TweetText = ViewModel.TweetDataVM.TweetText
+            End If
+            ViewModel.KeywordsVM.Keywords.Clear()
+            Dim Match = HashtagRegex.Match(ViewModel.TweetDataVM.TweetText)
+            Do While Match IsNot Nothing AndAlso Match.Success
+                Dim Group = Match.Groups("Hashtag")
+                ViewModel.KeywordsVM.Keywords.Add(New KeywordToAdd With {.Text = Group.Value, .IsCustom = False})
+                Match = HashtagRegex.Match(ViewModel.TweetDataVM.TweetText, Group.Index + Group.Length)
+            Loop
+            ViewModel.StatusMessageVM.ClearStatus()
+            ViewModel.CurrentTabIndex = DialogTabIndex.Keywords
+        End Sub
+
+        Private Sub BeginKeywordsGoForward()
+            If Not ViewModel.SummaryVM.TweetAlreadyPublished Then
+                ViewModel.SummaryVM.Keywords = String.Join(" ", ViewModel.KeywordsVM.Keywords.Select(Function(i) i.Text))
             End If
             ViewModel.StatusMessageVM.ClearStatus()
             ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection

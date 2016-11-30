@@ -83,6 +83,8 @@
     <Compile Include="DebugTweetinviInterop\DebugService.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndex.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndexToIntConverter.vb" />
+    <Compile Include="OpenTrackDialog\KeywordToAdd.vb" />
+    <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_Keywords.vb" />
     <Compile Include="OpenTrackDialog\OpenTrackDialog.xaml.vb">
       <DependentUpon>OpenTrackDialog.xaml</DependentUpon>
     </Compile>

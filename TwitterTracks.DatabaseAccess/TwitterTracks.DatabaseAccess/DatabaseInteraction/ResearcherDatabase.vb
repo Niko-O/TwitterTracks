@@ -32,7 +32,7 @@ Public Class ResearcherDatabase
         Return New TrackMetadata(Reader.GetInt64("InitialTweetId"), _
                                  Reader.GetInt64("InitialTweetUserId"), _
                                  Reader.GetString("InitialTweetFullText"),
-                                 Reader.GetString("RelevantHashtags").Split(" "c))
+                                 Reader.GetString("RelevantKeywords").Split(" "c))
     End Function
 
     Private Shared Function RowToTweet(Reader As Sql.MySqlDataReader) As Tweet

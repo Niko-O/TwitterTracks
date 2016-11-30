@@ -8,7 +8,7 @@
     xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
     Title="OpenTrackDialog"
     Width="584"
-    Height="460"
+    Height="498"
 >
     <Window.DataContext>
         <l:OpenTrackDialogViewModel/>
@@ -45,7 +45,7 @@
                     <StackPanel>
                         <CommonUI.Controls:HelpLabel MainContent="Tweet Text:" HelpContent="The main text of the Tweet. Can contain @Mentions, #Hashtags, https://links and any other normal text, up to 140 characters. The counting rules are funky and not straight forward."/>
                         <TextBox TextWrapping="Wrap" AcceptsReturn="True" FontSize="16" MinHeight="50" MaxHeight="200" Text="{Binding Path=TweetDataVM.TweetText, UpdateSourceTrigger=PropertyChanged}"/>
-                        <CommonUI.Controls:HelpLabel HelpIsVisible="{Binding Path=TweetDataVM.TweetTextLengthAboveLimit}">
+                        <CommonUI.Controls:HelpLabel ButtonContent="!" HelpIsVisible="{Binding Path=TweetDataVM.TweetTextLengthAboveLimit}">
                             <CommonUI.Controls:HelpLabel.HelpContent>
                                 <TextBlock>
                                     Tweets are limited to 140 characters.<LineBreak/>
@@ -57,7 +57,8 @@
                             </CommonUI.Controls:HelpLabel.HelpContent>
                             <TextBlock Background="{Binding Path=TweetDataVM.TweetTextLengthAboveLimit, Converter={StaticResource ResourceKey=ReverseWarningBrushConverter}}"><Run Text="{Binding Path=TweetDataVM.TweetTextLength, Mode=OneWay}"/>/140</TextBlock>
                         </CommonUI.Controls:HelpLabel>
-                        <CommonUI.Controls:HelpLabel MainContent="Media:" HelpContent="Files which will be attached to the tweet. Can be 1 to 4 static images, 1 gif or 1 video. Please consult the Twitter documentation for exact details on limitations."/>
+                        
+                        <CommonUI.Controls:HelpLabel Padding="0,10,0,0" MainContent="Media:" HelpContent="Files which will be attached to the tweet. Can be 1 to 4 static images, 1 gif or 1 video. Please consult the Twitter documentation for exact details on limitations."/>
                         <Button HorizontalAlignment="Left" Padding="10,5" Click="AddMediaToAdd">Add</Button>
                         <ListBox
                             ItemsSource="{Binding Path=TweetDataVM.MediasToAdd}"
@@ -79,6 +80,53 @@
                             Adding up to 4 files is only allowed for static images.<LineBreak/>
                             Adding more than 4 files is definitely not allowed by twitter as of this writing.<LineBreak/>
                             You can continue now, but the upload may fail later.
+                        </TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Keywords">
+                    <StackPanel>
+                        <CommonUI.Controls:HelpLabel ButtonContent="!">
+                            <CommonUI.Controls:HelpLabel.HelpContent>
+                                <TextBlock>
+                                    Nobody really knows how Hashtags work.<LineBreak/>
+                                    There is no official comprehensive documentation and even Twitter gets it wrong sometimes.<LineBreak/>
+                                    The easiest way to verify the correctness is to stick to letters (a-z, A-Z) and numbers (0-9) only.<LineBreak/>
+                                    You may also open the Twitter website and enter the text there to see what Twitter thinks (do not publish it).<LineBreak/>
+                                </TextBlock>
+                            </CommonUI.Controls:HelpLabel.HelpContent>
+                            <TextBlock>
+                                Keywords:
+                                <Run Text="{Binding Path=KeywordsVM.Keywords.Count, Mode=OneWay}"/>
+                            </TextBlock>
+                        </CommonUI.Controls:HelpLabel>
+                        <Button HorizontalAlignment="Left" Padding="10,5" Click="AddKeywordToAdd">Add</Button>
+                        <ListBox ItemsSource="{Binding Path=KeywordsVM.Keywords}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid MinWidth="80">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CommonUI.Controls:IfContent Grid.Column="0" Condition="{Binding Path=IsCustom}">
+                                            <CommonUI.Controls:IfContent.TrueContent>
+                                                <TextBox VerticalAlignment="Center" Text="{Binding Path=Text}"/>
+                                            </CommonUI.Controls:IfContent.TrueContent>
+                                            <CommonUI.Controls:IfContent.FalseContent>
+                                                <TextBlock VerticalAlignment="Center" Text="{Binding Path=Text}"/>
+                                            </CommonUI.Controls:IfContent.FalseContent>
+                                        </CommonUI.Controls:IfContent>
+                                        <Button Grid.Column="2" Command="{Binding Path=RemoveCommand}">Remove</Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock TextWrapping="Wrap">
+                            Be specific. Twitter will find all Tweets containing <Run FontWeight="Bold">any</Run> of these keywords. If you add too general words you will receive lots of garbage.<LineBreak/>
+                            Do not add spaces. e.g. "the who" will find all Tweets containing either "the" or "who" (or both).<LineBreak/>
+                            In addition, if you access more than 1% of the total number of Tweets on Twitter, Twitter will disconnect the application.<LineBreak/>
+                            Keywords are case-insensitive.
                         </TextBlock>
                     </StackPanel>
                 </TabItem>
@@ -137,6 +185,9 @@
                                 </StackPanel>
                             </CommonUI.Controls:IfContent.FalseContent>
                         </CommonUI.Controls:IfContent>
+
+                        <TextBlock Margin="0,10,0,0">Keywords:</TextBlock>
+                        <TextBlock Text="{Binding Path=SummaryVM.Keywords}"/>
                         
                         <TextBlock Margin="0,10,0,0">Twitter Connection:</TextBlock>
                         <TextBlock>Authenticated</TextBlock>

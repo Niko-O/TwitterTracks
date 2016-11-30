@@ -37,6 +37,17 @@ Namespace OpenTrackDialog
             End Set
         End Property
 
+        Dim _Keywords As String = ""
+        Public Property Keywords As String
+            <DebuggerStepThrough()>
+            Get
+                Return _Keywords
+            End Get
+            Set(value As String)
+                ExtendedChangeIfDifferent(_Keywords, value, "Keywords")
+            End Set
+        End Property
+
     End Class
 
 End Namespace

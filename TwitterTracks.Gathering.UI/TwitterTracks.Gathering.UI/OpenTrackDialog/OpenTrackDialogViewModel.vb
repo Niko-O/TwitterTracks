@@ -20,6 +20,14 @@ Namespace OpenTrackDialog
             End Get
         End Property
 
+        Dim _KeywordsVM As New OpenTrackDialogViewModel_Keywords
+        Public ReadOnly Property KeywordsVM As OpenTrackDialogViewModel_Keywords
+            <DebuggerStepThrough()>
+            Get
+                Return _KeywordsVM
+            End Get
+        End Property
+
         Dim _TwitterConnectionVM As New OpenTrackDialogViewModel_TwitterConnection
         Public ReadOnly Property TwitterConnectionVM As OpenTrackDialogViewModel_TwitterConnection
             <DebuggerStepThrough()>
@@ -75,6 +83,8 @@ Namespace OpenTrackDialog
                         Return DatabaseConnectionVM.IsValid
                     Case DialogTabIndex.TweetData
                         Return TweetDataVM.IsValid
+                    Case DialogTabIndex.Keywords
+                        Return KeywordsVM.IsValid
                     Case DialogTabIndex.TwitterConnection
                         Return TwitterConnectionVM.IsValid
                     Case DialogTabIndex.Summary
