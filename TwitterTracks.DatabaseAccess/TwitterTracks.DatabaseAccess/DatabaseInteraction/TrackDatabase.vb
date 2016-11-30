@@ -38,7 +38,7 @@ Public Class TrackDatabase
             "    `InitialTweetId` BIGINT(20) NOT NULL,                   " & _
             "    `InitialTweetUserId` BIGINT(20) NOT NULL,               " & _
             "    `InitialTweetFullText` TEXT NOT NULL,                   " & _
-            "    `RelevantHashtags` TEXT NOT NULL)                       " & _
+            "    `RelevantKeywords` TEXT NOT NULL)                       " & _
             "    ENGINE = InnoDB;                                        "))
 
         Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
