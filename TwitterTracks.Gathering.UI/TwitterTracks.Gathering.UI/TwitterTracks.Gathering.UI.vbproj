@@ -80,7 +80,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DebugConstants.vb" />
     <Compile Include="DebugTweetinviInterop\DebugService.vb" />
+    <Compile Include="MainWindow\MainWindowViewModel_CurrentTrack.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndex.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndexToIntConverter.vb" />
     <Compile Include="OpenTrackDialog\KeywordToAdd.vb" />
@@ -89,6 +91,7 @@
       <DependentUpon>OpenTrackDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel.vb" />
+    <Compile Include="OpenTweetInformation.vb" />
     <Page Include="MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

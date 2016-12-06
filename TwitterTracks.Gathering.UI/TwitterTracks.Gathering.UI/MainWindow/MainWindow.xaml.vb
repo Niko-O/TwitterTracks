@@ -7,15 +7,15 @@
         ViewModel = DirectCast(Me.DataContext, MainWindowViewModel)
     End Sub
 
-    Protected Overrides Sub OnContentRendered(e As System.EventArgs)
-        MyBase.OnContentRendered(e)
+    Private Sub OpenOrCreateTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim Dlg As New OpenTrackDialog.OpenTrackDialog
-        Dlg.ShowDialog()
-        Me.Close()
+        If Dlg.ShowDialog() Then
+            ViewModel.OpenTweetInfo = Dlg.GetOpenTweetInfo
+        End If
     End Sub
 
-    Private Sub TestStuff(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        
+    Private Sub PublishTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
+
     End Sub
 
 End Class

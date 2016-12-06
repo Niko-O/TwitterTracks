@@ -16,6 +16,7 @@ Namespace UI
             Public Const DatabaseHost As String = "localhost"
             Public Const DatabaseUserName As String = "root" '"TestDatabase01_1_Researcher"
             Public Const DatabaseResearcherIdText As String = "1"
+            Public Const DatabaseResearcherId As Int64 = 1
             Public Const DatabasePassword As String = ""
             Public Const TrackDatabaseName As String = "BobsDatabase"
             Public Const ResearcherPassword As String = "Password1"
@@ -56,6 +57,7 @@ Namespace UI
             Public Const DatabaseHost As String = ""
             Public Const DatabaseUserName As String = ""
             Public Const DatabaseResearcherIdText As String = ""
+            Public Const DatabaseResearcherId As Int64 = 0
             Public Const DatabasePassword As String = ""
             Public Const TrackDatabaseName As String = ""
             Public Const ResearcherPassword As String = ""

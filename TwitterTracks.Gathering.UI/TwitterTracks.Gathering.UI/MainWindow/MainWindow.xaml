@@ -7,15 +7,54 @@
     xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
     xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
     Title="MainWindow"
-    Width="551"
-    Height="542"
+    Width="421"
+    Height="306"
 >
     <Window.DataContext>
         <l:MainWindowViewModel/>
     </Window.DataContext>
     <Grid>
-        <StackPanel>
-            <Button Padding="30" Click="TestStuff">Test</Button>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+            
         </StackPanel>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Button Grid.Row="0" Padding="10" Click="OpenOrCreateTrack" IsEnabled="{Binding Path=CurrentTrackVM.CanOpenOrCreateTrack}">Open/Create Track</Button>
+            <StackPanel Grid.Row="1">
+                <TextBlock FontSize="16">Current Track:</TextBlock>
+                <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
+                    <CommonUI.Controls:IfContent.TrueContent>
+                        <StackPanel>
+                            <TextBlock>
+                                Database: <Run Text="{Binding Path=CurrentTrackVM.DatabaseInfo}" Foreground="{Binding Path=CurrentTrackVM.DatabaseInfoForeground}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                Twitter: <Run Text="{Binding Path=CurrentTrackVM.TwitterInfo}" Foreground="{Binding Path=CurrentTrackVM.TwitterInfoForeground}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                Tweet ID: <Run Text="{Binding Path=CurrentTrackVM.TweetId}" Foreground="{Binding Path=CurrentTrackVM.TweetIdForeground}"/>
+                            </TextBlock>
+                            <TextBlock>
+                                Published: <Run Text="{Binding Path=CurrentTrackVM.IsPublished}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </CommonUI.Controls:IfContent.TrueContent>
+                    <CommonUI.Controls:IfContent.FalseContent>
+                        <TextBlock>
+                            None selected
+                        </TextBlock>
+                    </CommonUI.Controls:IfContent.FalseContent>
+                </CommonUI.Controls:IfContent>
+            </StackPanel>
+            <Button Grid.Row="2" Padding="10" Click="PublishTweet" IsEnabled="{Binding Path=CurrentTrackVM.IsPublished, Converter={StaticResource ResourceKey=BooleanNotConverter}}">Publish</Button>
+        </Grid>
     </Grid>
 </Window>

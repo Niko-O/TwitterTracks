@@ -158,6 +158,30 @@ Namespace OpenTrackDialog
                             End Sub)
         End Sub
 
+        Public Function GetOpenTweetInfo() As OpenTweetInformation
+            Dim Result As New OpenTweetInformation
+
+            Result.IsPublished = ViewModel.SummaryVM.TweetAlreadyPublished
+
+            Result.Database.Host = ViewModel.DatabaseConnectionVM.DatabaseHost
+            Result.Database.Name = ViewModel.DatabaseConnectionVM.DatabaseName
+            Result.Database.ResearcherId = If(ViewModel.DatabaseConnectionVM.ResearcherIdIsValid, Integer.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText), -1)
+            Result.Database.Password = ViewModel.DatabaseConnectionVM.Password
+            Result.Database.Connection = Connection
+
+            Result.TweetData.Metadata = ExistingTweetMetadata
+            Result.TweetData.TweetText = If(Result.IsPublished, ExistingTweetMetadata.InitialTweetFullText, ViewModel.TweetDataVM.TweetText)
+            Result.TweetData.MediasToAdd = ViewModel.TweetDataVM.MediasToAdd.Select(Function(i) i.FilePath).ToList
+            Result.TweetData.Keywords = ViewModel.KeywordsVM.Keywords.Select(Function(i) i.Text).ToList
+
+            Result.TwitterConnection.ConsumerKey = ViewModel.TwitterConnectionVM.ConsumerKey
+            Result.TwitterConnection.ConsumerSecret = ViewModel.TwitterConnectionVM.ConsumerSecret
+            Result.TwitterConnection.AccessToken = ViewModel.TwitterConnectionVM.AccessToken
+            Result.TwitterConnection.AccessTokenSecret = ViewModel.TwitterConnectionVM.AccessTokenSecret
+
+            Return Result
+        End Function
+
     End Class
 
 End Namespace
