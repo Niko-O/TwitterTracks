@@ -58,9 +58,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="TwitterTracks.TweetinviInterop">
-      <HintPath>..\..\TwitterTracks.TweetinviInterop\TwitterTracks.TweetinviInterop\bin\Release\TwitterTracks.TweetinviInterop.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -141,7 +138,12 @@
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\TwitterTracks.TweetinviInterop\TwitterTracks.TweetinviInterop\TwitterTracks.TweetinviInterop.vbproj">
+      <Project>{0EB73B66-FC26-486E-8B79-2A9900468DCB}</Project>
+      <Name>TwitterTracks.TweetinviInterop</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

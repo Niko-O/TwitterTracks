@@ -60,12 +60,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="TwitterTracks.Common">
-      <HintPath>..\..\TwitterTracks.Common\TwitterTracks.Common\bin\Release\TwitterTracks.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="TwitterTracks.DatabaseAccess">
-      <HintPath>..\..\TwitterTracks.DatabaseAccess\TwitterTracks.DatabaseAccess\bin\Release\TwitterTracks.DatabaseAccess.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -116,7 +110,6 @@
     <Import Include="OnUtils.Extensions" />
     <Import Include="OnUtils.Streams" />
     <Import Include="OnUtils.Wpf" />
-    <Import Include="TwitterTracks.Common.UI" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindow\AdministratorTools\MainWindowViewModel_AdministratorTools.vb" />
@@ -151,6 +144,16 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <AppDesigner Include="My Project\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TwitterTracks.Common\TwitterTracks.Common\TwitterTracks.Common.vbproj">
+      <Project>{836D83D2-9544-4BD9-A8A8-7EDB14B84904}</Project>
+      <Name>TwitterTracks.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TwitterTracks.DatabaseAccess\TwitterTracks.DatabaseAccess\TwitterTracks.DatabaseAccess.vbproj">
+      <Project>{B808D9CC-CDD1-4270-9FAD-72A1BB466F06}</Project>
+      <Name>TwitterTracks.DatabaseAccess</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

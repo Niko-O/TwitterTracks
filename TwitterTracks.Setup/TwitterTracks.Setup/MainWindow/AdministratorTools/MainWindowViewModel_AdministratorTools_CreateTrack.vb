@@ -37,8 +37,8 @@
         End Get
     End Property
 
-    Dim _StatusMessageVM As New StatusMessageViewModel
-    Public ReadOnly Property StatusMessageVM As StatusMessageViewModel
+    Dim _StatusMessageVM As New TwitterTracks.Common.UI.StatusMessageViewModel
+    Public ReadOnly Property StatusMessageVM As TwitterTracks.Common.UI.StatusMessageViewModel
         <DebuggerStepThrough()>
         Get
             Return _StatusMessageVM

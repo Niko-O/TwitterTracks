@@ -106,7 +106,7 @@ Class MainWindow
                If Success Then
                    ViewModel.RootToolsVM.DatabasesVM.AvailableDatabases.Insert(0, DatabaseName)
                    ViewModel.RootToolsVM.DatabasesVM.SelectedAvailableDatabase = DatabaseName
-                   Return Tuple.Create("Additional information: The created Administrator's account name is: " & ResultUserName, StatusMessageKindType.JustText)
+                   Return Tuple.Create("Additional information: The created Administrator's account name is: " & ResultUserName, TwitterTracks.Common.UI.StatusMessageKindType.JustText)
                End If
                Return Nothing
            End Function)
@@ -136,7 +136,7 @@ Class MainWindow
                        If DatabaseExists Then
                            ViewModel.AdministratorToolsVM.DatabaseIsSelected = True
                        Else
-                           Return Tuple.Create(String.Format("Database ""{0}"" does not exist.", DatabaseName), StatusMessageKindType.Error)
+                           Return Tuple.Create(String.Format("Database ""{0}"" does not exist.", DatabaseName), TwitterTracks.Common.UI.StatusMessageKindType.Error)
                        End If
                    End If
                    Return Nothing
