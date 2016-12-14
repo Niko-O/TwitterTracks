@@ -1,6 +1,19 @@
 ﻿Public Class OpenTweetInformation
 
+    Public Event IsPublishedChanged()
+
+    Dim _IsPublished As Boolean
     Public Property IsPublished As Boolean
+        Get
+            Return _IsPublished
+        End Get
+        Set(value As Boolean)
+            If _IsPublished <> value Then
+                _IsPublished = value
+                RaiseEvent IsPublishedChanged()
+            End If
+        End Set
+    End Property
 
     Dim _Database As New DatabaseContainer
     Public ReadOnly Property Database As DatabaseContainer

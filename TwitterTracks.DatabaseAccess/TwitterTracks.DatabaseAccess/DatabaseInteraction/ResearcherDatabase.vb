@@ -39,7 +39,7 @@ Public Class ResearcherDatabase
         Return New Tweet(Reader.GetEntityId("Id"), _
                          Reader.GetInt64("TweetId"), _
                          Reader.GetString("ContentHash"), _
-                         Reader.GetDateTime("PublishDateTime"), _
+                         Helpers.UnixTimestampToUtc(Reader.GetInt64("PublishDateTime")), _
                          DirectCast(Reader.GetInt32("LocationType"), TweetLocationType), _
                          Reader.GetString("Location"))
     End Function
@@ -57,10 +57,43 @@ Public Class ResearcherDatabase
         End Using
     End Function
 
+    Public Sub UpdateOrCreateTrackMetadata(Metadata As TrackMetadata)
+        Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
+        If TryGetTrackMetadata() Is Nothing Then
+            ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
+                                                 "(`InitialTweetId`, `InitialTweetUserId`, `InitialTweetFullText`, `RelevantKeywords`) " & _
+                                                 "VALUES (@InitialTweetId, @InitialTweetUserId, @InitialTweetFullText, @RelevantKeywords)", TrackTableIdentifier), _
+                            New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
+                            New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
+                            New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
+                            New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
+        Else
+            ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} " & _
+                                                 "SET `InitialTweetId` = @InitialTweetId, `InitialTweetUserId` = @InitialTweetUserId, " & _
+                                                 "`InitialTweetFullText` = @InitialTweetFullText, `RelevantKeywords` = @RelevantKeywords)", TrackTableIdentifier), _
+                            New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
+                            New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
+                            New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
+                            New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
+        End If
+    End Sub
+
     Public Function GetAllTweets() As IEnumerable(Of Tweet)
         Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
         Return ExecuteQuery(FormatSqlIdentifiers("SELECT * FROM {0}", TweetTableIdentifier)).Select(Function(Row) RowToTweet(Row))
     End Function
+
+    Public Sub CreateTweet(TweetId As Int64, ContentHash As String, PublishDateTime As DateTime, LocationType As TweetLocationType, Location As String)
+        Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
+        ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
+                                             "(`TweetId`, `ContentHash`, `PublishDateTime`, `LocationType`, `Location`) " & _
+                                             "VALUES (@TweetId, @ContentHash, @PublishDateTime, @LocationType, @Location)", TweetTableIdentifier), _
+                        New CommandParameter("@TweetId", TweetId), _
+                        New CommandParameter("@ContentHash", ContentHash), _
+                        New CommandParameter("@PublishDateTime", PublishDateTime.ToUnixTimestamp), _
+                        New CommandParameter("@LocationType", LocationType), _
+                        New CommandParameter("@Location", Location))
+    End Sub
 
     Public Function GetTweetsSinceEntityId(LastTweetEntityIdExclusiveToResultSet As EntityId) As IEnumerable(Of Tweet)
         Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
@@ -74,7 +107,7 @@ Public Class ResearcherDatabase
         For Each Host In {"%", "localhost"}
             Dim ResearcherIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(ResearcherToDrop).Escape, New VerbatimIdentifier(Host).Escape)
             ExecuteNonQuery(FormatSqlIdentifiers("DROP USER {0}", ResearcherIdentifier))
-        Next        
+        Next
         ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
     End Sub
 

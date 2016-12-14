@@ -4,9 +4,6 @@
     Public Shared ReadOnly Property Service As ITwitterService
         <DebuggerStepThrough()>
         Get
-            If _Service Is Nothing Then
-                Throw New InvalidOperationException("No service has been set yet.")
-            End If
             Return _Service
         End Get
     End Property

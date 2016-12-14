@@ -68,7 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationToken.vb" />
+    <Compile Include="ITweet.vb" />
     <Compile Include="ITwitterService.vb" />
+    <Compile Include="MultithreadingAwarenessAttribute.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -79,7 +81,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="PublishTweetFailReason.vb" />
+    <Compile Include="PublishTweetResult.vb" />
     <Compile Include="ServiceProvider.vb" />
+    <Compile Include="StartTwitterStreamResult.vb" />
+    <Compile Include="StreamStoppedEventArgs.vb" />
+    <Compile Include="StreamStopReason.vb" />
+    <Compile Include="TweetinviMatchOn.vb" />
+    <Compile Include="TweetReceivedEventArgs.vb" />
     <Compile Include="ValidationResult.vb" />
   </ItemGroup>
   <ItemGroup>

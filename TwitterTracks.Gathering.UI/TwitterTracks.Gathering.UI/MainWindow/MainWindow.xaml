@@ -8,7 +8,7 @@
     xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
     Title="MainWindow"
     Width="421"
-    Height="306"
+    Height="350"
 >
     <Window.DataContext>
         <l:MainWindowViewModel/>
@@ -16,34 +16,41 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
             
         </StackPanel>
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Button Grid.Row="0" Padding="10" Click="OpenOrCreateTrack" IsEnabled="{Binding Path=CurrentTrackVM.CanOpenOrCreateTrack}">Open/Create Track</Button>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Padding="10" Click="OpenOrCreateTrack" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}">Open/Create Track</Button>
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Padding="10" Click="LoadConfiguration" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}">Load Configuration</Button>
+                    <TextBlock Grid.Row="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=LoadConfigurationStatusMessageVM.StatusMessageVisibility}" Text="{Binding Path=LoadConfigurationStatusMessageVM.StatusMessage}" Background="{Binding Path=LoadConfigurationStatusMessageVM.StatusMessageBackground}"/>
+                </Grid>
+            </Grid>
             <StackPanel Grid.Row="1">
                 <TextBlock FontSize="16">Current Track:</TextBlock>
                 <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
                     <CommonUI.Controls:IfContent.TrueContent>
                         <StackPanel>
                             <TextBlock>
-                                Database: <Run Text="{Binding Path=CurrentTrackVM.DatabaseInfo}" Foreground="{Binding Path=CurrentTrackVM.DatabaseInfoForeground}"/>
-                            </TextBlock>
-                            <TextBlock>
-                                Twitter: <Run Text="{Binding Path=CurrentTrackVM.TwitterInfo}" Foreground="{Binding Path=CurrentTrackVM.TwitterInfoForeground}"/>
-                            </TextBlock>
-                            <TextBlock>
-                                Tweet ID: <Run Text="{Binding Path=CurrentTrackVM.TweetId}" Foreground="{Binding Path=CurrentTrackVM.TweetIdForeground}"/>
-                            </TextBlock>
-                            <TextBlock>
-                                Published: <Run Text="{Binding Path=CurrentTrackVM.IsPublished}"/>
+                                ToDo: Some info
                             </TextBlock>
                         </StackPanel>
                     </CommonUI.Controls:IfContent.TrueContent>
@@ -54,7 +61,20 @@
                     </CommonUI.Controls:IfContent.FalseContent>
                 </CommonUI.Controls:IfContent>
             </StackPanel>
-            <Button Grid.Row="2" Padding="10" Click="PublishTweet" IsEnabled="{Binding Path=CurrentTrackVM.IsPublished, Converter={StaticResource ResourceKey=BooleanNotConverter}}">Publish</Button>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Padding="10" Click="PublishTweet" IsEnabled="{Binding Path=CanPublish}">Publish</Button>
+                <Button Grid.Column="1" Padding="10" Click="Button_Click">Eh</Button>
+            </Grid>
+            <StackPanel Grid.Row="3">
+                <TextBlock>Number of tracked Tweets:</TextBlock>
+                <TextBlock Text="{Binding Path=NumberOfTrackedTweets}"/>
+            </StackPanel>
+            <TextBlock Grid.Row="4" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=PublishStatusMessageVM.StatusMessageVisibility}" Text="{Binding Path=PublishStatusMessageVM.StatusMessage}" Background="{Binding Path=PublishStatusMessageVM.StatusMessageBackground}"/>
+            <Button Grid.Row="5" Padding="10" Click="SaveConfiguration" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">Save Configuration</Button>
         </Grid>
     </Grid>
 </Window>

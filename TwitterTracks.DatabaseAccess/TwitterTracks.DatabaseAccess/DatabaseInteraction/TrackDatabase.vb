@@ -35,8 +35,8 @@ Public Class TrackDatabase
         Dim MetadataTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
         ExecuteNonQuery(New SqlQueryString( _
             "CREATE TABLE " & MetadataTableIdentifier.EscapedText & " (  " & _
-            "    `InitialTweetId` BIGINT(20) NOT NULL,                   " & _
-            "    `InitialTweetUserId` BIGINT(20) NOT NULL,               " & _
+            "    `InitialTweetId` INT8 NOT NULL,                         " & _
+            "    `InitialTweetUserId` INT8 NOT NULL,                     " & _
             "    `InitialTweetFullText` TEXT NOT NULL,                   " & _
             "    `RelevantKeywords` TEXT NOT NULL)                       " & _
             "    ENGINE = InnoDB;                                        "))
@@ -45,9 +45,9 @@ Public Class TrackDatabase
         ExecuteNonQuery(New SqlQueryString( _
             "CREATE TABLE " & TweetTableIdentifier.EscapedText & " (  " & _
             "    `Id` INT NOT NULL AUTO_INCREMENT,                    " & _
-            "    `TweetId` BIGINT(20) NOT NULL,                       " & _
+            "    `TweetId`INT8 NOT NULL,                              " & _
             "    `ContentHash` TEXT NOT NULL,                         " & _
-            "    `PublishDateTime` DATETIME NOT NULL,                 " & _
+            "    `PublishDateTime` INT8 NOT NULL,                     " & _
             "    `LocationType` INT NOT NULL,                         " & _
             "    `Location` TEXT NULL,                                " & _
             "    PRIMARY KEY (`Id`))                                  " & _

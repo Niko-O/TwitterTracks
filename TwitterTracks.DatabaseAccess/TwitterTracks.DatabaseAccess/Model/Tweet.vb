@@ -52,6 +52,7 @@
         _EntityId = NewEntityId
         _TweetId = NewTweetId
         _ContentHash = NewContentHash
+        _PublishDateTime = NewPublishDateTime
         _LocationType = NewLocationType
         _Location = NewLocation
     End Sub

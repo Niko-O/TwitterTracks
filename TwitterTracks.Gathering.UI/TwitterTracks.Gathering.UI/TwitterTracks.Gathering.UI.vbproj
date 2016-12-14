@@ -77,7 +77,7 @@
     </ApplicationDefinition>
     <Compile Include="DebugConstants.vb" />
     <Compile Include="DebugTweetinviInterop\DebugService.vb" />
-    <Compile Include="MainWindow\MainWindowViewModel_CurrentTrack.vb" />
+    <Compile Include="DebugTweetinviInterop\DebugTweet.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndex.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndexToIntConverter.vb" />
     <Compile Include="OpenTrackDialog\KeywordToAdd.vb" />
@@ -87,6 +87,9 @@
     </Compile>
     <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel.vb" />
     <Compile Include="OpenTweetInformation.vb" />
+    <Compile Include="PasswordDialog\PasswordDialog.xaml.vb">
+      <DependentUpon>PasswordDialog.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -105,6 +108,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="OpenTrackDialog\OpenTrackDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PasswordDialog\PasswordDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -11,7 +11,7 @@ Namespace UI
         Public Class DebugConstants
 #If EnableDebugData Then
 
-            Public Const StatusMessage As String = "This is a StatusMessage This is a StatusMessage This is a StatusMessage" & Microsoft.VisualBasic.ControlChars.CrLf & "This is a StatusMessage"
+            Public Const StatusMessage As String = "" '"This is a StatusMessage" & Microsoft.VisualBasic.ControlChars.CrLf & "This is a StatusMessage"
 
             Public Const DatabaseHost As String = "localhost"
             Public Const DatabaseUserName As String = "root" '"TestDatabase01_1_Researcher"
