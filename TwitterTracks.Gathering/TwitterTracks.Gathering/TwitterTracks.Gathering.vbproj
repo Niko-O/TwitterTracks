@@ -99,9 +99,6 @@
       <HintPath>..\packages\TweetinviAPI.1.1.1\lib\net45\Tweetinvi.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TwitterTracks.Gathering.UI">
-      <HintPath>..\..\TwitterTracks.Gathering.UI\TwitterTracks.Gathering.UI\bin\Release\TwitterTracks.Gathering.UI.exe</HintPath>
-    </Reference>
     <Reference Include="TwitterTracks.TweetinviInterop">
       <HintPath>..\..\TwitterTracks.TweetinviInterop\TwitterTracks.TweetinviInterop\bin\Release\TwitterTracks.TweetinviInterop.dll</HintPath>
     </Reference>
@@ -161,6 +158,12 @@
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TwitterTracks.Gathering.UI\TwitterTracks.Gathering.UI\TwitterTracks.Gathering.UI.vbproj">
+      <Project>{0a48dfcb-22f4-4939-923d-9f43e4403049}</Project>
+      <Name>TwitterTracks.Gathering.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
