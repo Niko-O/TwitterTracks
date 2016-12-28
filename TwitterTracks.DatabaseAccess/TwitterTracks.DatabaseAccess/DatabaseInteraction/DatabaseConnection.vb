@@ -55,6 +55,10 @@ Public Class DatabaseConnection
         Return Connection.CreateCommand
     End Function
 
+    Public Function BeginTransaction() As Sql.MySqlTransaction
+        Return Connection.BeginTransaction(IsolationLevel.Serializable)
+    End Function
+
     Public Shared Function PlainConnection(Host As String, UserName As String, Password As String) As DatabaseConnection
         Dim ConnectionStringSource As New TwitterTracks.DatabaseAccess.MySqlConnectionStringBuilderSource( _
          New MySql.Data.MySqlClient.MySqlConnectionStringBuilder With { _

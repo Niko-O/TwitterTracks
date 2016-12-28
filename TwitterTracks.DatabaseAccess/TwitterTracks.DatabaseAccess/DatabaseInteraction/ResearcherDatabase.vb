@@ -58,24 +58,32 @@ Public Class ResearcherDatabase
     End Function
 
     Public Sub UpdateOrCreateTrackMetadata(Metadata As TrackMetadata)
-        Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
-        If TryGetTrackMetadata() Is Nothing Then
-            ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
-                                                 "(`InitialTweetId`, `InitialTweetUserId`, `InitialTweetFullText`, `RelevantKeywords`) " & _
-                                                 "VALUES (@InitialTweetId, @InitialTweetUserId, @InitialTweetFullText, @RelevantKeywords)", TrackTableIdentifier), _
-                            New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
-                            New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
-                            New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
-                            New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
-        Else
-            ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} " & _
-                                                 "SET `InitialTweetId` = @InitialTweetId, `InitialTweetUserId` = @InitialTweetUserId, " & _
-                                                 "`InitialTweetFullText` = @InitialTweetFullText, `RelevantKeywords` = @RelevantKeywords)", TrackTableIdentifier), _
-                            New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
-                            New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
-                            New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
-                            New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
-        End If
+        Try
+            BeginTransaction()
+
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
+            If TryGetTrackMetadata() Is Nothing Then
+                ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
+                                                     "(`InitialTweetId`, `InitialTweetUserId`, `InitialTweetFullText`, `RelevantKeywords`) " & _
+                                                     "VALUES (@InitialTweetId, @InitialTweetUserId, @InitialTweetFullText, @RelevantKeywords)", TrackTableIdentifier), _
+                                New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
+                                New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
+                                New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
+                                New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
+            Else
+                ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} " & _
+                                                     "SET `InitialTweetId` = @InitialTweetId, `InitialTweetUserId` = @InitialTweetUserId, " & _
+                                                     "`InitialTweetFullText` = @InitialTweetFullText, `RelevantKeywords` = @RelevantKeywords)", TrackTableIdentifier), _
+                                New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
+                                New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
+                                New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
+                                New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
+            End If
+
+            CommitTransaction()
+        Finally
+            EndTransaction()
+        End Try
     End Sub
 
     Public Function GetAllTweets() As IEnumerable(Of Tweet)
@@ -103,12 +111,20 @@ Public Class ResearcherDatabase
     End Function
 
     Public Sub DeleteTrack()
-        Dim ResearcherToDrop = Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
-        For Each Host In {"%", "localhost"}
-            Dim ResearcherIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(ResearcherToDrop).Escape, New VerbatimIdentifier(Host).Escape)
-            ExecuteNonQuery(FormatSqlIdentifiers("DROP USER {0}", ResearcherIdentifier))
-        Next
-        ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
+        Try
+            BeginTransaction()
+
+            Dim ResearcherToDrop = Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
+            For Each Host In {"%", "localhost"}
+                Dim ResearcherIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(ResearcherToDrop).Escape, New VerbatimIdentifier(Host).Escape)
+                ExecuteNonQuery(FormatSqlIdentifiers("DROP USER {0}", ResearcherIdentifier))
+            Next
+            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
+
+            CommitTransaction()
+        Finally
+            EndTransaction()
+        End Try
     End Sub
 
 End Class

@@ -15,6 +15,9 @@ Public Class DatabaseBase
         End Get
     End Property
 
+    Dim CurrentTransaction As Sql.MySqlTransaction = Nothing
+    Dim CurrentTransactionIsCommitted As Boolean
+
     Public Sub New(NewConnection As DatabaseConnection)
         _Connection = NewConnection
     End Sub
@@ -22,6 +25,24 @@ Public Class DatabaseBase
     Protected Friend Shared Function FormatSqlIdentifiers(Format As String, ParamArray EscapedArguments As EscapedIdentifier()) As SqlQueryString
         Return New SqlQueryString(String.Format(Format, EscapedArguments.Select(Function(i) i.EscapedText)))
     End Function
+
+    Protected Sub BeginTransaction()
+        CurrentTransaction = Connection.BeginTransaction
+        CurrentTransactionIsCommitted = False
+    End Sub
+
+    Protected Sub CommitTransaction()
+        CurrentTransaction.Commit()
+        CurrentTransactionIsCommitted = True
+    End Sub
+
+    Protected Sub EndTransaction()
+        If Not CurrentTransactionIsCommitted Then
+            CurrentTransaction.Rollback()
+        End If
+        CurrentTransaction.Dispose()
+        CurrentTransaction = Nothing
+    End Sub
 
     Protected Friend Function PrepareCommand(QueryText As SqlQueryString, ParamArray Parameters As CommandParameter()) As Sql.MySqlCommand
         If DebugPrintQueries Then
@@ -35,6 +56,9 @@ Public Class DatabaseBase
         End If
 
         Dim Command = Connection.CreateCommand
+        If CurrentTransaction IsNot Nothing Then
+            Command.Transaction = CurrentTransaction
+        End If
         Command.CommandText = QueryText.QueryText
         Command.Prepare()
         For Each i In Parameters

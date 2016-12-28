@@ -16,35 +16,42 @@ Public Class Database
         'Grant Select, Insert, Update, Delete to Database.Track
         'Flush
 
-        Dim TrackDB As New TrackDatabase(Connection, DatabaseName)
-        ExecuteNonQuery(FormatSqlIdentifiers("CREATE DATABASE {0}", DatabaseName.Escape))
+        Try
+            BeginTransaction()
 
-        Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
-        ExecuteNonQuery(New SqlQueryString( _
-            "CREATE TABLE " & TrackTableIdentifier.EscapedText & " ( " & _
-            "  `Id` INT NOT NULL AUTO_INCREMENT,                     " & _
-            "  PRIMARY KEY (`Id`))                                   " & _
-            "ENGINE = InnoDB;                                        "))
+            Dim TrackDB As New TrackDatabase(Connection, DatabaseName)
+            ExecuteNonQuery(FormatSqlIdentifiers("CREATE DATABASE {0}", DatabaseName.Escape))
 
-        Dim AdministratorName As String = Relations.UserNames.AdministratorUserName(DatabaseName)
-        For Each Host In {"%", "localhost"}
-            Dim AdministratorIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(AdministratorName).Escape, New VerbatimIdentifier(Host).Escape)
-            ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER {0} IDENTIFIED BY @AdministratorPassword;", AdministratorIdentifier), _
-                            New CommandParameter("@AdministratorPassword", AdministratorPassword))
-            ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO {1};", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable), AdministratorIdentifier))
-            ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TrackTableIdentifier, AdministratorIdentifier))
-        Next
-        'ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER @AdministratorName IDENTIFIED BY @AdministratorPassword;"), _
-        '        New CommandParameter("@AdministratorName", AdministratorName), _
-        '        New CommandParameter("@AdministratorPassword", AdministratorPassword))
-        'ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO @AdministratorName;", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable)), _
-        '                New CommandParameter("@AdministratorName", AdministratorName))
-        'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @AdministratorName;", TrackTableIdentifier), _
-        '                New CommandParameter("@AdministratorName", AdministratorName))
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
+            ExecuteNonQuery(New SqlQueryString( _
+                "CREATE TABLE " & TrackTableIdentifier.EscapedText & " ( " & _
+                "  `Id` INT NOT NULL AUTO_INCREMENT,                     " & _
+                "  PRIMARY KEY (`Id`))                                   " & _
+                "ENGINE = InnoDB;                                        "))
 
-        ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
+            Dim AdministratorName As String = Relations.UserNames.AdministratorUserName(DatabaseName)
+            For Each Host In {"%", "localhost"}
+                Dim AdministratorIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(AdministratorName).Escape, New VerbatimIdentifier(Host).Escape)
+                ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER {0} IDENTIFIED BY @AdministratorPassword;", AdministratorIdentifier), _
+                                New CommandParameter("@AdministratorPassword", AdministratorPassword))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO {1};", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable), AdministratorIdentifier))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TrackTableIdentifier, AdministratorIdentifier))
+            Next
+            'ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER @AdministratorName IDENTIFIED BY @AdministratorPassword;"), _
+            '        New CommandParameter("@AdministratorName", AdministratorName), _
+            '        New CommandParameter("@AdministratorPassword", AdministratorPassword))
+            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO @AdministratorName;", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable)), _
+            '                New CommandParameter("@AdministratorName", AdministratorName))
+            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @AdministratorName;", TrackTableIdentifier), _
+            '                New CommandParameter("@AdministratorName", AdministratorName))
 
-        Return New CreateTrackDatabaseResult(TrackDB, New DatabaseUser(AdministratorName, AdministratorPassword))
+            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
+
+            CommitTransaction()
+            Return New CreateTrackDatabaseResult(TrackDB, New DatabaseUser(AdministratorName, AdministratorPassword))
+        Finally
+            EndTransaction()
+        End Try
     End Function
 
     Public Structure CreateTrackDatabaseResult
@@ -73,15 +80,7 @@ Public Class Database
     End Structure
 
     Public Function GetAllDatabaseNames() As IEnumerable(Of VerbatimIdentifier)
-        Dim Databases = ExecuteQuery(FormatSqlIdentifiers("SHOW DATABASES;"))
-        Return New DelegateEnumerable(Of VerbatimIdentifier)( _
-           Function()
-               Return New MySqlRowEnumerator(Of VerbatimIdentifier)( _
-                   Databases.GetEnumerator, _
-                   Function(Reader)
-                       Return New VerbatimIdentifier(Reader.GetString(0))
-                   End Function)
-           End Function)
+        Return ExecuteQuery(FormatSqlIdentifiers("SHOW DATABASES;")).Select(Function(Row) New VerbatimIdentifier(Row.GetString(0)))
     End Function
 
 End Class
