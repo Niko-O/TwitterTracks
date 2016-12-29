@@ -29,12 +29,33 @@ Public Class Tweet
         End Get
     End Property
 
-    Public ReadOnly Property Coordinates As String Implements ITweet.Coordinates
+    Public ReadOnly Property HasCoordinates As Boolean Implements ITweet.HasCoordinates
         Get
-            Return String.Format("Latitude={0};Longitude={1};UserLocation={2}",
-                                 If(TweetinviTweet.Coordinates Is Nothing, "", TweetinviTweet.Coordinates.Latitude.ToString),
-                                 If(TweetinviTweet.Coordinates Is Nothing, "", TweetinviTweet.Coordinates.Longitude.ToString),
-                                 TweetinviTweet.CreatedBy.Location)
+            Return TweetinviTweet.Coordinates IsNot Nothing
+        End Get
+    End Property
+
+    Public ReadOnly Property Latitude As Double Implements ITweet.Latitude
+        Get
+            If TweetinviTweet.Coordinates Is Nothing Then
+                Return 0
+            End If
+            Return TweetinviTweet.Coordinates.Latitude
+        End Get
+    End Property
+
+    Public ReadOnly Property Longitude As Double Implements ITweet.Longitude
+        Get
+            If TweetinviTweet.Coordinates Is Nothing Then
+                Return 0
+            End If
+            Return TweetinviTweet.Coordinates.Longitude
+        End Get
+    End Property
+
+    Public ReadOnly Property UserRegion As String Implements ITweet.UserRegion
+        Get
+            Return TweetinviTweet.CreatedBy.Location
         End Get
     End Property
 

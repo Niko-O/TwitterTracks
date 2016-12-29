@@ -84,6 +84,7 @@
     <Compile Include="DatabaseInteraction\DatabaseConnection.vb" />
     <Compile Include="Model\EntityId.vb" />
     <Compile Include="Model\Tweet.vb" />
+    <Compile Include="Model\TweetLocation.vb" />
     <Compile Include="Model\TweetLocationType.vb" />
     <Compile Include="Model\DatabaseUser.vb" />
     <Compile Include="ConnectionStrings\IConnectionStringSource.vb" />

@@ -40,8 +40,8 @@ Public Class ResearcherDatabase
                          Reader.GetInt64("TweetId"), _
                          Reader.GetString("ContentHash"), _
                          Helpers.UnixTimestampToUtc(Reader.GetInt64("PublishDateTime")), _
-                         DirectCast(Reader.GetInt32("LocationType"), TweetLocationType), _
-                         Reader.GetString("Location"))
+                         TweetLocation.ParseDatabaseValue(DirectCast(Reader.GetInt32("LocationType"), TweetLocationType), _
+                                                          Reader.GetString("Location")))
     End Function
 
 #End Region
@@ -91,7 +91,7 @@ Public Class ResearcherDatabase
         Return ExecuteQuery(FormatSqlIdentifiers("SELECT * FROM {0}", TweetTableIdentifier)).Select(Function(Row) RowToTweet(Row))
     End Function
 
-    Public Sub CreateTweet(TweetId As Int64, ContentHash As String, PublishDateTime As DateTime, LocationType As TweetLocationType, Location As String)
+    Public Sub CreateTweet(TweetId As Int64, ContentHash As String, PublishDateTime As DateTime, Location As TweetLocation)
         Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
         ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
                                              "(`TweetId`, `ContentHash`, `PublishDateTime`, `LocationType`, `Location`) " & _
@@ -99,8 +99,8 @@ Public Class ResearcherDatabase
                         New CommandParameter("@TweetId", TweetId), _
                         New CommandParameter("@ContentHash", ContentHash), _
                         New CommandParameter("@PublishDateTime", PublishDateTime.ToUnixTimestamp), _
-                        New CommandParameter("@LocationType", LocationType), _
-                        New CommandParameter("@Location", Location))
+                        New CommandParameter("@LocationType", Location.LocationType), _
+                        New CommandParameter("@Location", Location.ToDatabaseValue))
     End Sub
 
     Public Function GetTweetsSinceEntityId(LastTweetEntityIdExclusiveToResultSet As EntityId) As IEnumerable(Of Tweet)

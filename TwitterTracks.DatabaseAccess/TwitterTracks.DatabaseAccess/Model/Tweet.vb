@@ -32,28 +32,19 @@
         End Get
     End Property
 
-    Private _LocationType As TweetLocationType
-    Public ReadOnly Property LocationType As TweetLocationType
-        <DebuggerStepThrough()>
-        Get
-            Return _LocationType
-        End Get
-    End Property
-
-    Private _Location As String
-    Public ReadOnly Property Location As String
+    Private _Location As TweetLocation
+    Public ReadOnly Property Location As TweetLocation
         <DebuggerStepThrough()>
         Get
             Return _Location
         End Get
     End Property
 
-    Public Sub New(NewEntityId As EntityId, NewTweetId As Int64, NewContentHash As String, NewPublishDateTime As DateTime, NewLocationType As TweetLocationType, NewLocation As String)
+    Public Sub New(NewEntityId As EntityId, NewTweetId As Int64, NewContentHash As String, NewPublishDateTime As DateTime, NewLocation As TweetLocation)
         _EntityId = NewEntityId
         _TweetId = NewTweetId
         _ContentHash = NewContentHash
         _PublishDateTime = NewPublishDateTime
-        _LocationType = NewLocationType
         _Location = NewLocation
     End Sub
 

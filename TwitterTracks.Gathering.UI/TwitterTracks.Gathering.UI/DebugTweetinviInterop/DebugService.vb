@@ -33,7 +33,11 @@ Namespace DebugTweetinviInterop
                     Return New PublishTweetResult(PublishTweetFailReason.None, ex)
                 End Try
             Else
-                Return New PublishTweetResult(New DebugTweet(Rnd.Next(100, 1000000), Rnd.Next(100, 100000), "This is a debug Tweet.", Helpers.UnixTimestampToUtc(Rnd.Next(10000, 100000000)), "Over there"))
+                If Rnd.NextBoolean Then
+                    Return New PublishTweetResult(New DebugTweet(Rnd.Next(100, 1000000), Rnd.Next(100, 100000), "This is a debug Tweet.", Helpers.UnixTimestampToUtc(Rnd.Next(10000, 100000000)), False, 0, 0, "Over there"))
+                Else
+                    Return New PublishTweetResult(New DebugTweet(Rnd.Next(100, 1000000), Rnd.Next(100, 100000), "This is a debug Tweet.", Helpers.UnixTimestampToUtc(Rnd.Next(10000, 100000000)), True, Rnd.NextDouble, Rnd.NextDouble, "Unused"))
+                End If
             End If
         End Function
 

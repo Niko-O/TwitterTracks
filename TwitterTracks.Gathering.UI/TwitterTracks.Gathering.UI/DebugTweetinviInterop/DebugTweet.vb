@@ -34,19 +34,43 @@ Namespace DebugTweetinviInterop
             End Get
         End Property
 
-        Dim _Coordinates As String
-        Public ReadOnly Property Coordinates As String Implements TweetinviInterop.ITweet.Coordinates
+        Dim _HasCoordinates As Boolean
+        Public ReadOnly Property HasCoordinates As Boolean Implements TweetinviInterop.ITweet.HasCoordinates
             Get
-                Return _Coordinates
+                Return _HasCoordinates
             End Get
         End Property
 
-        Public Sub New(NewId As Int64, NewCreatedByUserId As Int64, NewText As String, NewPublishDateTime As DateTime, NewCoordinates As String)
+        Dim _Latitude As Double
+        Public ReadOnly Property Latitude As Double Implements TweetinviInterop.ITweet.Latitude
+            Get
+                Return _Latitude
+            End Get
+        End Property
+
+        Dim _Longitude As Double
+        Public ReadOnly Property Longitude As Double Implements TweetinviInterop.ITweet.Longitude
+            Get
+                Return _Latitude
+            End Get
+        End Property
+
+        Dim _UserRegion As String
+        Public ReadOnly Property UserRegion As String Implements TweetinviInterop.ITweet.UserRegion
+            Get
+                Return _UserRegion
+            End Get
+        End Property
+
+        Public Sub New(NewId As Int64, NewCreatedByUserId As Int64, NewText As String, NewPublishDateTime As DateTime, NewHasCoordinates As Boolean, NewLatitude As Double, NewLongitude As Double, NewUserRegion As String)
             _Id = NewId
             _CreatedByUserId = NewCreatedByUserId
             _Text = NewText
             _PublishDateTime = NewPublishDateTime
-            _Coordinates = NewCoordinates
+            _HasCoordinates = NewHasCoordinates
+            _Latitude = NewLatitude
+            _Longitude = NewLongitude
+            _UserRegion = NewUserRegion
         End Sub
 
     End Class

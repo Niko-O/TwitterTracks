@@ -189,7 +189,15 @@
 
     <TwitterTracks.TweetinviInterop.MultithreadingAwareness()>
     Private Sub TweetReceived(sender As Object, e As TweetinviInterop.TweetReceivedEventArgs)
-        Database.CreateTweet(e.Tweet.Id, e.Tweet.Text, e.Tweet.PublishDateTime, DatabaseAccess.TweetLocationType.TweetCoordinates, e.Tweet.Coordinates)
+        Dim Location As TwitterTracks.DatabaseAccess.TweetLocation
+        If e.Tweet.HasCoordinates Then
+            Location = TwitterTracks.DatabaseAccess.TweetLocation.FromTweetCoordinates(e.Tweet.Latitude, e.Tweet.Longitude)
+        ElseIf e.Tweet.UserRegion Is Nothing Then
+            Location = TwitterTracks.DatabaseAccess.TweetLocation.FromNone
+        Else
+            Location = TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegion(e.Tweet.UserRegion)
+        End If
+        Database.CreateTweet(e.Tweet.Id, e.Tweet.Text, e.Tweet.PublishDateTime, Location)
         ViewModel.NumberOfTrackedTweets += 1
     End Sub
 
