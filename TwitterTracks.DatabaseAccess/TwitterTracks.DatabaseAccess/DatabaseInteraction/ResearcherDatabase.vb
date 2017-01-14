@@ -26,6 +26,10 @@ Public Class ResearcherDatabase
         _TrackEntityId = NewTrackEntityId
     End Sub
 
+    Private Function GetTweetTableIdentifier() As EscapedIdentifier
+        Return Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
+    End Function
+
 #Region "RowToModel"
 
     Private Shared Function RowToTrackMetadata(Reader As Sql.MySqlDataReader) As TrackMetadata
@@ -87,12 +91,17 @@ Public Class ResearcherDatabase
     End Sub
 
     Public Function GetAllTweets() As IEnumerable(Of Tweet)
-        Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
+        Dim TweetTableIdentifier = GetTweetTableIdentifier()
         Return ExecuteQuery(FormatSqlIdentifiers("SELECT * FROM {0}", TweetTableIdentifier)).Select(Function(Row) RowToTweet(Row))
     End Function
 
+    Public Function CountAllTweets() As Int64
+        Dim TweetTableIdentifier = GetTweetTableIdentifier()
+        Return ExecuteScalar(Of Int64)(FormatSqlIdentifiers("SELECT COUNT(*) FROM {0}", TweetTableIdentifier))
+    End Function
+
     Public Sub CreateTweet(TweetId As Int64, ContentHash As String, PublishDateTime As DateTime, Location As TweetLocation)
-        Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
+        Dim TweetTableIdentifier = GetTweetTableIdentifier()
         ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
                                              "(`TweetId`, `ContentHash`, `PublishDateTime`, `LocationType`, `Location`) " & _
                                              "VALUES (@TweetId, @ContentHash, @PublishDateTime, @LocationType, @Location)", TweetTableIdentifier), _
@@ -104,7 +113,7 @@ Public Class ResearcherDatabase
     End Sub
 
     Public Function GetTweetsSinceEntityId(LastTweetEntityIdExclusiveToResultSet As EntityId) As IEnumerable(Of Tweet)
-        Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
+        Dim TweetTableIdentifier = GetTweetTableIdentifier()
         Return ExecuteQuery(FormatSqlIdentifiers("SELECT * FROM {0} WHERE `Id` > @LastTweetEntityIdExclusiveToResultSet", TweetTableIdentifier),
                                                  New CommandParameter("@LastTweetEntityIdExclusiveToResultSet", LastTweetEntityIdExclusiveToResultSet)) _
                    .Select(Function(Row) RowToTweet(Row))
