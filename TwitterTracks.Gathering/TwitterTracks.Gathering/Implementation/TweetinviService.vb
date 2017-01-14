@@ -41,7 +41,7 @@ Public Class TweetinviService
         Return New PublishTweetResult(New Tweet(ResultTweet))
     End Function
 
-    Function StartTwitterStream(TweetId As Int64, CreatedByUserId As Int64, RelevantKeywords As IEnumerable(Of String), AuthenticationToken As AuthenticationToken) As StartTwitterStreamResult Implements ITwitterService.StartTwitterStream
+    Public Function StartTwitterStream(TweetId As Int64, CreatedByUserId As Int64, RelevantKeywords As IEnumerable(Of String), AuthenticationToken As AuthenticationToken) As StartTwitterStreamResult Implements ITwitterService.StartTwitterStream
         If CurrentStream.IsRunning Then
             Throw New NopeException("The Stream is already running. This method should not be called.")
         End If
@@ -50,8 +50,15 @@ Public Class TweetinviService
         CurrentStream.RelevantKeywords = New ReadOnlyCollection(Of String)(RelevantKeywords.ToList)
         CurrentStream.TwitterCredentials = New Tweetinvi.Models.TwitterCredentials(AuthenticationToken.ConsumerKey, AuthenticationToken.ConsumerSecret, AuthenticationToken.AccessToken, AuthenticationToken.AccessTokenSecret)
         CurrentStream.Start()
-        Return New StartTwitterStreamResult()
+        Return New StartTwitterStreamResult
     End Function
+
+    Public Sub StopTwitterStream() Implements ITwitterService.StopTwitterStream
+        If Not CurrentStream.IsRunning Then
+            Throw New NopeException("The Stream is not running. This method should not be called.")
+        End If
+        CurrentStream.Stop()
+    End Sub
 
     Private Sub CurrentStream_Started() Handles CurrentStream.Started
         RaiseEvent StreamStarted(Me, EventArgs.Empty)

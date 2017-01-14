@@ -53,6 +53,9 @@ Namespace DebugTweetinviInterop
             End If
         End Function
 
+        Public Sub StopTwitterStream() Implements TweetinviInterop.ITwitterService.StopTwitterStream
+        End Sub
+
     End Class
 
 End Namespace
