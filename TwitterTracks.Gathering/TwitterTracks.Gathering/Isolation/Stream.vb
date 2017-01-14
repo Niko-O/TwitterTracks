@@ -35,7 +35,7 @@ Public Class Stream
     Public Sub Start()
         'ToDo: Handle Resume
         Stream = Tweetinvi.Stream.CreateFilteredStream(TwitterCredentials)
-        Stream.AddFollow(808431695678603264, AddressOf UserPublishedTweetCallback) 'OriginalTweetCreatedByUserId
+        Stream.AddFollow(OriginalTweetCreatedByUserId, AddressOf UserPublishedTweetCallback)
         Stream.AddTrack(String.Join(" ", RelevantKeywords), AddressOf TweetReceivedByKeywordsCallback)
         StreamTask = Stream.StartStreamMatchingAnyConditionAsync()
     End Sub
