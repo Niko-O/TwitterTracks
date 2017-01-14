@@ -6,60 +6,38 @@
     Public Sub New()
         InitializeComponent()
         ViewModel = DirectCast(Me.DataContext, MainWindowViewModel)
+        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.StreamStarted, AddressOf StreamStarted
+        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.StreamStopped, AddressOf StreamStopped
+        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.TweetReceived, AddressOf TweetReceived
+    End Sub
+
+    Protected Overrides Sub OnClosing(e As System.ComponentModel.CancelEventArgs)
+        If ViewModel.OpenTweetInfo IsNot Nothing Then
+            If MessageBox.Show("There are things loaded in the application. If you close it those things will be lost.", "Closing application", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) = MessageBoxResult.Cancel Then
+                e.Cancel = True
+            End If
+        End If
+        MyBase.OnClosing(e)
+        If Not e.Cancel Then
+            TwitterTracks.TweetinviInterop.ServiceProvider.Service.StopTwitterStream()
+        End If
     End Sub
 
     Private Sub OpenOrCreateTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim Dlg As New OpenTrackDialog.OpenTrackDialog With {.Owner = Me}
         If Dlg.ShowDialog() Then
             ViewModel.OpenTweetInfo = Dlg.GetOpenTweetInfo
-        End If
-    End Sub
-
-    Private Sub PublishTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        Dim MediaBinaries As New List(Of Byte())
-        For Each i In ViewModel.OpenTweetInfo.TweetData.MediasToAdd
-            MediaBinaries.Add(System.IO.File.ReadAllBytes(i))
-        Next
-
-        Dim PublishResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.PublishTweet(ViewModel.OpenTweetInfo.TweetData.TweetText, _
-                                                                                                MediaBinaries, _
-                                                                                                ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
-        If Not PublishResult.Success Then
-            Dim ErrorMessage = "Publishing failed:"
-            If PublishResult.ErrorException IsNot Nothing Then
-                ErrorMessage &= " " & PublishResult.ErrorException.GetType.Name & ": " & PublishResult.ErrorException.Message
+            Database = New TwitterTracks.DatabaseAccess.ResearcherDatabase(ViewModel.OpenTweetInfo.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.OpenTweetInfo.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(ViewModel.OpenTweetInfo.Database.ResearcherId))
+            ViewModel.NumberOfTrackedTweets = Database.CountAllTweets()
+            If ViewModel.OpenTweetInfo.IsPublished Then
+                StartStream()
             End If
-            ViewModel.PublishStatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
-            Return
         End If
-
-        Dim StartStreamResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTweetInfo.TweetData.Keywords, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
-        If Not StartStreamResult.Success Then
-            Dim ErrorMessage = "Starting the Twitter API Stream failed after publishing the Tweet (this would be a good time to panic!):"
-            If StartStreamResult.ErrorException IsNot Nothing Then
-                ErrorMessage &= " " & StartStreamResult.ErrorException.GetType.Name & ": " & StartStreamResult.ErrorException.Message
-            End If
-            ViewModel.PublishStatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
-            Return
-        End If
-
-        Dim NewMetadata As New TwitterTracks.DatabaseAccess.TrackMetadata(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTweetInfo.TweetData.TweetText, ViewModel.OpenTweetInfo.TweetData.Keywords)
-        Dim NewDatabase = New TwitterTracks.DatabaseAccess.ResearcherDatabase(ViewModel.OpenTweetInfo.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.OpenTweetInfo.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(ViewModel.OpenTweetInfo.Database.ResearcherId))
-        NewDatabase.UpdateOrCreateTrackMetadata(NewMetadata)
-        ViewModel.OpenTweetInfo.TweetData.Metadata = NewMetadata
-
-        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.StreamStarted, AddressOf StreamStarted
-        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.StreamStopped, AddressOf StreamStopped
-        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.TweetReceived, AddressOf TweetReceived
-
-        Database = NewDatabase
-        ViewModel.PublishStatusMessageVM.ClearStatus()
-        ViewModel.OpenTweetInfo.IsPublished = True
     End Sub
 
     Private Sub LoadConfiguration(sender As System.Object, e As System.Windows.RoutedEventArgs)
         If Not System.IO.File.Exists(TwitterTracks.Common.Paths.GatheringConfigurationFilePath) Then
-            ViewModel.LoadConfigurationStatusMessageVM.SetStatus("The configuration file does not exist.", Common.UI.StatusMessageKindType.Warning)
+            ViewModel.StatusMessageVM.SetStatus("The configuration file does not exist.", Common.UI.StatusMessageKindType.Warning)
             Return
         End If
         Dim Root = XElement.Load(TwitterTracks.Common.Paths.GatheringConfigurationFilePath)
@@ -68,7 +46,7 @@
 
         Dim Dlg As New PasswordDialog.PasswordDialog With {.Owner = Me}
         If Not Dlg.ShowDialog Then
-            ViewModel.LoadConfigurationStatusMessageVM.ClearStatus()
+            ViewModel.StatusMessageVM.ClearStatus()
             Return
         End If
 
@@ -112,12 +90,12 @@
         Try
             Result.Database.Connection.Open()
         Catch ex As MySql.Data.MySqlClient.MySqlException
-            ViewModel.LoadConfigurationStatusMessageVM.SetStatus("The database connection could not be opened. The password is probably wrong." & Environment.NewLine & ex.Message, Common.UI.StatusMessageKindType.Error)
+            ViewModel.StatusMessageVM.SetStatus("The database connection could not be opened. The password is probably wrong or the database is not running." & Environment.NewLine & ex.Message, Common.UI.StatusMessageKindType.Error)
             Return
         End Try
 
-        Dim NewDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(Result.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(Result.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(Result.Database.ResearcherId))
-        Dim ExistingMetadata = NewDatabase.TryGetTrackMetadata
+        Database = New TwitterTracks.DatabaseAccess.ResearcherDatabase(Result.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(Result.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(Result.Database.ResearcherId))
+        Dim ExistingMetadata = Database.TryGetTrackMetadata
         Dim MetadataExistsAndThereforeTweetIsPublished = ExistingMetadata IsNot Nothing
         If MetadataExistsAndThereforeTweetIsPublished <> Result.IsPublished Then
             Dim ErrorMessage = String.Format("The configuration file says the Tweet is {0} published but the database says the opposite.", If(Result.IsPublished, "already", "not yet"))
@@ -125,15 +103,55 @@
                 Dim Metadata = ExistingMetadata.Value
                 ErrorMessage &= String.Format("The database stores the Tweet {1}, created by {2}:{0}{3}", Environment.NewLine, Metadata.InitialTweetId, Metadata.InitialTweetUserId, Metadata.InitialTweetFullText)
             End If
-            ViewModel.LoadConfigurationStatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
+            ViewModel.StatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
             Return
         End If
+
+        ViewModel.StatusMessageVM.ClearStatus()
+        ViewModel.OpenTweetInfo = Result
+
+        ViewModel.NumberOfTrackedTweets = Database.CountAllTweets()
         If MetadataExistsAndThereforeTweetIsPublished Then
-            Database = NewDatabase
+            StartStream()
+        End If
+    End Sub
+
+    Private Sub PublishTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        Dim MediaBinaries As New List(Of Byte())
+        For Each i In ViewModel.OpenTweetInfo.TweetData.MediasToAdd
+            MediaBinaries.Add(System.IO.File.ReadAllBytes(i))
+        Next
+
+        Dim PublishResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.PublishTweet(ViewModel.OpenTweetInfo.TweetData.TweetText, _
+                                                                                                MediaBinaries, _
+                                                                                                ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
+        If Not PublishResult.Success Then
+            Dim ErrorMessage = "Publishing failed:"
+            If PublishResult.ErrorException IsNot Nothing Then
+                ErrorMessage &= " " & PublishResult.ErrorException.GetType.Name & ": " & PublishResult.ErrorException.Message
+            End If
+            ViewModel.StatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
+            Return
         End If
 
-        ViewModel.LoadConfigurationStatusMessageVM.ClearStatus()
-        ViewModel.OpenTweetInfo = Result
+        Dim StartStreamResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTweetInfo.TweetData.Keywords, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
+        If Not StartStreamResult.Success Then
+            Dim ErrorMessage = "Starting the Twitter API Stream failed after publishing the Tweet (this would be a good time to panic!):"
+            If StartStreamResult.ErrorException IsNot Nothing Then
+                ErrorMessage &= " " & StartStreamResult.ErrorException.GetType.Name & ": " & StartStreamResult.ErrorException.Message
+            End If
+            ViewModel.StatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
+            Return
+        End If
+
+        Dim NewMetadata As New TwitterTracks.DatabaseAccess.TrackMetadata(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTweetInfo.TweetData.TweetText, ViewModel.OpenTweetInfo.TweetData.Keywords)
+        Database.UpdateOrCreateTrackMetadata(NewMetadata)
+        ViewModel.OpenTweetInfo.TweetData.Metadata = NewMetadata
+
+        ViewModel.StatusMessageVM.ClearStatus()
+        ViewModel.OpenTweetInfo.IsPublished = True
+
+        StartStream()
     End Sub
 
     Private Sub SaveConfiguration(sender As System.Object, e As System.Windows.RoutedEventArgs)
@@ -168,27 +186,40 @@
         Root.Save(TwitterTracks.Common.Paths.GatheringConfigurationFilePath)
     End Sub
 
-    Protected Overrides Sub OnClosing(e As System.ComponentModel.CancelEventArgs)
-        If ViewModel.OpenTweetInfo IsNot Nothing Then
-            If MessageBox.Show("There are things loaded in the application. If you close it those things will be lost.", "Closing application", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) = MessageBoxResult.Cancel Then
-                e.Cancel = True
+    Private Sub ManuallyStartTrackingStream(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        StartStream()
+    End Sub
+
+    Private Sub StartStream()
+        Dim StartStreamResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetId, ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetUserId, ViewModel.OpenTweetInfo.TweetData.Keywords, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
+        If StartStreamResult.Success Then
+            ViewModel.StatusMessageVM.ClearStatus()
+        Else
+            Dim ErrorMessage = "Starting the Twitter API Stream failed:"
+            If StartStreamResult.ErrorException IsNot Nothing Then
+                ErrorMessage &= " " & StartStreamResult.ErrorException.GetType.Name & ": " & StartStreamResult.ErrorException.Message
             End If
+            ViewModel.StatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
+            Return
         End If
-        MyBase.OnClosing(e)
     End Sub
 
     <TwitterTracks.TweetinviInterop.MultithreadingAwareness()>
     Private Sub StreamStarted(sender As Object, e As EventArgs)
-        'ToDo
+        Dispatcher.Invoke(Sub() ViewModel.TrackingStreamIsRunning = True)
     End Sub
 
     <TwitterTracks.TweetinviInterop.MultithreadingAwareness()>
     Private Sub StreamStopped(sender As Object, e As TweetinviInterop.StreamStoppedEventArgs)
-        'ToDo
+        Dispatcher.Invoke(Sub() ViewModel.TrackingStreamIsRunning = False)
     End Sub
 
     <TwitterTracks.TweetinviInterop.MultithreadingAwareness()>
     Private Sub TweetReceived(sender As Object, e As TweetinviInterop.TweetReceivedEventArgs)
+        If Database Is Nothing Then
+            Throw New NopeException
+            Return
+        End If
         Dim Location As TwitterTracks.DatabaseAccess.TweetLocation
         If e.Tweet.HasCoordinates Then
             Location = TwitterTracks.DatabaseAccess.TweetLocation.FromTweetCoordinates(e.Tweet.Latitude, e.Tweet.Longitude)
@@ -198,25 +229,7 @@
             Location = TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegion(e.Tweet.UserRegion)
         End If
         Database.CreateTweet(e.Tweet.Id, e.Tweet.Text, e.Tweet.PublishDateTime, Location)
-        ViewModel.NumberOfTrackedTweets += 1
-    End Sub
-
-    Private Sub Button_Click(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        Dim StartStreamResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetId, ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetUserId, ViewModel.OpenTweetInfo.TweetData.Keywords, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
-        If Not StartStreamResult.Success Then
-            Dim ErrorMessage = "Starting the Twitter API Stream failed:"
-            If StartStreamResult.ErrorException IsNot Nothing Then
-                ErrorMessage &= " " & StartStreamResult.ErrorException.GetType.Name & ": " & StartStreamResult.ErrorException.Message
-            End If
-            ViewModel.PublishStatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
-            Return
-        End If
-
-        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.StreamStarted, AddressOf StreamStarted
-        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.StreamStopped, AddressOf StreamStopped
-        AddHandler TwitterTracks.TweetinviInterop.ServiceProvider.Service.TweetReceived, AddressOf TweetReceived
-
-        ViewModel.PublishStatusMessageVM.ClearStatus()
+        Dispatcher.Invoke(Sub() ViewModel.NumberOfTrackedTweets += 1)
     End Sub
 
 End Class

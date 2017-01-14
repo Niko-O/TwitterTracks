@@ -5,6 +5,7 @@ Namespace UI
 
         Public Shared ReadOnly ErrorBackgroundBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#ffaaaa"), SolidColorBrush)
         Public Shared ReadOnly WarningBackgroundBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#ffccaa"), SolidColorBrush)
+        Public Shared ReadOnly SuccessBackgroundBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#aaffaa"), SolidColorBrush)
 
 #Const EnableDebugData = True
 

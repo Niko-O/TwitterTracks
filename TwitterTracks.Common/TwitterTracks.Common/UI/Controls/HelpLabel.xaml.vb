@@ -16,7 +16,7 @@ Namespace UI.Controls
             DependencyProperty.Register("MainContent", _
                                         GetType(Object), _
                                         GetType(HelpLabel), _
-                                        New FrameworkPropertyMetadata(Nothing, New PropertyChangedCallback(AddressOf OnMainContentDependencyPropertyChanged)) With {.DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, .BindsTwoWayByDefault = True})
+                                        New FrameworkPropertyMetadata(Nothing, New PropertyChangedCallback(AddressOf OnMainContentDependencyPropertyChanged)) With {.DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, .BindsTwoWayByDefault = False})
         Private Shared Sub OnMainContentDependencyPropertyChanged(d As DependencyObject, e As DependencyPropertyChangedEventArgs)
             DirectCast(d, HelpLabel).OnMainContentPropertyChanged()
         End Sub
@@ -36,7 +36,7 @@ Namespace UI.Controls
             DependencyProperty.Register("ButtonContent", _
                                         GetType(Object), _
                                         GetType(HelpLabel), _
-                                        New FrameworkPropertyMetadata("?", New PropertyChangedCallback(AddressOf OnButtonContentDependencyPropertyChanged)) With {.DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, .BindsTwoWayByDefault = True})
+                                        New FrameworkPropertyMetadata("?", New PropertyChangedCallback(AddressOf OnButtonContentDependencyPropertyChanged)) With {.DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, .BindsTwoWayByDefault = False})
         Private Shared Sub OnButtonContentDependencyPropertyChanged(d As DependencyObject, e As DependencyPropertyChangedEventArgs)
             DirectCast(d, HelpLabel).OnButtonContentPropertyChanged()
         End Sub
@@ -56,7 +56,7 @@ Namespace UI.Controls
             DependencyProperty.Register("HelpContent", _
                                         GetType(Object), _
                                         GetType(HelpLabel), _
-                                        New FrameworkPropertyMetadata(Nothing, New PropertyChangedCallback(AddressOf OnHelpContentDependencyPropertyChanged)) With {.DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, .BindsTwoWayByDefault = True})
+                                        New FrameworkPropertyMetadata(Nothing, New PropertyChangedCallback(AddressOf OnHelpContentDependencyPropertyChanged)) With {.DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, .BindsTwoWayByDefault = False})
         Private Shared Sub OnHelpContentDependencyPropertyChanged(d As DependencyObject, e As DependencyPropertyChangedEventArgs)
             DirectCast(d, HelpLabel).OnHelpContentPropertyChanged()
         End Sub

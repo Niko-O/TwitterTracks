@@ -1,6 +1,53 @@
 ﻿Public Class MainWindowViewModel
     Inherits ViewModelBase
 
+    Dim _IsBusy As Boolean = False
+    Public Property IsBusy As Boolean
+        <DebuggerStepThrough()>
+        Get
+            Return _IsBusy
+        End Get
+        Set(value As Boolean)
+            ExtendedChangeIfDifferent(_IsBusy, value, "IsBusy")
+        End Set
+    End Property
+
+    <Dependency("OpenTweetInfo")>
+    Public ReadOnly Property TrackDataSignal As SignalKind
+        <DebuggerStepThrough()>
+        Get
+            If OpenTweetInfo Is Nothing Then
+                Return SignalKind.Error
+            End If
+            Return SignalKind.OK
+        End Get
+    End Property
+
+    <Dependency("OpenTweetInfo", "TrackingStreamIsRunning")>
+    Public ReadOnly Property TrackingSignal As SignalKind
+        <DebuggerStepThrough()>
+        Get
+            If OpenTweetInfo Is Nothing Then
+                Return SignalKind.Error
+            End If
+            If Not TrackingStreamIsRunning Then
+                Return SignalKind.Error
+            End If
+            Return SignalKind.OK
+        End Get
+    End Property
+
+    Dim _TrackingStreamIsRunning As Boolean = False
+    Public Property TrackingStreamIsRunning As Boolean
+        <DebuggerStepThrough()>
+        Get
+            Return _TrackingStreamIsRunning
+        End Get
+        Set(value As Boolean)
+            ExtendedChangeIfDifferent(_TrackingStreamIsRunning, value, "TrackingStreamIsRunning")
+        End Set
+    End Property
+
     Dim _OpenTweetInfo As OpenTweetInformation = Nothing
     Public Property OpenTweetInfo As OpenTweetInformation
         <DebuggerStepThrough()>
@@ -22,10 +69,17 @@
         End Set
     End Property
 
-    <Dependency("OpenTweetInfo", "OpenTweetInfo")>
+    <Dependency("OpenTweetInfo")>
     Public ReadOnly Property CanPublish As Boolean
         Get
-            Return OpenTweetInfo IsNot Nothing AndAlso OpenTweetInfo IsNot Nothing AndAlso Not OpenTweetInfo.IsPublished
+            Return OpenTweetInfo IsNot Nothing AndAlso Not OpenTweetInfo.IsPublished
+        End Get
+    End Property
+
+    <Dependency("OpenTweetInfo", "TrackingStreamIsRunning")>
+    Public ReadOnly Property CanStartStream As Boolean
+        Get
+            Return OpenTweetInfo IsNot Nothing AndAlso OpenTweetInfo.IsPublished AndAlso Not TrackingStreamIsRunning
         End Get
     End Property
 
@@ -40,19 +94,11 @@
         End Set
     End Property
 
-    Dim _PublishStatusMessageVM As new TwitterTracks.Common.UI.StatusMessageViewModel
-    Public ReadOnly Property PublishStatusMessageVM As TwitterTracks.Common.UI.StatusMessageViewModel
+    Dim _StatusMessageVM As New TwitterTracks.Common.UI.StatusMessageViewModel
+    Public ReadOnly Property StatusMessageVM As TwitterTracks.Common.UI.StatusMessageViewModel
         <DebuggerStepThrough()>
         Get
-            Return _PublishStatusMessageVM
-        End Get
-    End Property
-
-    Dim _LoadConfigurationStatusMessageVM As New TwitterTracks.Common.UI.StatusMessageViewModel
-    Public ReadOnly Property LoadConfigurationStatusMessageVM As TwitterTracks.Common.UI.StatusMessageViewModel
-        <DebuggerStepThrough()>
-        Get
-            Return _LoadConfigurationStatusMessageVM
+            Return _StatusMessageVM
         End Get
     End Property
 
@@ -64,7 +110,7 @@
     End Sub
 
     Private Sub OpenTweetInfo_IsPublishedChanged()
-        OnPropertyChanged("CanPublish")
+        OnPropertyChanged("CanPublish", "CanStartStream")
     End Sub
 
 End Class

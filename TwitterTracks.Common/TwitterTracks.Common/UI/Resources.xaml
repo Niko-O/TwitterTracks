@@ -20,7 +20,8 @@
     <c:ObjectToBooleanConverter x:Key="ReverseObjectToBooleanConverter" Invert="True"/>
     
     <c:BooleanNotConverter x:Key="BooleanNotConverter"/>
-    <c:ListToStringConverter x:Key="ListToStringConverter"/>
+    <c:ListToStringConverter x:Key="SpaceDelimitedListToStringConverter" Delimiter=" "/>
+    <c:EnumToUnderlyingTypeConverter x:Key="EnumToUnderlyingTypeConverter"/>
     
     <Style x:Key="StatusMessageTextBlockStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="TextWrapping" Value="Wrap"/>

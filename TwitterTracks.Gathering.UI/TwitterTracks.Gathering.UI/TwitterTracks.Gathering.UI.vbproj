@@ -78,6 +78,8 @@
     <Compile Include="DebugConstants.vb" />
     <Compile Include="DebugTweetinviInterop\DebugService.vb" />
     <Compile Include="DebugTweetinviInterop\DebugTweet.vb" />
+    <Compile Include="MainWindow\SignalKind.vb" />
+    <Compile Include="MainWindow\SignalKindToBrushConverter.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndex.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndexToIntConverter.vb" />
     <Compile Include="OpenTrackDialog\KeywordToAdd.vb" />

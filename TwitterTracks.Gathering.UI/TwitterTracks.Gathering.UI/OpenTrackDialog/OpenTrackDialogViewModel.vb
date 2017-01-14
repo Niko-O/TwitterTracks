@@ -57,7 +57,7 @@ Namespace OpenTrackDialog
             End Get
         End Property
 
-        Dim _CurrentTabIndex As DialogTabIndex = 0
+        Dim _CurrentTabIndex As DialogTabIndex = DialogTabIndex.Initial
         Public Property CurrentTabIndex As DialogTabIndex
             <DebuggerStepThrough()>
             Get

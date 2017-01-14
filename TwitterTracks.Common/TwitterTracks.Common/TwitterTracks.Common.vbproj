@@ -68,6 +68,9 @@
     <Compile Include="UI\Controls\IfContent.xaml.vb">
       <DependentUpon>IfContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Controls\ContentLabel.xaml.vb">
+      <DependentUpon>ContentLabel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Resources.vb" />
     <Compile Include="UI\StatusMessageKindType.vb" />
     <Compile Include="UI\StatusMessageViewModel.vb" />
@@ -76,6 +79,10 @@
     <Page Include="UI\Controls\IfContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Controls\ContentLabel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\Resources.xaml">
       <SubType>Designer</SubType>
