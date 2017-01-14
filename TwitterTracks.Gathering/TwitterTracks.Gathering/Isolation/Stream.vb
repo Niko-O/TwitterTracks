@@ -40,6 +40,11 @@ Public Class Stream
         StreamTask = Stream.StartStreamMatchingAnyConditionAsync()
     End Sub
 
+    Public Sub [Stop]()
+        Stream.StopStream()
+        Stream = Nothing
+    End Sub
+
     Private Sub UserPublishedTweetCallback(Tweet As Tweetinvi.Models.ITweet)
         OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "UserPublishedTweetCallback")
     End Sub
