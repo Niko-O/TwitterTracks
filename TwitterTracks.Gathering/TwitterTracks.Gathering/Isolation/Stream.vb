@@ -31,18 +31,25 @@ Public Class Stream
 
     Dim WithEvents Stream As Tweetinvi.Streaming.IFilteredStream = Nothing
 
+    Private Sub DebugPrint(Text As String, ParamArray Args As Object())
+        Program.DebugPrint("(StreamState {0}) : {1}", If(Stream Is Nothing, "null", Stream.StreamState.ToString), String.Format(Text, Args))
+    End Sub
+
     Public Sub Start()
         If Stream Is Nothing Then
+            DebugPrint("Stream.Start (new)")
             Stream = Tweetinvi.Stream.CreateFilteredStream(TwitterCredentials)
             Stream.AddFollow(OriginalTweetCreatedByUserId, AddressOf UserPublishedTweetCallback)
             Stream.AddTrack(String.Join(" ", RelevantKeywords), AddressOf TweetReceivedByKeywordsCallback)
             Stream.StartStreamMatchingAnyConditionAsync()
         Else
+            DebugPrint("Stream.Start (resumed)")
             Stream.ResumeStream()
         End If
     End Sub
 
     Public Sub [Stop]()
+        DebugPrint("Stream.Stop")
         Stream.StopStream()
         Stream = Nothing
     End Sub
@@ -61,17 +68,21 @@ Public Class Stream
     End Sub
 
     Private Sub Stream_DisconnectMessageReceived(sender As Object, e As Tweetinvi.Events.DisconnectedEventArgs) Handles Stream.DisconnectMessageReceived
+        DebugPrint("Stream.DisconnectMessageReceived: {2} Code {0}: {1} ", e.DisconnectMessage.Code, e.DisconnectMessage.Reason, e.DisconnectMessage.StreamName)
         OnStopped(TwitterTracks.TweetinviInterop.StreamStoppedEventArgs.Disconnect(e.DisconnectMessage.Code, e.DisconnectMessage.Reason, e.DisconnectMessage.StreamName))
     End Sub
 
     Private Sub Stream_LimitReached(sender As Object, e As Tweetinvi.Events.LimitReachedEventArgs) Handles Stream.LimitReached
+        DebugPrint("Stream.LimitReached: ", e.NumberOfTweetsNotReceived)
         OnStopped(TwitterTracks.TweetinviInterop.StreamStoppedEventArgs.LimitReached(e.NumberOfTweetsNotReceived))
     End Sub
 
     Private Sub Stream_StreamStopped(sender As Object, e As Tweetinvi.Events.StreamExceptionEventArgs) Handles Stream.StreamStopped
         If e.DisconnectMessage Is Nothing Then
+            DebugPrint("Stream.StreamStopped: (No DisconnectMessage). Exception: {0}", If(e.Exception Is Nothing, "null", String.Format("{0}: {1}", e.Exception.GetType.Name, e.Exception.Message)))
             OnStopped(TwitterTracks.TweetinviInterop.StreamStoppedEventArgs.Stopped(e.Exception, -1, Nothing, Nothing))
         Else
+            DebugPrint("Stream.StreamStopped: {0} Code {1}: {2}. Exception: {3}", e.DisconnectMessage.StreamName, e.DisconnectMessage.Code, e.DisconnectMessage.Reason, If(e.Exception Is Nothing, "null", String.Format("{0}: {1}", e.Exception.GetType.Name, e.Exception.Message)))
             OnStopped(TwitterTracks.TweetinviInterop.StreamStoppedEventArgs.Stopped(e.Exception, e.DisconnectMessage.Code, e.DisconnectMessage.Reason, e.DisconnectMessage.StreamName))
         End If
     End Sub
@@ -81,17 +92,20 @@ Public Class Stream
     End Sub
 
     Private Sub Stream_StreamPaused(sender As Object, e As EventArgs) Handles Stream.StreamPaused
+        DebugPrint("Stream.StreamPaused.")
         Throw New NopeException("The Stream should never be paused.")
     End Sub
 
     Private Sub Stream_StreamResumed(sender As Object, e As EventArgs) Handles Stream.StreamResumed
         'ToDo: Happens on start too.
+        DebugPrint("Stream.StreamResumed.")
         OnStarted()
     End Sub
 
     Private Sub Stream_StreamStarted(sender As Object, e As EventArgs) Handles Stream.StreamStarted
         'ToDo: This or Resumed?
         'OnStarted()
+        DebugPrint("Stream.StreamStarted.")
     End Sub
 
     Private Sub Stream_TweetDeleted(sender As Object, e As Tweetinvi.Events.TweetDeletedEventArgs) Handles Stream.TweetDeleted

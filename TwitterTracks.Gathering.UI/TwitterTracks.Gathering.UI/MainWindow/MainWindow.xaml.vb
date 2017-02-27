@@ -20,6 +20,7 @@
         MyBase.OnClosing(e)
         If Not e.Cancel Then
             If ViewModel.TrackingStreamIsRunning Then
+                DebugPrint("MainWindow.OnClosing")
                 TwitterTracks.TweetinviInterop.ServiceProvider.Service.StopTwitterStream()
             End If
         End If
@@ -119,6 +120,8 @@
     End Sub
 
     Private Sub PublishTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        DebugPrint("MainWindow.PublishTweet")
+
         Dim MediaBinaries As New List(Of Byte())
         For Each i In ViewModel.OpenTweetInfo.TweetData.MediasToAdd
             MediaBinaries.Add(System.IO.File.ReadAllBytes(i))
@@ -165,13 +168,13 @@
                            <ResearcherId><%= ViewModel.OpenTweetInfo.Database.ResearcherId %></ResearcherId>
                        </Database>
                        <TweetData>
-                           <%= If(ViewModel.OpenTweetInfo.IsPublished, _
+                           <%= If(ViewModel.OpenTweetInfo.IsPublished,
                                <Metadata>
                                    <InitialTweetId><%= ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetId %></InitialTweetId>
                                    <InitialTweetUserId><%= ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetUserId %></InitialTweetUserId>
                                    <InitialTweetFullText><%= ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetFullText %></InitialTweetFullText>
                                    <RelevantKeywords><%= ViewModel.OpenTweetInfo.TweetData.Metadata.RelevantKeywords.Select(Function(i) <Keyword><%= i %></Keyword>) %></RelevantKeywords>
-                               </Metadata>, _
+                               </Metadata>,
                                <Metadata/>
                                ) %>
                            <TweetText><%= ViewModel.OpenTweetInfo.TweetData.TweetText %></TweetText>
@@ -189,10 +192,12 @@
     End Sub
 
     Private Sub ManuallyStartTrackingStream(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        DebugPrint("MainWindow.ManuallyStartTrackingStream")
         StartStream()
     End Sub
 
     Private Sub StartStream()
+        DebugPrint("MainWindow.StartStream")
         Dim StartStreamResult = TwitterTracks.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetId, ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetUserId, ViewModel.OpenTweetInfo.TweetData.Keywords, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
         If StartStreamResult.Success Then
             ViewModel.StatusMessageVM.ClearStatus()
@@ -202,12 +207,12 @@
                 ErrorMessage &= " " & StartStreamResult.ErrorException.GetType.Name & ": " & StartStreamResult.ErrorException.Message
             End If
             ViewModel.StatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
-            Return
         End If
     End Sub
 
     <TwitterTracks.TweetinviInterop.MultithreadingAwareness()>
     Private Sub StreamStarted(sender As Object, e As EventArgs)
+        DebugPrint("MainWindow.StreamStarted")
         Dispatcher.Invoke(Sub() ViewModel.TrackingStreamIsRunning = True)
     End Sub
 
@@ -233,7 +238,9 @@
             Case Else
                 Throw New NopeException
         End Select
+        DebugPrint("MainWindow.StreamStopped. (Intentional: {0}) {1}", WasIntentional, DisconnectReasonString)
         Dispatcher.Invoke(Sub()
+                              DebugPrint("MainWindow.StreamStopped->Invoke.")
                               ViewModel.TrackingStreamIsRunning = False
                               ViewModel.StreamDisconnectReason = DisconnectReasonString
                               If Not WasIntentional Then
@@ -258,6 +265,15 @@
         End If
         Database.CreateTweet(e.Tweet.Id, e.Tweet.Text, e.Tweet.PublishDateTime, Location)
         Dispatcher.Invoke(Sub() ViewModel.NumberOfTrackedTweets += 1)
+    End Sub
+
+    Public Shared Sub DebugPrint(Text As String, ParamArray Args As Object())
+        With DateTime.Now
+            Helpers.DebugPrint("[{0}] @ {1}:{2}:{3}.{4}: {5}",
+                               System.Threading.Thread.CurrentThread.ManagedThreadId,
+                               .Hour, .Minute, .Second, .Millisecond,
+                               String.Format(Text, Args))
+        End With
     End Sub
 
 End Class

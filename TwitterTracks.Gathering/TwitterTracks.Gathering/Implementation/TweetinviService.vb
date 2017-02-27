@@ -27,6 +27,7 @@ Public Class TweetinviService
     Dim WithEvents CurrentStream As New Stream
 
     Public Function PublishTweet(TweetText As String, MediaBinaries As IEnumerable(Of Byte()), AuthenticationToken As AuthenticationToken) As PublishTweetResult Implements ITwitterService.PublishTweet
+        Program.DebugPrint("TweetinviService.PublishTweet.")
         If CurrentStream.IsRunning Then
             Throw New NopeException("The Stream is already running. This method should not be called.")
         End If
@@ -42,6 +43,7 @@ Public Class TweetinviService
     End Function
 
     Public Function StartTwitterStream(TweetId As Int64, CreatedByUserId As Int64, RelevantKeywords As IEnumerable(Of String), AuthenticationToken As AuthenticationToken) As StartTwitterStreamResult Implements ITwitterService.StartTwitterStream
+        Program.DebugPrint("TweetinviService.StartTwitterStream.")
         If CurrentStream.IsRunning Then
             Throw New NopeException("The Stream is already running. This method should not be called.")
         End If
@@ -54,6 +56,7 @@ Public Class TweetinviService
     End Function
 
     Public Sub ResumeTwitterStream() Implements ITwitterService.ResumeTwitterStream
+        Program.DebugPrint("TweetinviService.ResumeTwitterStream.")
         If CurrentStream Is Nothing Then
             Throw New NopeException("The Stream was not started before. This method should not be called.")
         End If
@@ -65,6 +68,7 @@ Public Class TweetinviService
     End Sub
 
     Public Sub StopTwitterStream() Implements ITwitterService.StopTwitterStream
+        Program.DebugPrint("TweetinviService.StopTwitterStream.")
         If Not CurrentStream.IsRunning Then
             Throw New NopeException("The Stream is not running. This method should not be called.")
         End If
@@ -72,10 +76,12 @@ Public Class TweetinviService
     End Sub
 
     Private Sub CurrentStream_Started() Handles CurrentStream.Started
+        Program.DebugPrint("TweetinviService.Started.")
         RaiseEvent StreamStarted(Me, EventArgs.Empty)
     End Sub
 
     Private Sub CurrentStream_Stopped(sender As Object, e As StreamStoppedEventArgs) Handles CurrentStream.Stopped
+        Program.DebugPrint("TweetinviService.Stopped.")
         RaiseEvent StreamStopped(Me, e)
     End Sub
 
