@@ -1,4 +1,6 @@
-﻿Public Class Track
+﻿
+'ToDo: Should probably be a structure.
+Public Class Track
 
     Dim _EntityId As EntityId
     Public ReadOnly Property EntityId As EntityId

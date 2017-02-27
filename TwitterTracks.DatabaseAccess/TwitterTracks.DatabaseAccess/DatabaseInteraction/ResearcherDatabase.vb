@@ -45,7 +45,7 @@ Public Class ResearcherDatabase
                          Reader.GetString("ContentHash"), _
                          Helpers.UnixTimestampToUtc(Reader.GetInt64("PublishDateTime")), _
                          TweetLocation.ParseDatabaseValue(DirectCast(Reader.GetInt32("LocationType"), TweetLocationType), _
-                                                          Reader.GetString("Location")))
+                                                          If(Reader.IsDBNull(Reader.GetOrdinal("Location")), Nothing, Reader.GetString("Location"))))
     End Function
 
 #End Region
