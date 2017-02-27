@@ -1,0 +1,38 @@
+﻿<Window
+    x:Class="MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l="clr-namespace:TwitterTracks.Display"
+    xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
+    xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
+    xmlns:gmap="clr-namespace:GMap.NET.WindowsPresentation;assembly=GMap.NET.WindowsPresentation"
+    Title="MainWindow"
+    Width="1059"
+    Height="585"
+    WindowState="Maximized"
+>
+    <Window.DataContext>
+        <l:MainWindowViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <gmap:GMapControl
+            Grid.Row="0"
+            x:Name="MapControl"
+            CanDragMap="True"
+            ShowTileGridLines="False"
+            MinZoom="1"
+            MaxZoom="18"
+            Zoom="{Binding Path=Zoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            MouseWheelZoomType="MousePositionWithoutCenter"
+        >
+
+        </gmap:GMapControl>
+        <Slider Grid.Row="1" Value="{Binding Path=Zoom}" Minimum="1" Maximum="18" SmallChange="1" LargeChange="1">
+
+        </Slider>
+    </Grid>
+</Window>

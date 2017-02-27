@@ -11,6 +11,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TwitterTracks.Setup", "..\T
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TwitterTracks.TweetinviInterop", "..\TwitterTracks.TweetinviInterop\TwitterTracks.TweetinviInterop\TwitterTracks.TweetinviInterop.vbproj", "{0EB73B66-FC26-486E-8B79-2A9900468DCB}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TwitterTracks.Display", "..\TwitterTracks.Display\TwitterTracks.Display\TwitterTracks.Display.vbproj", "{57286678-04A6-48DB-8E45-A8D07E1C42EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,16 @@ Global
 		{0EB73B66-FC26-486E-8B79-2A9900468DCB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{0EB73B66-FC26-486E-8B79-2A9900468DCB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{0EB73B66-FC26-486E-8B79-2A9900468DCB}.Release|x86.ActiveCfg = Release|Any CPU
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Debug|x86.ActiveCfg = Debug|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Debug|x86.Build.0 = Debug|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Release|Any CPU.ActiveCfg = Release|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Release|Mixed Platforms.Build.0 = Release|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Release|x86.ActiveCfg = Release|x86
+		{57286678-04A6-48DB-8E45-A8D07E1C42EA}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
