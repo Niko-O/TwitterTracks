@@ -30,14 +30,16 @@ Public Class Stream
     Public Property TwitterCredentials As Tweetinvi.Models.TwitterCredentials
 
     Dim WithEvents Stream As Tweetinvi.Streaming.IFilteredStream = Nothing
-    Dim StreamTask As Task = Nothing
 
     Public Sub Start()
-        'ToDo: Handle Resume
-        Stream = Tweetinvi.Stream.CreateFilteredStream(TwitterCredentials)
-        Stream.AddFollow(OriginalTweetCreatedByUserId, AddressOf UserPublishedTweetCallback)
-        Stream.AddTrack(String.Join(" ", RelevantKeywords), AddressOf TweetReceivedByKeywordsCallback)
-        StreamTask = Stream.StartStreamMatchingAnyConditionAsync()
+        If Stream Is Nothing Then
+            Stream = Tweetinvi.Stream.CreateFilteredStream(TwitterCredentials)
+            Stream.AddFollow(OriginalTweetCreatedByUserId, AddressOf UserPublishedTweetCallback)
+            Stream.AddTrack(String.Join(" ", RelevantKeywords), AddressOf TweetReceivedByKeywordsCallback)
+            Stream.StartStreamMatchingAnyConditionAsync()
+        Else
+            Stream.ResumeStream()
+        End If
     End Sub
 
     Public Sub [Stop]()
@@ -55,24 +57,7 @@ Public Class Stream
 
     Private Sub Stream_MatchingTweetReceived(sender As Object, e As Tweetinvi.Events.MatchedTweetReceivedEventArgs) Handles Stream.MatchingTweetReceived
         OnTweetReceived(e.Tweet, DirectCast(e.MatchOn, TwitterTracks.TweetinviInterop.TweetinviMatchOn), "Stream_MatchingTweetReceived")
-
-        'Command.Parameters.AddWithValue("@TweetId", e.Tweet.Id)
-        'Command.Parameters.AddWithValue("@UserId", e.Tweet.CreatedBy.Id)
-        'Command.Parameters.AddWithValue("@UserName", e.Tweet.CreatedBy.Name)
-        'Command.Parameters.AddWithValue("@FullText", e.Tweet.FullText)
-        'If e.Tweet.RetweetedTweet Is Nothing Then
-        '    Command.Parameters.AddWithValue("@RetweetTweetId", Nothing)
-        'Else
-        '    Command.Parameters.AddWithValue("@RetweetTweetId", e.Tweet.RetweetedTweet.Id)
-        'End If
-        'If e.Tweet.Coordinates Is Nothing Then
-        '    Command.Parameters.AddWithValue("@LocationLatitude", Nothing)
-        '    Command.Parameters.AddWithValue("@LocationLongitude", Nothing)
-        'Else
-        '    Command.Parameters.AddWithValue("@LocationLatitude", e.Tweet.Coordinates.Latitude)
-        '    Command.Parameters.AddWithValue("@LocationLongitude", e.Tweet.Coordinates.Longitude)
-        'End If
-        'Command.Parameters.AddWithValue("@UserLocation", e.Tweet.CreatedBy.Location)
+        'OnTweetReceived(Tweetinvi.Auth.ExecuteOperationWithCredentials(TwitterCredentials, Function() Tweetinvi.Tweet.GetTweet(820325401079619584)), TweetinviInterop.TweetinviMatchOn.TweetText, "Manual")
     End Sub
 
     Private Sub Stream_DisconnectMessageReceived(sender As Object, e As Tweetinvi.Events.DisconnectedEventArgs) Handles Stream.DisconnectMessageReceived
@@ -101,10 +86,12 @@ Public Class Stream
 
     Private Sub Stream_StreamResumed(sender As Object, e As EventArgs) Handles Stream.StreamResumed
         'ToDo: Happens on start too.
+        OnStarted()
     End Sub
 
     Private Sub Stream_StreamStarted(sender As Object, e As EventArgs) Handles Stream.StreamStarted
-        OnStarted()
+        'ToDo: This or Resumed?
+        'OnStarted()
     End Sub
 
     Private Sub Stream_TweetDeleted(sender As Object, e As Tweetinvi.Events.TweetDeletedEventArgs) Handles Stream.TweetDeleted

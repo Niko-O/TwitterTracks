@@ -9,6 +9,7 @@
 
     Function PublishTweet(TweetText As String, MediaBinaries As IEnumerable(Of Byte()), AuthenticationToken As AuthenticationToken) As PublishTweetResult
     Function StartTwitterStream(TweetId As Int64, CreatedByUserId As Int64, RelevantKeywords As IEnumerable(Of String), AuthenticationToken As AuthenticationToken) As StartTwitterStreamResult
+    Sub ResumeTwitterStream()
     Sub StopTwitterStream()
 
 End Interface

@@ -37,6 +37,33 @@
         End Get
     End Property
 
+    <Dependency("OpenTweetInfo", "TrackingStreamIsRunning", "StreamDisconnectReason")>
+    Public ReadOnly Property TrackingInfo As String
+        Get
+            If OpenTweetInfo Is Nothing Then
+                Return "This should never be visible."
+            End If
+            If TrackingStreamIsRunning Then
+                Return "Stream connected and tracking."
+            End If
+            If Not String.IsNullOrEmpty(StreamDisconnectReason) Then
+                Return StreamDisconnectReason
+            End If
+            Return "Waiting for start."
+        End Get
+    End Property
+
+    Dim _StreamDisconnectReason As String = Nothing
+    Public Property StreamDisconnectReason As String
+        <DebuggerStepThrough()>
+        Get
+            Return _StreamDisconnectReason
+        End Get
+        Set(value As String)
+            ExtendedChangeIfDifferent(_StreamDisconnectReason, value, "StreamDisconnectReason")
+        End Set
+    End Property
+
     Dim _TrackingStreamIsRunning As Boolean = False
     Public Property TrackingStreamIsRunning As Boolean
         <DebuggerStepThrough()>

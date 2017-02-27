@@ -53,6 +53,17 @@ Public Class TweetinviService
         Return New StartTwitterStreamResult
     End Function
 
+    Public Sub ResumeTwitterStream() Implements ITwitterService.ResumeTwitterStream
+        If CurrentStream Is Nothing Then
+            Throw New NopeException("The Stream was not started before. This method should not be called.")
+        End If
+        If CurrentStream.IsRunning Then
+            'ToDo: IsRunning is True when Stream is stopped due to exceeded limit.
+            'Throw New NopeException("The Stream is already running. This method should not be called.")
+        End If
+        CurrentStream.Start()
+    End Sub
+
     Public Sub StopTwitterStream() Implements ITwitterService.StopTwitterStream
         If Not CurrentStream.IsRunning Then
             Throw New NopeException("The Stream is not running. This method should not be called.")

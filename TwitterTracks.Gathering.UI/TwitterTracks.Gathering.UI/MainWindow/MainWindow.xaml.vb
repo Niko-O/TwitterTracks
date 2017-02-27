@@ -19,7 +19,9 @@
         End If
         MyBase.OnClosing(e)
         If Not e.Cancel Then
-            TwitterTracks.TweetinviInterop.ServiceProvider.Service.StopTwitterStream()
+            If ViewModel.TrackingStreamIsRunning Then
+                TwitterTracks.TweetinviInterop.ServiceProvider.Service.StopTwitterStream()
+            End If
         End If
     End Sub
 
@@ -211,7 +213,33 @@
 
     <TwitterTracks.TweetinviInterop.MultithreadingAwareness()>
     Private Sub StreamStopped(sender As Object, e As TweetinviInterop.StreamStoppedEventArgs)
-        Dispatcher.Invoke(Sub() ViewModel.TrackingStreamIsRunning = False)
+        Dim WasIntentional = False
+        Dim DisconnectReasonString As String
+        Select Case e.Reason
+            Case TweetinviInterop.StreamStopReason.Disconnected
+                DisconnectReasonString = String.Format("Twitter sent a disconnect message:{0}Code: {1}{0}Reason: {2}", Environment.NewLine, e.Code, e.ReasonName)
+            Case TweetinviInterop.StreamStopReason.LimitReached
+                DisconnectReasonString = String.Format("Limit was reached. {0} Tweets were not received.", e.NumberOfTweetsNotReceived)
+            Case TweetinviInterop.StreamStopReason.Stopped
+                If e.Exception Is Nothing Then
+                    DisconnectReasonString = "The stream was stopped manually."
+                    WasIntentional = True
+                Else
+                    DisconnectReasonString = String.Format("The stream was stopped due to an Exception:{0}{1}{0}{2}", Environment.NewLine, e.Exception.GetType.Name, e.Exception.Message)
+                    If e.ReasonName IsNot Nothing Then
+                        DisconnectReasonString &= String.Format("{0}Code: {1}{0}Reason: {2}", Environment.NewLine, e.Code, e.ReasonName)
+                    End If
+                End If
+            Case Else
+                Throw New NopeException
+        End Select
+        Dispatcher.Invoke(Sub()
+                              ViewModel.TrackingStreamIsRunning = False
+                              ViewModel.StreamDisconnectReason = DisconnectReasonString
+                              If Not WasIntentional Then
+                                  TwitterTracks.TweetinviInterop.ServiceProvider.Service.ResumeTwitterStream()
+                              End If
+                          End Sub)
     End Sub
 
     <TwitterTracks.TweetinviInterop.MultithreadingAwareness()>
