@@ -69,8 +69,8 @@ Public Class DatabaseBase
 
     Protected Function ExecuteNonQuery(QueryText As SqlQueryString, ParamArray Parameters As CommandParameter()) As NonQueryResult
         Using Command = PrepareCommand(QueryText, Parameters)
-            Command.ExecuteNonQuery()
-            Dim Result As New NonQueryResult(New EntityId(Command.LastInsertedId))
+            Dim AffectedRowCount = Command.ExecuteNonQuery()
+            Dim Result As New NonQueryResult(New EntityId(Command.LastInsertedId), AffectedRowCount)
             If DebugPrintQueries Then
                 Helpers.DebugPrint("Executed as NonQuery: InsertId = {0}", Result.InsertId.RawId)
             End If
@@ -88,8 +88,17 @@ Public Class DatabaseBase
             End Get
         End Property
 
-        Public Sub New(NewInsertId As EntityId)
+        Private _AffectedRowCount As Integer
+        Public ReadOnly Property AffectedRowCount As Integer
+            <DebuggerStepThrough()>
+            Get
+                Return _AffectedRowCount
+            End Get
+        End Property
+
+        Public Sub New(NewInsertId As EntityId, NewAffectedRowCount As Integer)
             _InsertId = NewInsertId
+            _AffectedRowCount = NewAffectedRowCount
         End Sub
 
     End Structure
