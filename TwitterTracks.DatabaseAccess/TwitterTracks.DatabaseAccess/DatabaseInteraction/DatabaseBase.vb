@@ -17,7 +17,6 @@ Public Class DatabaseBase
 
     Dim CurrentTransaction As Sql.MySqlTransaction = Nothing
     Dim CurrentTransactionIsCommitted As Boolean
-    Protected ReadOnly LockObject As New Object
 
     Public Sub New(NewConnection As DatabaseConnection)
         _Connection = NewConnection

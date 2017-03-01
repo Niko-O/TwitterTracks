@@ -22,73 +22,71 @@ Public Class TrackDatabase
 #Region "Administrator"
 
     Public Function CreateTrack(ResearcherPassword As String) As CreateTrackResult
-        SyncLock LockObject
-            'Insert Track
-            'Create Metadata Table
-            'Create Tweet Table
-            'Create User
-            'Assign Select, Insert, Update, Delete Acces to Metadata, Tweet Table
-            'Flush
+        'Insert Track
+        'Create Metadata Table
+        'Create Tweet Table
+        'Create User
+        'Assign Select, Insert, Update, Delete Acces to Metadata, Tweet Table
+        'Flush
 
-            Try
-                BeginTransaction()
+        Try
+            BeginTransaction()
 
-                Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
-                Dim TrackEntityId = ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0}() VALUES ()", TrackTableIdentifier)).InsertId
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
+            Dim TrackEntityId = ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0}() VALUES ()", TrackTableIdentifier)).InsertId
 
-                Dim MetadataTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
-                ExecuteNonQuery(New SqlQueryString( _
-                    "CREATE TABLE " & MetadataTableIdentifier.EscapedText & " (  " & _
-                    "    `InitialTweetId` INT8 NOT NULL,                         " & _
-                    "    `InitialTweetUserId` INT8 NOT NULL,                     " & _
-                    "    `InitialTweetFullText` TEXT NOT NULL,                   " & _
-                    "    `RelevantKeywords` TEXT NOT NULL)                       " & _
-                    "    ENGINE = InnoDB;                                        "))
+            Dim MetadataTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
+            ExecuteNonQuery(New SqlQueryString( _
+                "CREATE TABLE " & MetadataTableIdentifier.EscapedText & " (  " & _
+                "    `InitialTweetId` INT8 NOT NULL,                         " & _
+                "    `InitialTweetUserId` INT8 NOT NULL,                     " & _
+                "    `InitialTweetFullText` TEXT NOT NULL,                   " & _
+                "    `RelevantKeywords` TEXT NOT NULL)                       " & _
+                "    ENGINE = InnoDB;                                        "))
 
-                Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
-                ExecuteNonQuery(New SqlQueryString( _
-                    "CREATE TABLE " & TweetTableIdentifier.EscapedText & " (  " & _
-                    "    `Id` INT NOT NULL AUTO_INCREMENT,                    " & _
-                    "    `ContentHash` TEXT NOT NULL,                         " & _
-                    "    `PublishDateTime` INT8 NOT NULL,                     " & _
-                    "    `LocationType` INT NOT NULL,                         " & _
-                    "    `UserRegion` TEXT NULL,                              " & _
-                    "    `Latitude` DOUBLE NULL,                              " & _
-                    "    `Longitude` DOUBLE NULL,                             " & _
-                    "    `Debug_TweetId` INT8 NULL,                           " & _
-                    "    `Debug_TweetContent` TEXT NULL,                      " & _
-                    "    INDEX `Idx_PublishDateTime` (`PublishDateTime` ASC), " & _
-                    "    INDEX `Idx_LocationType` (`LocationType` ASC),       " & _
-                    "    INDEX `Idx_Latitude` (`Latitude` ASC),               " & _
-                    "    INDEX `Idx_Longitude` (`Longitude` ASC),             " & _
-                    "    PRIMARY KEY (`Id`))                                  " & _
-                    "    ENGINE = InnoDB;                                     "))
+            Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
+            ExecuteNonQuery(New SqlQueryString( _
+                "CREATE TABLE " & TweetTableIdentifier.EscapedText & " (  " & _
+                "    `Id` INT NOT NULL AUTO_INCREMENT,                    " & _
+                "    `ContentHash` TEXT NOT NULL,                         " & _
+                "    `PublishDateTime` INT8 NOT NULL,                     " & _
+                "    `LocationType` INT NOT NULL,                         " & _
+                "    `UserRegion` TEXT NULL,                              " & _
+                "    `Latitude` DOUBLE NULL,                              " & _
+                "    `Longitude` DOUBLE NULL,                             " & _
+                "    `Debug_TweetId` INT8 NULL,                           " & _
+                "    `Debug_TweetContent` TEXT NULL,                      " & _
+                "    INDEX `Idx_PublishDateTime` (`PublishDateTime` ASC), " & _
+                "    INDEX `Idx_LocationType` (`LocationType` ASC),       " & _
+                "    INDEX `Idx_Latitude` (`Latitude` ASC),               " & _
+                "    INDEX `Idx_Longitude` (`Longitude` ASC),             " & _
+                "    PRIMARY KEY (`Id`))                                  " & _
+                "    ENGINE = InnoDB;                                     "))
 
-                Dim ResearcherName As String = Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
-                For Each Host In {"%", "localhost"}
-                    Dim ResearcherIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(ResearcherName).Escape, New VerbatimIdentifier(Host).Escape)
-                    ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER {0} IDENTIFIED BY @ResearcherPassword;", ResearcherIdentifier), _
-                                    New CommandParameter("@ResearcherPassword", ResearcherPassword))
-                    ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", MetadataTableIdentifier, ResearcherIdentifier))
-                    ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TweetTableIdentifier, ResearcherIdentifier))
-                Next
+            Dim ResearcherName As String = Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
+            For Each Host In {"%", "localhost"}
+                Dim ResearcherIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(ResearcherName).Escape, New VerbatimIdentifier(Host).Escape)
+                ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER {0} IDENTIFIED BY @ResearcherPassword;", ResearcherIdentifier), _
+                                New CommandParameter("@ResearcherPassword", ResearcherPassword))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", MetadataTableIdentifier, ResearcherIdentifier))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TweetTableIdentifier, ResearcherIdentifier))
+            Next
 
-                'ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER @ResearcherName IDENTIFIED BY @ResearcherPassword;"), _
-                '        New CommandParameter("@ResearcherName", ResearcherName), _
-                '        New CommandParameter("@ResearcherPassword", ResearcherPassword))
-                'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @ResearcherName;", MetadataTableIdentifier), _
-                '                New CommandParameter("@ResearcherName", ResearcherName))
-                'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @ResearcherName;", TweetTableIdentifier), _
-                '                New CommandParameter("@ResearcherName", ResearcherName))
+            'ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER @ResearcherName IDENTIFIED BY @ResearcherPassword;"), _
+            '        New CommandParameter("@ResearcherName", ResearcherName), _
+            '        New CommandParameter("@ResearcherPassword", ResearcherPassword))
+            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @ResearcherName;", MetadataTableIdentifier), _
+            '                New CommandParameter("@ResearcherName", ResearcherName))
+            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @ResearcherName;", TweetTableIdentifier), _
+            '                New CommandParameter("@ResearcherName", ResearcherName))
 
-                ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
+            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 
-                CommitTransaction()
-                Return New CreateTrackResult(New Track(TrackEntityId, Nothing), New DatabaseUser(ResearcherName, ResearcherPassword), New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, TrackEntityId))
-            Finally
-                EndTransaction()
-            End Try
-        End SyncLock
+            CommitTransaction()
+            Return New CreateTrackResult(New Track(TrackEntityId, Nothing), New DatabaseUser(ResearcherName, ResearcherPassword), New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, TrackEntityId))
+        Finally
+            EndTransaction()
+        End Try
     End Function
 
     Public Structure CreateTrackResult
@@ -126,10 +124,8 @@ Public Class TrackDatabase
     End Structure
 
     Public Function GetAllTracksWithoutMetadata() As IEnumerable(Of Track)
-        SyncLock LockObject
-            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
-            Return ExecuteQuery(FormatSqlIdentifiers("SELECT * FROM {0}", TrackTableIdentifier)).Select(Function(Row) New Track(Row.GetEntityId("Id"), Nothing))
-        End SyncLock
+        Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
+        Return ExecuteQuery(FormatSqlIdentifiers("SELECT * FROM {0}", TrackTableIdentifier)).Select(Function(Row) New Track(Row.GetEntityId("Id"), Nothing))
     End Function
 
 #End Region
@@ -137,28 +133,26 @@ Public Class TrackDatabase
 #Region "Root"
 
     Public Sub DeleteDatabase()
-        SyncLock LockObject
-            Try
-                BeginTransaction()
+        Try
+            BeginTransaction()
 
-                Dim Tracks = GetAllTracksWithoutMetadata.ToList
-                For Each i In Tracks
-                    Dim ResearcherToDrop = Relations.UserNames.ResearcherUserName(DatabaseName, i.EntityId)
-                    ExecuteNonQuery(FormatSqlIdentifiers("DROP USER @ResearcherToDrop"), New CommandParameter("@ResearcherToDrop", ResearcherToDrop))
-                Next
-                Dim AdministratorToDrop = Relations.UserNames.AdministratorUserName(DatabaseName)
-                For Each Host In {"%", "localhost"}
-                    Dim AdministratorIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(AdministratorToDrop).Escape, New VerbatimIdentifier(Host).Escape)
-                    ExecuteNonQuery(FormatSqlIdentifiers("DROP USER {0}", AdministratorIdentifier))
-                Next
-                ExecuteNonQuery(FormatSqlIdentifiers("DROP DATABASE {0}", DatabaseName.Escape))
-                ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
+            Dim Tracks = GetAllTracksWithoutMetadata.ToList
+            For Each i In Tracks
+                Dim ResearcherToDrop = Relations.UserNames.ResearcherUserName(DatabaseName, i.EntityId)
+                ExecuteNonQuery(FormatSqlIdentifiers("DROP USER @ResearcherToDrop"), New CommandParameter("@ResearcherToDrop", ResearcherToDrop))
+            Next
+            Dim AdministratorToDrop = Relations.UserNames.AdministratorUserName(DatabaseName)
+            For Each Host In {"%", "localhost"}
+                Dim AdministratorIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(AdministratorToDrop).Escape, New VerbatimIdentifier(Host).Escape)
+                ExecuteNonQuery(FormatSqlIdentifiers("DROP USER {0}", AdministratorIdentifier))
+            Next
+            ExecuteNonQuery(FormatSqlIdentifiers("DROP DATABASE {0}", DatabaseName.Escape))
+            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 
-                CommitTransaction()
-            Finally
-                EndTransaction()
-            End Try
-        End SyncLock
+            CommitTransaction()
+        Finally
+            EndTransaction()
+        End Try
     End Sub
 
 #End Region
