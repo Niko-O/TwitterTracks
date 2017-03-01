@@ -175,6 +175,10 @@ Public Class ResearcherDatabase
                 Dim ResearcherIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(ResearcherToDrop).Escape, New VerbatimIdentifier(Host).Escape)
                 ExecuteNonQuery(FormatSqlIdentifiers("DROP USER {0}", ResearcherIdentifier))
             Next
+            ExecuteNonQuery(FormatSqlIdentifiers("DROP TABLE {0};", GetTweetTableIdentifier))
+            ExecuteNonQuery(FormatSqlIdentifiers("DROP TABLE {0};", GetMetadataTableIdentifier))
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
+            ExecuteNonQuery(FormatSqlIdentifiers("DELETE FROM {0} WHERE `Id` = @Id;", TrackTableIdentifier), New CommandParameter("@Id", TrackEntityId.RawId))
             ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 
             CommitTransaction()
