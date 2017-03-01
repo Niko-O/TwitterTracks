@@ -130,7 +130,7 @@ Public Class ResearcherDatabase
                             New CommandParameter("@LocationType", TweetLocationType.UserRegionWithCoordinates), _
                             New CommandParameter("@Latitude", Latitude), _
                             New CommandParameter("@Longitude", Longitude), _
-                            New CommandParameter("@Id", Id))
+                            New CommandParameter("@Id", Id.RawId))
             CommitTransaction()
         Finally
             EndTransaction()
@@ -148,7 +148,7 @@ Public Class ResearcherDatabase
             End Using
             ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} SET `LocationType` = @LocationType WHERE `Id` = @Id", GetTweetTableIdentifier), _
                             New CommandParameter("@LocationType", TweetLocationType.UserRegionNoCoordinates), _
-                            New CommandParameter("@Id", Id))
+                            New CommandParameter("@Id", Id.RawId))
             CommitTransaction()
         Finally
             EndTransaction()

@@ -19,6 +19,9 @@
     Public Sub New(NewName As String, NewValue As Object)
         _Name = NewName
         _Value = NewValue
+        If TypeOf NewValue Is EntityId Then
+            Throw New NopeException("Forgot to unwrap EntityId.")
+        End If
     End Sub
 
 End Class
