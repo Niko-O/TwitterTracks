@@ -39,8 +39,8 @@ Public Class Stream
         If Stream Is Nothing Then
             DebugPrint("Stream.Start (new)")
             Stream = Tweetinvi.Stream.CreateFilteredStream(TwitterCredentials)
-            Stream.AddFollow(OriginalTweetCreatedByUserId, AddressOf UserPublishedTweetCallback)
-            Stream.AddTrack(String.Join(" ", RelevantKeywords), AddressOf TweetReceivedByKeywordsCallback)
+            Stream.AddFollow(OriginalTweetCreatedByUserId, Nothing) 'AddressOf UserPublishedTweetCallback
+            Stream.AddTrack(String.Join(" ", RelevantKeywords), Nothing) 'AddressOf TweetReceivedByKeywordsCallback
             Stream.StartStreamMatchingAnyConditionAsync()
         Else
             DebugPrint("Stream.Start (resumed)")
@@ -54,15 +54,18 @@ Public Class Stream
         Stream = Nothing
     End Sub
 
-    Private Sub UserPublishedTweetCallback(Tweet As Tweetinvi.Models.ITweet)
-        OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "UserPublishedTweetCallback")
-    End Sub
+    'Private Sub UserPublishedTweetCallback(Tweet As Tweetinvi.Models.ITweet)
+    '    DebugPrint("Stream.UserPublishedTweetCallback")
+    '    OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "UserPublishedTweetCallback")
+    'End Sub
 
-    Private Sub TweetReceivedByKeywordsCallback(Tweet As Tweetinvi.Models.ITweet)
-        OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "TweetReceivedByKeywordsCallback")
-    End Sub
+    'Private Sub TweetReceivedByKeywordsCallback(Tweet As Tweetinvi.Models.ITweet)
+    '    DebugPrint("Stream.TweetReceivedByKeywordsCallback")
+    '    OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "TweetReceivedByKeywordsCallback")
+    'End Sub
 
     Private Sub Stream_MatchingTweetReceived(sender As Object, e As Tweetinvi.Events.MatchedTweetReceivedEventArgs) Handles Stream.MatchingTweetReceived
+        DebugPrint("Stream.Stream_MatchingTweetReceived")
         OnTweetReceived(e.Tweet, DirectCast(e.MatchOn, TwitterTracks.TweetinviInterop.TweetinviMatchOn), "Stream_MatchingTweetReceived")
         'OnTweetReceived(Tweetinvi.Auth.ExecuteOperationWithCredentials(TwitterCredentials, Function() Tweetinvi.Tweet.GetTweet(820325401079619584)), TweetinviInterop.TweetinviMatchOn.TweetText, "Manual")
     End Sub
