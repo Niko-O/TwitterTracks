@@ -30,6 +30,10 @@ Public Class ResearcherDatabase
         Return Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
     End Function
 
+    Private Function GetMetadataTableIdentifier() As EscapedIdentifier
+        Return Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
+    End Function
+
 #Region "RowToModel"
 
     Private Shared Function RowToTrackMetadata(Reader As Sql.MySqlDataReader) As TrackMetadata
@@ -54,8 +58,7 @@ Public Class ResearcherDatabase
 #End Region
 
     Public Function TryGetTrackMetadata() As TrackMetadata?
-        Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
-        Using Row = ExecuteSingleRowQuery(False, FormatSqlIdentifiers("SELECT * FROM {0}", TrackTableIdentifier))
+        Using Row = ExecuteSingleRowQuery(False, FormatSqlIdentifiers("SELECT * FROM {0}", GetMetadataTableIdentifier))
             If Row Is Nothing Then
                 Return Nothing
             Else
@@ -68,11 +71,11 @@ Public Class ResearcherDatabase
         Try
             BeginTransaction()
 
-            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
+            Dim MetadataTableIdentifier = GetMetadataTableIdentifier()
             If TryGetTrackMetadata() Is Nothing Then
                 ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
                                                      "(`InitialTweetId`, `InitialTweetUserId`, `InitialTweetFullText`, `RelevantKeywords`) " & _
-                                                     "VALUES (@InitialTweetId, @InitialTweetUserId, @InitialTweetFullText, @RelevantKeywords)", TrackTableIdentifier), _
+                                                     "VALUES (@InitialTweetId, @InitialTweetUserId, @InitialTweetFullText, @RelevantKeywords)", MetadataTableIdentifier), _
                                 New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
                                 New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
                                 New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
@@ -80,7 +83,7 @@ Public Class ResearcherDatabase
             Else
                 ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} " & _
                                                      "SET `InitialTweetId` = @InitialTweetId, `InitialTweetUserId` = @InitialTweetUserId, " & _
-                                                     "`InitialTweetFullText` = @InitialTweetFullText, `RelevantKeywords` = @RelevantKeywords)", TrackTableIdentifier), _
+                                                     "`InitialTweetFullText` = @InitialTweetFullText, `RelevantKeywords` = @RelevantKeywords)", MetadataTableIdentifier), _
                                 New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
                                 New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
                                 New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
