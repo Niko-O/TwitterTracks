@@ -8,14 +8,6 @@
         End Get
     End Property
 
-    Private _TweetId As Int64
-    Public ReadOnly Property TweetId As Int64
-        <DebuggerStepThrough()>
-        Get
-            Return _TweetId
-        End Get
-    End Property
-
     Private _ContentHash As String
     Public ReadOnly Property ContentHash As String
         <DebuggerStepThrough()>
@@ -40,12 +32,29 @@
         End Get
     End Property
 
-    Public Sub New(NewEntityId As EntityId, NewTweetId As Int64, NewContentHash As String, NewPublishDateTime As DateTime, NewLocation As TweetLocation)
+    Dim _Debug_TweetId As Int64?
+    Public ReadOnly Property Debug_TweetId As Int64?
+        <DebuggerStepThrough()>
+        Get
+            Return _Debug_TweetId
+        End Get
+    End Property
+
+    Dim _Debug_TweetContent As String
+    Public ReadOnly Property Debug_TweetContent As String
+        <DebuggerStepThrough()>
+        Get
+            Return _Debug_TweetContent
+        End Get
+    End Property
+
+    Public Sub New(NewEntityId As EntityId, NewContentHash As String, NewPublishDateTime As DateTime, NewLocation As TweetLocation, NewDebug_TweetId As Int64?, NewDebug_TweetContent As String)
         _EntityId = NewEntityId
-        _TweetId = NewTweetId
         _ContentHash = NewContentHash
         _PublishDateTime = NewPublishDateTime
         _Location = NewLocation
+        _Debug_TweetId = NewDebug_TweetId
+        _Debug_TweetContent = NewDebug_TweetContent
     End Sub
 
 End Structure

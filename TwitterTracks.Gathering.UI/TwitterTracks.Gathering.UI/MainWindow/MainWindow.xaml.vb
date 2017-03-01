@@ -261,9 +261,9 @@
         ElseIf e.Tweet.UserRegion Is Nothing Then
             Location = TwitterTracks.DatabaseAccess.TweetLocation.FromNone
         Else
-            Location = TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegion(e.Tweet.UserRegion)
+            Location = TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates(e.Tweet.UserRegion)
         End If
-        Database.CreateTweet(e.Tweet.Id, e.Tweet.Text, e.Tweet.PublishDateTime, Location)
+        Database.CreateTweet(e.Tweet.Text.GetHashCode.ToString, e.Tweet.PublishDateTime, Location, e.Tweet.Id, e.Tweet.Text)
         Dispatcher.Invoke(Sub() ViewModel.NumberOfTrackedTweets += 1)
     End Sub
 

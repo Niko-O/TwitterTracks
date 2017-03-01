@@ -41,11 +41,14 @@ Public Class ResearcherDatabase
 
     Private Shared Function RowToTweet(Reader As Sql.MySqlDataReader) As Tweet
         Return New Tweet(Reader.GetEntityId("Id"), _
-                         Reader.GetInt64("TweetId"), _
                          Reader.GetString("ContentHash"), _
                          Helpers.UnixTimestampToUtc(Reader.GetInt64("PublishDateTime")), _
                          TweetLocation.ParseDatabaseValue(DirectCast(Reader.GetInt32("LocationType"), TweetLocationType), _
-                                                          If(Reader.IsDBNull(Reader.GetOrdinal("Location")), Nothing, Reader.GetString("Location"))))
+                                                          Reader.GetNullableString("UserRegion"), _
+                                                          Reader.GetNullableDouble("Latitude"), _
+                                                          Reader.GetNullableDouble("Longitude")), _
+                         Reader.GetNullableInt64("Debug_TweetId"), _
+                         Reader.GetNullableString("Debug_TweetContent"))
     End Function
 
 #End Region
@@ -100,17 +103,58 @@ Public Class ResearcherDatabase
         Return ExecuteScalar(Of Int64)(FormatSqlIdentifiers("SELECT COUNT(*) FROM {0}", TweetTableIdentifier))
     End Function
 
-    Public Sub CreateTweet(TweetId As Int64, ContentHash As String, PublishDateTime As DateTime, Location As TweetLocation)
+    Public Sub CreateTweet(ContentHash As String, PublishDateTime As DateTime, Location As TweetLocation, Debug_TweetId As Int64, Debug_TweetContent As String)
         Dim TweetTableIdentifier = GetTweetTableIdentifier()
         ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
-                                             "(`TweetId`, `ContentHash`, `PublishDateTime`, `LocationType`, `Location`) " & _
-                                             "VALUES (@TweetId, @ContentHash, @PublishDateTime, @LocationType, @Location)", TweetTableIdentifier), _
-                        New CommandParameter("@TweetId", TweetId), _
+                                             "(`ContentHash`, `PublishDateTime`, `LocationType`, `UserRegion`, `Latitude`, `Longitude`, `Debug_TweetId`, `Debug_TweetContent`) " & _
+                                             "VALUES (@ContentHash, @PublishDateTime, @LocationType, @UserRegion, @Latitude, @Longitude, @Debug_TweetId, @Debug_TweetContent)", TweetTableIdentifier), _
                         New CommandParameter("@ContentHash", ContentHash), _
                         New CommandParameter("@PublishDateTime", PublishDateTime.ToUnixTimestamp), _
                         New CommandParameter("@LocationType", Location.LocationType), _
-                        New CommandParameter("@Location", Location.ToDatabaseValue))
+                        New CommandParameter("@UserRegion", Location.UserRegion), _
+                        New CommandParameter("@Latitude", Location.GetDatabaseValueLatitude), _
+                        New CommandParameter("@Longitude", Location.GetDatabaseValueLongitude), _
+                        New CommandParameter("@Debug_TweetId", Debug_TweetId), _
+                        New CommandParameter("@Debug_TweetContent", Debug_TweetContent))
     End Sub
+    
+    Public Function TryUpdateTweetUserRegionWithCoordinates(Id As EntityId, Latitude As Double, Longitude As Double) As Boolean
+        Try
+            BeginTransaction()
+            Using Row = ExecuteSingleRowQuery(True, FormatSqlIdentifiers("SELECT * FROM {0} WHERE `Id` = @Id", GetTweetTableIdentifier), New CommandParameter("@Id", Id.RawId))
+                If DirectCast(Row.Reader.GetInt32("LocationType"), TweetLocationType) <> TweetLocationType.UserRegionWithPotentialForCoordinates Then
+                    Return False
+                End If
+            End Using
+            ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} SET `LocationType` = @LocationType, `Latitude` = @Latitude, `Longitude` = @Longitude WHERE `Id` = @Id", GetTweetTableIdentifier), _
+                            New CommandParameter("@LocationType", TweetLocationType.UserRegionWithCoordinates), _
+                            New CommandParameter("@Latitude", Latitude), _
+                            New CommandParameter("@Longitude", Longitude), _
+                            New CommandParameter("@Id", Id))
+            CommitTransaction()
+        Finally
+            EndTransaction()
+        End Try
+        Return True
+    End Function
+
+    Public Function TryUpdateTweetToUserRegionNoCoordinates(Id As EntityId) As Boolean
+        Try
+            BeginTransaction()
+            Using Row = ExecuteSingleRowQuery(True, FormatSqlIdentifiers("SELECT * FROM {0} WHERE `Id` = @Id", GetTweetTableIdentifier), New CommandParameter("@Id", Id.RawId))
+                If DirectCast(Row.Reader.GetInt32("LocationType"), TweetLocationType) <> TweetLocationType.UserRegionWithPotentialForCoordinates Then
+                    Return False
+                End If
+            End Using
+            ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} SET `LocationType` = @LocationType WHERE `Id` = @Id", GetTweetTableIdentifier), _
+                            New CommandParameter("@LocationType", TweetLocationType.UserRegionNoCoordinates), _
+                            New CommandParameter("@Id", Id))
+            CommitTransaction()
+        Finally
+            EndTransaction()
+        End Try
+        Return True
+    End Function
 
     Public Function GetTweetsSinceEntityId(LastTweetEntityIdExclusiveToResultSet As EntityId) As IEnumerable(Of Tweet)
         Dim TweetTableIdentifier = GetTweetTableIdentifier()

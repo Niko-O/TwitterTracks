@@ -48,11 +48,18 @@ Public Class TrackDatabase
             ExecuteNonQuery(New SqlQueryString( _
                 "CREATE TABLE " & TweetTableIdentifier.EscapedText & " (  " & _
                 "    `Id` INT NOT NULL AUTO_INCREMENT,                    " & _
-                "    `TweetId`INT8 NOT NULL,                              " & _
                 "    `ContentHash` TEXT NOT NULL,                         " & _
                 "    `PublishDateTime` INT8 NOT NULL,                     " & _
                 "    `LocationType` INT NOT NULL,                         " & _
-                "    `Location` TEXT NULL,                                " & _
+                "    `UserRegion` TEXT NULL,                              " & _
+                "    `Latitude` DOUBLE NULL,                              " & _
+                "    `Longitude` DOUBLE NULL,                             " & _
+                "    `Debug_TweetId` INT8 NULL,                           " & _
+                "    `Debug_TweetContent` TEXT NULL,                      " & _
+                "    INDEX `Idx_PublishDateTime` (`PublishDateTime` ASC), " & _
+                "    INDEX `Idx_LocationType` (`LocationType` ASC),       " & _
+                "    INDEX `Idx_Latitude` (`Latitude` ASC),               " & _
+                "    INDEX `Idx_Longitude` (`Longitude` ASC),             " & _
                 "    PRIMARY KEY (`Id`))                                  " & _
                 "    ENGINE = InnoDB;                                     "))
 
