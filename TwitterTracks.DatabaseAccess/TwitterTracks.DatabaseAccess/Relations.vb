@@ -21,6 +21,8 @@
 
     Public Class TableNames
 
+        Public Const TrackTableName As String = "Track"
+
         Public Shared Function TableIdentifier(DatabaseName As EscapedIdentifier, TableName As EscapedIdentifier) As EscapedIdentifier
             Return New EscapedIdentifier(String.Format("{0}.{1}", DatabaseName.EscapedText, TableName.EscapedText))
         End Function

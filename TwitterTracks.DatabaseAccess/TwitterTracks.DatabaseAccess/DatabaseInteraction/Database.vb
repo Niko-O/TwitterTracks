@@ -22,7 +22,7 @@ Public Class Database
             Dim TrackDB As New TrackDatabase(Connection, DatabaseName)
             ExecuteNonQuery(FormatSqlIdentifiers("CREATE DATABASE {0}", DatabaseName.Escape))
 
-            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier("Track").Escape)
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
             ExecuteNonQuery(New SqlQueryString( _
                 "CREATE TABLE " & TrackTableIdentifier.EscapedText & " ( " & _
                 "  `Id` INT NOT NULL AUTO_INCREMENT,                     " & _
