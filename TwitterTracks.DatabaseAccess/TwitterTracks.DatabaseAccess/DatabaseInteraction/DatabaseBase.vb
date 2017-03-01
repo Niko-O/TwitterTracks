@@ -17,9 +17,7 @@ Public Class DatabaseBase
 
     Dim CurrentTransaction As Sql.MySqlTransaction = Nothing
     Dim CurrentTransactionIsCommitted As Boolean
-    Dim CurrentTransactionSyncLockObject As New Object
-    <ThreadStatic()>
-    Dim CurrentTransactionWasLockedByThread As Boolean = False
+    Protected ReadOnly LockObject As New Object
 
     Public Sub New(NewConnection As DatabaseConnection)
         _Connection = NewConnection
@@ -30,7 +28,6 @@ Public Class DatabaseBase
     End Function
 
     Protected Sub BeginTransaction()
-        System.Threading.Monitor.Enter(CurrentTransactionSyncLockObject, CurrentTransactionWasLockedByThread)
         CurrentTransaction = Connection.BeginTransaction
         CurrentTransactionIsCommitted = False
     End Sub
@@ -46,10 +43,6 @@ Public Class DatabaseBase
         End If
         CurrentTransaction.Dispose()
         CurrentTransaction = Nothing
-        If CurrentTransactionWasLockedByThread Then
-            CurrentTransactionWasLockedByThread = False
-            System.Threading.Monitor.Exit(CurrentTransactionSyncLockObject)
-        End If
     End Sub
 
     Protected Friend Function PrepareCommand(QueryText As SqlQueryString, ParamArray Parameters As CommandParameter()) As Sql.MySqlCommand
