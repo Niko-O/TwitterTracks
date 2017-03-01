@@ -155,8 +155,6 @@
 
         ViewModel.StatusMessageVM.ClearStatus()
         ViewModel.OpenTweetInfo.IsPublished = True
-
-        StartStream()
     End Sub
 
     Private Sub SaveConfiguration(sender As System.Object, e As System.Windows.RoutedEventArgs)
