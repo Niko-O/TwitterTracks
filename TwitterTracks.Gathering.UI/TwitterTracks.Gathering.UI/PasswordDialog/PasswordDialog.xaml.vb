@@ -9,6 +9,11 @@ Namespace PasswordDialog
             End Get
         End Property
 
+        Public Sub New()
+            InitializeComponent()
+            PasswordBox.Password = TwitterTracks.Common.UI.Resources.DebugConstants.ResearcherPassword
+        End Sub
+
         Private Sub CloseOk(sender As System.Object, e As System.Windows.RoutedEventArgs)
             Me.DialogResult = True
             Me.Close()
