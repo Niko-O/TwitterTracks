@@ -53,12 +53,12 @@ Namespace UI.Tasks
                                    End Sub)
         End Sub
 
-        Public Sub DoMySqlTaskWithStatusMessage(StatusMessageVM As StatusMessageViewModel, ErrorDescriptor As String, BackgroundThreadMethod As Action, GuiThreadMethod As Func(Of Boolean, Tuple(Of String, StatusMessageKindType)))
+        Public Sub DoSqlTaskWithStatusMessage(StatusMessageVM As StatusMessageViewModel, ErrorDescriptor As String, BackgroundThreadMethod As Action, GuiThreadMethod As Func(Of Boolean, Tuple(Of String, StatusMessageKindType)))
             StartTask(Sub()
-                          Dim ErrorException As MySql.Data.MySqlClient.MySqlException = Nothing
+                          Dim ErrorException As System.Data.Common.DbException = Nothing
                           Try
                               BackgroundThreadMethod()
-                          Catch ex As MySql.Data.MySqlClient.MySqlException
+                          Catch ex As System.Data.Common.DbException
                               ErrorException = ex
                           End Try
                           FinishTask(Sub()
@@ -70,7 +70,7 @@ Namespace UI.Tasks
                                                  StatusMessageVM.SetStatus(If(ResultMessageOverride.Item2 = StatusMessageKindType.Error, ErrorDescriptor, "") & ":" & Environment.NewLine & ResultMessageOverride.Item1, ResultMessageOverride.Item2)
                                              End If
                                          Else
-                                             Dim ErrorMessage = ErrorDescriptor & ":" & Environment.NewLine & MySqlExceptionToErrorMessage(ErrorException)
+                                             Dim ErrorMessage = ErrorDescriptor & ":" & Environment.NewLine & SqlExceptionToErrorMessage(ErrorException)
                                              If ResultMessageOverride IsNot Nothing AndAlso ResultMessageOverride.Item1 IsNot Nothing Then
                                                  ErrorMessage &= Environment.NewLine & "Additional information: " & ResultMessageOverride.Item1
                                              End If
@@ -80,8 +80,8 @@ Namespace UI.Tasks
                       End Sub)
         End Sub
 
-        Public Shared Function MySqlExceptionToErrorMessage(ErrorException As MySql.Data.MySqlClient.MySqlException) As String
-            Return ErrorException.GetType.Name & " (Error Code " & ErrorException.Number & "): " & ErrorException.Message
+        Public Shared Function SqlExceptionToErrorMessage(ErrorException As System.Data.Common.DbException) As String
+            Return ErrorException.GetType.Name & " (Error Code " & ErrorException.ErrorCode & "): " & ErrorException.Message
         End Function
 
         Public Shared Function ExceptionToErrorMessage(ErrorException As Exception) As String

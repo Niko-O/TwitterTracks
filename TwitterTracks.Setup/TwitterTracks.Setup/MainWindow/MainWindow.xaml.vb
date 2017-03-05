@@ -24,7 +24,7 @@ Class MainWindow
             ViewModel.IsConnectedToDatabase = False
         Else
             Dim NewConnection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
-            Tasks.DoMySqlTaskWithStatusMessage( _
+            Tasks.DoSqlTaskWithStatusMessage( _
                 ViewModel.ConnectionVM.OpenConnectionVM.StatusMessageVM, _
                 "The connection could not be opened", _
                 Sub()
@@ -47,7 +47,7 @@ Class MainWindow
 
     Private Sub RefreshDatabaseList(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim Names As List(Of String) = Nothing
-        Tasks.DoMySqlTaskWithStatusMessage( _
+        Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.RootToolsVM.DatabasesVM.StatusMessageVM, _
             "The database names could not be read", _
             Sub()
@@ -73,7 +73,7 @@ Class MainWindow
                            "Really delete database?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) <> MessageBoxResult.Yes Then
             Return
         End If
-        Tasks.DoMySqlTaskWithStatusMessage( _
+        Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.RootToolsVM.DatabasesVM.StatusMessageVM, _
             "The database could not be deleted", _
             Sub()
@@ -94,7 +94,7 @@ Class MainWindow
         Dim DatabaseName = ViewModel.RootToolsVM.CreateDatabaseVM.DatabaseName
         Dim Password = ViewModel.RootToolsVM.CreateDatabaseVM.Password
         Dim ResultUserName As String = Nothing
-        Tasks.DoMySqlTaskWithStatusMessage( _
+        Tasks.DoSqlTaskWithStatusMessage( _
            ViewModel.RootToolsVM.CreateDatabaseVM.StatusMessageVM, _
            "The database could not be created", _
            Sub()
@@ -123,7 +123,7 @@ Class MainWindow
         Else
             Dim DatabaseName = ViewModel.AdministratorToolsVM.DatabaseName
             Dim DatabaseExists As Boolean = False
-            Tasks.DoMySqlTaskWithStatusMessage( _
+            Tasks.DoSqlTaskWithStatusMessage( _
                ViewModel.AdministratorToolsVM.SelectionStatusMessageVM, _
                "The database could not be selected", _
                Sub()
@@ -147,7 +147,7 @@ Class MainWindow
     Private Sub RefreshTrackList(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
         Dim Tracks As List(Of TwitterTracks.DatabaseAccess.Track) = Nothing
-        Tasks.DoMySqlTaskWithStatusMessage( _
+        Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.AdministratorToolsVM.TracksVM.StatusMessageVM, _
             "The Tracks could not be read", _
             Sub()
@@ -173,7 +173,7 @@ Class MainWindow
                            "Really delete Track?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) <> MessageBoxResult.Yes Then
             Return
         End If
-        Tasks.DoMySqlTaskWithStatusMessage( _
+        Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.AdministratorToolsVM.TracksVM.StatusMessageVM, _
             "The Track could not be deleted", _
             Sub()
@@ -192,7 +192,7 @@ Class MainWindow
 
     Private Sub CreateTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim CreateTrackResult As TwitterTracks.DatabaseAccess.TrackDatabase.CreateTrackResult = Nothing
-        Tasks.DoMySqlTaskWithStatusMessage( _
+        Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
             "The Track could not be created", _
             Sub()

@@ -91,7 +91,7 @@ Namespace OpenTrackDialog
                                 Try
                                     ResultConnection.Open()
                                 Catch ex As MySql.Data.MySqlClient.MySqlException
-                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The connection could not be opened:" & Environment.NewLine & TwitterTracks.Common.UI.Tasks.WindowTaskManager.MySqlExceptionToErrorMessage(ex), Common.UI.StatusMessageKindType.Error))
+                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The connection could not be opened:" & Environment.NewLine & TwitterTracks.Common.UI.Tasks.WindowTaskManager.SqlExceptionToErrorMessage(ex), Common.UI.StatusMessageKindType.Error))
                                     Return
                                 End Try
                                 Dim Database As New TwitterTracks.DatabaseAccess.ResearcherDatabase(ResultConnection, DatabaseName, TrackEntityId)
@@ -99,7 +99,7 @@ Namespace OpenTrackDialog
                                 Try
                                     Metadata = Database.TryGetTrackMetadata
                                 Catch ex As MySql.Data.MySqlClient.MySqlException
-                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The Track Metadata could not be read:" & Environment.NewLine & TwitterTracks.Common.UI.Tasks.WindowTaskManager.MySqlExceptionToErrorMessage(ex), Common.UI.StatusMessageKindType.Error))
+                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The Track Metadata could not be read:" & Environment.NewLine & TwitterTracks.Common.UI.Tasks.WindowTaskManager.SqlExceptionToErrorMessage(ex), Common.UI.StatusMessageKindType.Error))
                                     Return
                                 End Try
                                 Tasks.FinishTask(Sub()
