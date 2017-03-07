@@ -106,7 +106,7 @@ Public Class ResearcherDatabase
         Return ExecuteScalar(Of Int64)(FormatSqlIdentifiers("SELECT COUNT(*) FROM {0}", TweetTableIdentifier))
     End Function
 
-    Public Sub CreateTweet(ContentHash As String, PublishDateTime As DateTime, Location As TweetLocation, Debug_TweetId As Int64, Debug_TweetContent As String)
+    Public Sub CreateTweet(ContentHash As String, PublishDateTime As DateTime, Location As TweetLocation, Debug_TweetId As Int64?, Debug_TweetContent As String)
         Dim TweetTableIdentifier = GetTweetTableIdentifier()
         ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
                                              "(`ContentHash`, `PublishDateTime`, `LocationType`, `UserRegion`, `Latitude`, `Longitude`, `Debug_TweetId`, `Debug_TweetContent`) " & _
