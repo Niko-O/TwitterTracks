@@ -1,6 +1,4 @@
 ﻿
-Imports System.Threading.Tasks
-
 Public Class Stream
 
     Public Event TweetReceived(Tweet As Tweetinvi.Models.ITweet, MatchOn As TwitterTracks.TweetinviInterop.TweetinviMatchOn, AdditionalData As String)
@@ -24,23 +22,33 @@ Public Class Stream
         End Get
     End Property
 
-    Public Property OriginalTweetId As Int64
-    Public Property OriginalTweetCreatedByUserId As Int64
+    Public Property InitialTweetId As Int64
+    Public Property InitialTweetCreatedByUserId As Int64
     Public Property RelevantKeywords As ReadOnlyCollection(Of String)
     Public Property TwitterCredentials As Tweetinvi.Models.TwitterCredentials
 
     Dim WithEvents Stream As Tweetinvi.Streaming.IFilteredStream = Nothing
 
     Private Sub DebugPrint(Text As String, ParamArray Args As Object())
-        Program.DebugPrint("(StreamState {0}) : {1}", If(Stream Is Nothing, "null", Stream.StreamState.ToString), String.Format(Text, Args))
+        Dim FormattedText As String
+        If Args Is Nothing OrElse Args.Length = 0 Then
+            FormattedText = Text
+        Else
+            FormattedText = String.Format(Text, Args)
+        End If
+        Program.DebugPrint("(StreamState {0}) : {1}", If(Stream Is Nothing, "null", Stream.StreamState.ToString), FormattedText)
     End Sub
 
     Public Sub Start()
         If Stream Is Nothing Then
-            DebugPrint("Stream.Start (new)")
+            Dim KeywordsString = String.Join(" ", RelevantKeywords)
+            DebugPrint("Stream.Start (new):")
+            DebugPrint("    OriginalTweetId             : " & InitialTweetId)
+            DebugPrint("    OriginalTweetCreatedByUserId: " & InitialTweetCreatedByUserId)
+            DebugPrint("    RelevantKeywords            : " & KeywordsString)
             Stream = Tweetinvi.Stream.CreateFilteredStream(TwitterCredentials)
-            Stream.AddFollow(OriginalTweetCreatedByUserId, Nothing) 'AddressOf UserPublishedTweetCallback
-            Stream.AddTrack(String.Join(" ", RelevantKeywords), Nothing) 'AddressOf TweetReceivedByKeywordsCallback
+            Stream.AddFollow(InitialTweetCreatedByUserId, Nothing)
+            Stream.AddTrack(KeywordsString, AddressOf TweetReceivedByKeywordsCallback)
             Stream.StartStreamMatchingAnyConditionAsync()
         Else
             DebugPrint("Stream.Start (resumed)")
@@ -54,21 +62,34 @@ Public Class Stream
         Stream = Nothing
     End Sub
 
-    'Private Sub UserPublishedTweetCallback(Tweet As Tweetinvi.Models.ITweet)
-    '    DebugPrint("Stream.UserPublishedTweetCallback")
-    '    OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "UserPublishedTweetCallback")
-    'End Sub
-
-    'Private Sub TweetReceivedByKeywordsCallback(Tweet As Tweetinvi.Models.ITweet)
-    '    DebugPrint("Stream.TweetReceivedByKeywordsCallback")
-    '    OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "TweetReceivedByKeywordsCallback")
-    'End Sub
-
-    Private Sub Stream_MatchingTweetReceived(sender As Object, e As Tweetinvi.Events.MatchedTweetReceivedEventArgs) Handles Stream.MatchingTweetReceived
-        DebugPrint("Stream.Stream_MatchingTweetReceived")
-        OnTweetReceived(e.Tweet, DirectCast(e.MatchOn, TwitterTracks.TweetinviInterop.TweetinviMatchOn), "Stream_MatchingTweetReceived")
-        'OnTweetReceived(Tweetinvi.Auth.ExecuteOperationWithCredentials(TwitterCredentials, Function() Tweetinvi.Tweet.GetTweet(820325401079619584)), TweetinviInterop.TweetinviMatchOn.TweetText, "Manual")
+    Private Sub TweetReceivedByKeywordsCallback(Tweet As Tweetinvi.Models.ITweet)
+        DebugPrint("Stream.TweetReceivedByKeywordsCallback: " & Tweet.Id)
+        OnTweetReceived(Tweet, TweetinviInterop.TweetinviMatchOn.None, "TweetReceivedByKeywordsCallback")
     End Sub
+
+    Private Sub Stream_NonMatchingTweetReceived(sender As Object, e As Tweetinvi.Events.TweetEventArgs) Handles Stream.NonMatchingTweetReceived
+        'Retweets of the initial tweet are not considered "matching" by Tweetinvi. The matching is done manually here.
+        'See https://github.com/linvi/tweetinvi/issues/356#issuecomment-251837195
+        If IsChildOfOrOriginalTweet(e.Tweet) Then
+            DebugPrint("Strema.Stream_NonMatchingTweetReceived: " & e.Tweet.Id)
+            DebugPrint("    Is retweet of initial Tweet.")
+            OnTweetReceived(e.Tweet, TweetinviInterop.TweetinviMatchOn.None, "Retweet")
+        End If
+    End Sub
+
+    '@Robustness Eliminate recursion. Unlikely but possible StackOverflowException.
+    Private Function IsChildOfOrOriginalTweet(Tweet As Tweetinvi.Models.ITweet) As Boolean
+        If Tweet Is Nothing Then
+            Return False
+        End If
+        If Tweet.Id = InitialTweetId Then
+            Return True
+        End If
+        If Tweet.RetweetedTweet Is Nothing Then
+            Return False
+        End If
+        Return IsChildOfOrOriginalTweet(Tweet.RetweetedTweet)
+    End Function
 
     Private Sub Stream_DisconnectMessageReceived(sender As Object, e As Tweetinvi.Events.DisconnectedEventArgs) Handles Stream.DisconnectMessageReceived
         DebugPrint("Stream.DisconnectMessageReceived: {2} Code {0}: {1} ", e.DisconnectMessage.Code, e.DisconnectMessage.Reason, e.DisconnectMessage.StreamName)
@@ -88,10 +109,6 @@ Public Class Stream
             DebugPrint("Stream.StreamStopped: {0} Code {1}: {2}. Exception: {3}", e.DisconnectMessage.StreamName, e.DisconnectMessage.Code, e.DisconnectMessage.Reason, If(e.Exception Is Nothing, "null", String.Format("{0}: {1}", e.Exception.GetType.Name, e.Exception.Message)))
             OnStopped(TwitterTracks.TweetinviInterop.StreamStoppedEventArgs.Stopped(e.Exception, e.DisconnectMessage.Code, e.DisconnectMessage.Reason, e.DisconnectMessage.StreamName))
         End If
-    End Sub
-
-    Private Sub Stream_NonMatchingTweetReceived(sender As Object, e As Tweetinvi.Events.TweetEventArgs) Handles Stream.NonMatchingTweetReceived
-        'ToDo: Should not matter.
     End Sub
 
     Private Sub Stream_StreamPaused(sender As Object, e As EventArgs) Handles Stream.StreamPaused

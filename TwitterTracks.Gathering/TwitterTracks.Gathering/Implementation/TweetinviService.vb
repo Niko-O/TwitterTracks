@@ -47,8 +47,8 @@ Public Class TweetinviService
         If CurrentStream.IsRunning Then
             Throw New NopeException("The Stream is already running. This method should not be called.")
         End If
-        CurrentStream.OriginalTweetId = TweetId
-        CurrentStream.OriginalTweetCreatedByUserId = CreatedByUserId
+        CurrentStream.InitialTweetId = TweetId
+        CurrentStream.InitialTweetCreatedByUserId = CreatedByUserId
         CurrentStream.RelevantKeywords = New ReadOnlyCollection(Of String)(RelevantKeywords.ToList)
         CurrentStream.TwitterCredentials = New Tweetinvi.Models.TwitterCredentials(AuthenticationToken.ConsumerKey, AuthenticationToken.ConsumerSecret, AuthenticationToken.AccessToken, AuthenticationToken.AccessTokenSecret)
         CurrentStream.Start()
