@@ -274,4 +274,24 @@
         End With
     End Sub
 
+    Dim TestDataIndex As Integer = 0
+    Private ReadOnly TestData As New List(Of Action(Of TwitterTracks.DatabaseAccess.ResearcherDatabase)) From _
+    {
+        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet("1001", Helpers.UnixTimestampToUtc(1490000001), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("England, Vereinigtes Königreich"), Nothing, Nothing), _
+        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet("1002", Helpers.UnixTimestampToUtc(1490000002), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("Österreich"), Nothing, Nothing), _
+        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet("1003", Helpers.UnixTimestampToUtc(1490000003), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("New York"), Nothing, Nothing)
+    }
+
+    Private Sub InsertTestData(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        TestData(TestDataIndex)(Database)
+        ViewModel.NumberOfTrackedTweets += 1
+        TestDataIndex = (TestDataIndex + 1) Mod TestData.Count
+    End Sub
+
+    Private Sub InsertTestDataMultiple(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        For i = 1 To 10
+            InsertTestData(sender, e)
+        Next
+    End Sub
+
 End Class
