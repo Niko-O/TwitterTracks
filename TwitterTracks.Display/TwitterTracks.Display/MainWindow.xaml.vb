@@ -1,12 +1,17 @@
 ﻿Class MainWindow
 
+    Private Shared ReadOnly DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier("BobsDatabase")
+    Private Shared ReadOnly TrackEntityId As New TwitterTracks.DatabaseAccess.EntityId(2)
+
     Dim ViewModel As MainWindowViewModel
 
     Dim MainConnection As TwitterTracks.DatabaseAccess.DatabaseConnection
     Dim MainDatabase As TwitterTracks.DatabaseAccess.ResearcherDatabase
-
+    Dim WithEvents PullTweetsTimer As New System.Windows.Threading.DispatcherTimer With {.Interval = TimeSpan.FromSeconds(5), .IsEnabled = False}
     Dim NewestTweetId As Int64 = -1
 
+    <ThreadStatic()>
+    Private Shared CoordinatesProcessingRnd As Random
     Dim CoordinatesProcessingConnection As TwitterTracks.DatabaseAccess.DatabaseConnection
     Dim CoordinatesProcessingDatabase As TwitterTracks.DatabaseAccess.ResearcherDatabase
     Dim TweetsToProcess As New System.Collections.Concurrent.BlockingCollection(Of TwitterTracks.DatabaseAccess.Tweet)
@@ -19,9 +24,10 @@
         MapControl.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance
         MainConnection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection("localhost", "root", "")
         MainConnection.Open()
-        MainDatabase = New TwitterTracks.DatabaseAccess.ResearcherDatabase(MainConnection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier("BobsDatabase"), New TwitterTracks.DatabaseAccess.EntityId(1))
+        MainDatabase = New TwitterTracks.DatabaseAccess.ResearcherDatabase(MainConnection, DatabaseName, TrackEntityId)
         CoordinatesProcessingThread.Start()
         PullTweets()
+        PullTweetsTimer.IsEnabled = True
     End Sub
 
     Protected Overrides Sub OnClosing(e As System.ComponentModel.CancelEventArgs)
@@ -29,7 +35,9 @@
         GMap.NET.GMaps.Instance.CancelTileCaching()
     End Sub
 
-    Private Sub PullTweets()
+    Private Sub PullTweets() Handles PullTweetsTimer.Tick
+        Dim OldTimerState = PullTweetsTimer.IsEnabled
+        PullTweetsTimer.IsEnabled = False
         Dim NewTweets As IEnumerable(Of TwitterTracks.DatabaseAccess.Tweet)
         If NewestTweetId = -1 Then
             NewTweets = MainDatabase.GetAllTweets
@@ -51,22 +59,32 @@
                     TweetsToProcess.Add(i)
             End Select
         Next
+        PullTweetsTimer.IsEnabled = OldTimerState
     End Sub
 
     Private Sub MultithreadedLoadLocations()
+        If CoordinatesProcessingRnd Is Nothing Then
+            CoordinatesProcessingRnd = New Random
+        End If
         CoordinatesProcessingConnection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection("localhost", "root", "")
         CoordinatesProcessingConnection.Open()
-        CoordinatesProcessingDatabase = New TwitterTracks.DatabaseAccess.ResearcherDatabase(CoordinatesProcessingConnection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier("BobsDatabase"), New TwitterTracks.DatabaseAccess.EntityId(1))
+        CoordinatesProcessingDatabase = New TwitterTracks.DatabaseAccess.ResearcherDatabase(CoordinatesProcessingConnection, DatabaseName, TrackEntityId)
         Do
             Dim Tweet = TweetsToProcess.Take
             Dim Status As GMap.NET.GeoCoderStatusCode
             Dim Point = GMap.NET.MapProviders.GoogleMapProvider.Instance.GetPoint(Tweet.Location.UserRegion, Status)
+
             If Status = GMap.NET.GeoCoderStatusCode.G_GEO_SUCCESS AndAlso Point.HasValue Then
-                If Not CoordinatesProcessingDatabase.TryUpdateTweetUserRegionWithCoordinates(Tweet.EntityId, Point.Value.Lat, Point.Value.Lng) Then
+                Const MaximumDistance As Double = 3
+                Dim Distance = Math.Sqrt(CoordinatesProcessingRnd.NextDouble) * MaximumDistance
+                Dim Angle = CoordinatesProcessingRnd.NextDouble * Math.PI * 2
+                Dim Latitude = Point.Value.Lat + Math.Sin(Angle) * Distance * 0.5
+                Dim Longitude = Point.Value.Lng + Math.Cos(Angle) * Distance
+                If Not CoordinatesProcessingDatabase.TryUpdateTweetUserRegionWithCoordinates(Tweet.EntityId, Latitude, Longitude) Then
                     Stop
                 End If
                 Dispatcher.BeginInvoke(Sub()
-                                           AddMarker(Point.Value.Lat, Point.Value.Lng)
+                                           AddMarker(Latitude, Longitude)
                                        End Sub)
             Else
                 If Not CoordinatesProcessingDatabase.TryUpdateTweetToUserRegionNoCoordinates(Tweet.EntityId) Then
@@ -76,6 +94,7 @@
         Loop
     End Sub
 
+    Private Shared ReadOnly MarkerBrush As New SolidColorBrush(Color.FromArgb(128, 255, 0, 0))
     Private Sub AddMarker(Latitude As Double, Longitude As Double)
         MapControl.Markers.Add(New GMap.NET.WindowsPresentation.GMapMarker(New GMap.NET.PointLatLng(Latitude, Longitude)) With _
                                {
@@ -84,7 +103,7 @@
                                        .Width = 10,
                                        .Height = 10,
                                        .RenderTransform = New TranslateTransform(-5, -5),
-                                       .Fill = Brushes.Red
+                                       .Fill = MarkerBrush
                                    }
                                })
     End Sub
