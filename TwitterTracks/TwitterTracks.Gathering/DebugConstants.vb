@@ -24,6 +24,7 @@
                      o.TwitterConnection.AccessToken = AccessToken.AccessToken
                      o.TwitterConnection.AccessTokenSecret = AccessToken.AccessTokenSecret
                  End Sub)
+
     Public Shared ReadOnly AccessToken As TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken
     Shared Sub New()
         'Case 1: When the code is executed in the XAML designer this is the absolute directory path of the solution directory of the project which calls this code (e.g. "C:\Blah\Solution").
@@ -31,11 +32,10 @@
         'The file to find is in the TwitterTracks.Common solution directory.
         Dim CurrentDirectory As New System.IO.DirectoryInfo(Environment.CurrentDirectory)
         If (CurrentDirectory.Name = "Debug" OrElse CurrentDirectory.Name = "Release") AndAlso CurrentDirectory.Parent.Name = "bin" Then
-            'Case 1.
+            'Case 2.
             CurrentDirectory = CurrentDirectory.Parent.Parent.Parent
         End If
-        CurrentDirectory = CurrentDirectory.Parent
-        Dim FilePath = System.IO.Path.Combine(CurrentDirectory.FullName, "TwitterTracks.Common", "TwitterAuthToken.txt.DonutUpload")
+        Dim FilePath = System.IO.Path.Combine(CurrentDirectory.FullName, "TwitterAuthToken.txt.DonutUpload")
         If Not System.IO.File.Exists(FilePath) Then
             MessageBox.Show("This is a problem. Look in TwitterTracks.Common.UI.Resources.DebugConstants.Twitter. The file containing the Twitter Authentication Token Data was not found. The file path is:" & Environment.NewLine & _
                             FilePath & Environment.NewLine & _
