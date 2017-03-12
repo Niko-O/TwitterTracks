@@ -125,6 +125,7 @@ Class MainWindow
         Else
             Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
             Dim DatabaseExists As Boolean = False
+            Dim Tracks As List(Of TwitterTracks.DatabaseAccess.Track) = Nothing
             Tasks.DoSqlTaskWithStatusMessage( _
                ViewModel.AdministratorToolsVM.SelectionStatusMessageVM, _
                "The database could not be selected", _
@@ -132,10 +133,16 @@ Class MainWindow
                    Dim Database As New TwitterTracks.DatabaseAccess.Database(Connection)
                    Dim DatabaseNames = Database.GetAllDatabaseNames.ToList
                    DatabaseExists = DatabaseNames.Contains(DatabaseName)
+                   If DatabaseExists Then
+                       Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, DatabaseName)
+                       Tracks = TrackDatabase.GetAllTracksWithoutMetadata.ToList
+                   End If
                End Sub, _
                Function(Success As Boolean)
                    If Success Then
+                       ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
                        If DatabaseExists Then
+                           ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.AddRange(Tracks)
                            ViewModel.AdministratorToolsVM.DatabaseIsSelected = True
                        Else
                            Return Tuple.Create(String.Format("Database ""{0}"" does not exist.", DatabaseName), TwitterTracks.Common.UI.StatusMessageKindType.Error)
