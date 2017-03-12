@@ -48,7 +48,9 @@ Public Class Stream
             DebugPrint("    RelevantKeywords            : " & KeywordsString)
             Stream = Tweetinvi.Stream.CreateFilteredStream(TwitterCredentials)
             Stream.AddFollow(InitialTweetCreatedByUserId, Nothing)
-            Stream.AddTrack(KeywordsString, AddressOf TweetReceivedByKeywordsCallback)
+            If RelevantKeywords.Count <> 0 Then
+                Stream.AddTrack(KeywordsString, AddressOf TweetReceivedByKeywordsCallback)
+            End If
             Stream.StartStreamMatchingAnyConditionAsync()
         Else
             DebugPrint("Stream.Start (resumed)")
