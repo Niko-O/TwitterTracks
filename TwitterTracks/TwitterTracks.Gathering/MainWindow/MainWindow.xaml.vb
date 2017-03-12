@@ -122,6 +122,12 @@
     Private Sub PublishTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
         DebugPrint("MainWindow.PublishTweet")
 
+        Dim MissingFiles = ViewModel.OpenTweetInfo.TweetData.MediasToAdd.Where(Function(i) Not System.IO.File.Exists(i)).ToList
+        If MissingFiles.Any Then
+            MessageBox.Show(String.Format("The following files which were selected to be attached to the Tweet do not exist:{0}{1}{0}The Tweet was not published.{0}If the files were moved, move them back to their original position.", Environment.NewLine, String.Join(Environment.NewLine, MissingFiles)))
+            Return
+        End If
+
         Dim MediaBinaries As New List(Of Byte())
         For Each i In ViewModel.OpenTweetInfo.TweetData.MediasToAdd
             MediaBinaries.Add(System.IO.File.ReadAllBytes(i))
