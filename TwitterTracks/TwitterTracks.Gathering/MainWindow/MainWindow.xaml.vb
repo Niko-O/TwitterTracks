@@ -31,10 +31,13 @@
         If Dlg.ShowDialog() Then
             ViewModel.OpenTweetInfo = Dlg.GetOpenTweetInfo
             Database = New TwitterTracks.DatabaseAccess.ResearcherDatabase(ViewModel.OpenTweetInfo.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.OpenTweetInfo.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(ViewModel.OpenTweetInfo.Database.ResearcherId))
+            'ToDo: Execute this as task
+            Database.UpdateOrCreateTrackMetadata(ViewModel.OpenTweetInfo.Metadata)
             ViewModel.NumberOfTrackedTweets = Database.CountAllTweets()
             If ViewModel.OpenTweetInfo.Metadata.IsPublished Then
                 StartStream()
             End If
+            '/
         End If
     End Sub
 
