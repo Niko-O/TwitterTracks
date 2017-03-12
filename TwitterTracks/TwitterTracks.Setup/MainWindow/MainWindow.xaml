@@ -98,7 +98,7 @@
                             <StackPanel>
                                 <!-- -->
                                 <CommonUI.Controls:HelpLabel MainContent="Database Name:" HelpContent="The name of the new database. Even though pretty much all kinds of special characters are allowed you should stick to basic letters and numbers and avoid spaces."/>
-                                <CommonUI.Controls:HelpLabel HelpContent="This name is not valid." HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid}">
+                                <CommonUI.Controls:HelpLabel HelpContent="This name is not valid." HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
                                     <CommonUI.Controls:HelpLabel.MainContent>
                                         <TextBox Text="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseName, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
                                     </CommonUI.Controls:HelpLabel.MainContent>

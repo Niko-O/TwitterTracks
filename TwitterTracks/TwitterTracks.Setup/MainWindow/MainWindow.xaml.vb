@@ -120,6 +120,8 @@ Class MainWindow
         If ViewModel.AdministratorToolsVM.DatabaseIsSelected Then
             ViewModel.AdministratorToolsVM.DatabaseIsSelected = False
             'ToDo: Clear state depending on selected database.
+            ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
+            ViewModel.AdministratorToolsVM.TracksVM.SelectedAvailableTrack = Nothing
         Else
             Dim DatabaseName = ViewModel.AdministratorToolsVM.DatabaseName
             Dim DatabaseExists As Boolean = False
@@ -204,6 +206,8 @@ Class MainWindow
                     ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Add(CreateTrackResult.Track)
                     ViewModel.AdministratorToolsVM.TracksVM.SelectedAvailableTrack = CreateTrackResult.Track
                     ViewModel.AdministratorToolsVM.CreateTrackVM.CreatedResearcherId = CreateTrackResult.ResearcherUser.Name
+                    ViewModel.AdministratorToolsVM.CreateTrackVM.Password = ""
+                    ViewModel.AdministratorToolsVM.CreateTrackVM.RetypePassword = ""
                 End If
                 Return Nothing
             End Function)
