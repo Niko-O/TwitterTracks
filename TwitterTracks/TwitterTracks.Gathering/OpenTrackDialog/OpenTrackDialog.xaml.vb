@@ -6,6 +6,7 @@ Namespace OpenTrackDialog
         Private Shared ReadOnly HashtagRegex As New System.Text.RegularExpressions.Regex("(^|\s)(?<Hashtag>#.*?)(\s|$)", Text.RegularExpressions.RegexOptions.Compiled)
 
         Dim Connection As TwitterTracks.DatabaseAccess.DatabaseConnection
+        Dim DatabaseContainsMetadata As Boolean = False
         Dim ExistingTweetMetadata As TwitterTracks.DatabaseAccess.TrackMetadata
         
         Dim ViewModel As OpenTrackDialogViewModel
@@ -44,13 +45,13 @@ Namespace OpenTrackDialog
                 Case DialogTabIndex.Keywords
                     ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
                 Case DialogTabIndex.TwitterConnection
+                    ViewModel.CurrentTabIndex = DialogTabIndex.Keywords
+                Case DialogTabIndex.Summary
                     If ViewModel.SummaryVM.TweetAlreadyPublished Then
                         ViewModel.CurrentTabIndex = DialogTabIndex.DatabaseConnection
                     Else
-                        ViewModel.CurrentTabIndex = DialogTabIndex.Keywords
+                        ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
                     End If
-                Case DialogTabIndex.Summary
-                    ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
                 Case Else
                     Throw New NopeException
             End Select
@@ -104,16 +105,36 @@ Namespace OpenTrackDialog
                                 End Try
                                 Tasks.FinishTask(Sub()
                                                      Connection = ResultConnection
-                                                     ViewModel.SummaryVM.TweetAlreadyPublished = Metadata IsNot Nothing
-                                                     If ViewModel.SummaryVM.TweetAlreadyPublished Then
+                                                     DatabaseContainsMetadata = Metadata IsNot Nothing
+                                                     If DatabaseContainsMetadata Then
                                                          ExistingTweetMetadata = Metadata.Value
-                                                         ViewModel.SummaryVM.PublishedTweetId = ExistingTweetMetadata.InitialTweetId
-                                                         ViewModel.SummaryVM.TweetText = ExistingTweetMetadata.InitialTweetFullText
-                                                         ViewModel.SummaryVM.Keywords = String.Join(" ", ExistingTweetMetadata.RelevantKeywords)
-                                                         ViewModel.StatusMessageVM.SetStatus("The initial Tweet already exists in the database.", Common.UI.StatusMessageKindType.JustText)
-                                                         ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
+
+                                                         ViewModel.SummaryVM.TweetAlreadyPublished = ExistingTweetMetadata.IsPublished
+
+                                                         ViewModel.TweetDataVM.TweetText = ExistingTweetMetadata.TweetText
+                                                         ViewModel.KeywordsVM.Keywords.Clear()
+                                                         ViewModel.KeywordsVM.Keywords.AddRange(ExistingTweetMetadata.RelevantKeywords.Select(Function(i) New KeywordToAdd With {.IsCustom = True, .Text = i}))
+                                                         ViewModel.TweetDataVM.MediasToAdd.Clear()
+                                                         ViewModel.TweetDataVM.MediasToAdd.AddRange(ExistingTweetMetadata.MediaFilePathsToAdd.Select(Function(i) New TweetMediaToAdd(i)))
+                                                         ViewModel.TwitterConnectionVM.ConsumerKey = ExistingTweetMetadata.ConsumerKey
+                                                         ViewModel.TwitterConnectionVM.ConsumerSecret = ExistingTweetMetadata.ConsumerSecret
+                                                         ViewModel.TwitterConnectionVM.AccessToken = ExistingTweetMetadata.AccessToken
+                                                         ViewModel.TwitterConnectionVM.AccessTokenSecret = ExistingTweetMetadata.AccessTokenSecret
+
+                                                         If ExistingTweetMetadata.IsPublished Then
+                                                             ViewModel.SummaryVM.PublishedTweetId = ExistingTweetMetadata.TweetId
+                                                             ViewModel.SummaryVM.TweetText = ExistingTweetMetadata.TweetText
+                                                             ViewModel.SummaryVM.Keywords = String.Join(" ", ExistingTweetMetadata.RelevantKeywords)
+
+                                                             ViewModel.StatusMessageVM.SetStatus("Metadata was found in the database. The initial Tweet is already published", Common.UI.StatusMessageKindType.Warning)
+                                                             ViewModel.CurrentTabIndex = DialogTabIndex.Summary
+                                                         Else
+                                                             ViewModel.StatusMessageVM.SetStatus("Metadata was found in the database. The initial Tweet is not yet published", Common.UI.StatusMessageKindType.JustText)
+                                                             ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
+                                                         End If
                                                      Else
-                                                         ViewModel.StatusMessageVM.SetStatus("The initial Tweet does not yet exist in the database.", Common.UI.StatusMessageKindType.JustText)
+                                                         ViewModel.SummaryVM.TweetAlreadyPublished = False
+                                                         ViewModel.StatusMessageVM.SetStatus("No metadata was found in the database.", Common.UI.StatusMessageKindType.JustText)
                                                          ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
                                                      End If
                                                  End Sub)
@@ -121,16 +142,19 @@ Namespace OpenTrackDialog
         End Sub
 
         Private Sub BeginTweetDataGoForward()
-            If Not ViewModel.SummaryVM.TweetAlreadyPublished Then
-                ViewModel.SummaryVM.TweetText = ViewModel.TweetDataVM.TweetText
+            ViewModel.SummaryVM.TweetText = ViewModel.TweetDataVM.TweetText
+            If DatabaseContainsMetadata AndAlso ExistingTweetMetadata.TweetText = ViewModel.TweetDataVM.TweetText Then
+                ViewModel.KeywordsVM.Keywords.Clear()
+                ViewModel.KeywordsVM.Keywords.AddRange(ExistingTweetMetadata.RelevantKeywords.Select(Function(i) New KeywordToAdd With {.IsCustom = True, .Text = i}))
+            Else
+                ViewModel.KeywordsVM.Keywords.Clear()
+                Dim Match = HashtagRegex.Match(ViewModel.TweetDataVM.TweetText)
+                Do While Match IsNot Nothing AndAlso Match.Success
+                    Dim Group = Match.Groups("Hashtag")
+                    ViewModel.KeywordsVM.Keywords.Add(New KeywordToAdd With {.Text = Group.Value, .IsCustom = False})
+                    Match = HashtagRegex.Match(ViewModel.TweetDataVM.TweetText, Group.Index + Group.Length)
+                Loop
             End If
-            ViewModel.KeywordsVM.Keywords.Clear()
-            Dim Match = HashtagRegex.Match(ViewModel.TweetDataVM.TweetText)
-            Do While Match IsNot Nothing AndAlso Match.Success
-                Dim Group = Match.Groups("Hashtag")
-                ViewModel.KeywordsVM.Keywords.Add(New KeywordToAdd With {.Text = Group.Value, .IsCustom = False})
-                Match = HashtagRegex.Match(ViewModel.TweetDataVM.TweetText, Group.Index + Group.Length)
-            Loop
             ViewModel.StatusMessageVM.ClearStatus()
             ViewModel.CurrentTabIndex = DialogTabIndex.Keywords
         End Sub
@@ -161,23 +185,19 @@ Namespace OpenTrackDialog
         Public Function GetOpenTweetInfo() As OpenTweetInformation
             Dim Result As New OpenTweetInformation
 
-            Result.IsPublished = ViewModel.SummaryVM.TweetAlreadyPublished
+            If DatabaseContainsMetadata AndAlso ViewModel.SummaryVM.TweetAlreadyPublished Then
+                Result.Metadata = ExistingTweetMetadata
+            Else
+                Result.Metadata = TwitterTracks.DatabaseAccess.TrackMetadata.FromUnpublished( _
+                    ViewModel.TweetDataVM.TweetText, ViewModel.KeywordsVM.Keywords.Select(Function(i) i.Text), ViewModel.TweetDataVM.MediasToAdd.Select(Function(i) i.FilePath), _
+                    ViewModel.TwitterConnectionVM.ConsumerKey, ViewModel.TwitterConnectionVM.ConsumerSecret, ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
+            End If
 
             Result.Database.Host = ViewModel.DatabaseConnectionVM.DatabaseHost
             Result.Database.Name = ViewModel.DatabaseConnectionVM.DatabaseName
             Result.Database.ResearcherId = If(ViewModel.DatabaseConnectionVM.ResearcherIdIsValid, Integer.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText), -1)
             Result.Database.Password = ViewModel.DatabaseConnectionVM.Password
             Result.Database.Connection = Connection
-
-            Result.TweetData.Metadata = ExistingTweetMetadata
-            Result.TweetData.TweetText = If(Result.IsPublished, ExistingTweetMetadata.InitialTweetFullText, ViewModel.TweetDataVM.TweetText)
-            Result.TweetData.MediasToAdd = ViewModel.TweetDataVM.MediasToAdd.Select(Function(i) i.FilePath).ToList
-            Result.TweetData.Keywords = ViewModel.KeywordsVM.Keywords.Select(Function(i) i.Text).ToList
-
-            Result.TwitterConnection.ConsumerKey = ViewModel.TwitterConnectionVM.ConsumerKey
-            Result.TwitterConnection.ConsumerSecret = ViewModel.TwitterConnectionVM.ConsumerSecret
-            Result.TwitterConnection.AccessToken = ViewModel.TwitterConnectionVM.AccessToken
-            Result.TwitterConnection.AccessTokenSecret = ViewModel.TwitterConnectionVM.AccessTokenSecret
 
             Return Result
         End Function

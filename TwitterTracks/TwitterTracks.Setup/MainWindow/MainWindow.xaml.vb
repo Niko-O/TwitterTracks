@@ -123,7 +123,7 @@ Class MainWindow
             ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
             ViewModel.AdministratorToolsVM.TracksVM.SelectedAvailableTrack = Nothing
         Else
-            Dim DatabaseName = ViewModel.AdministratorToolsVM.DatabaseName
+            Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
             Dim DatabaseExists As Boolean = False
             Tasks.DoSqlTaskWithStatusMessage( _
                ViewModel.AdministratorToolsVM.SelectionStatusMessageVM, _
@@ -131,7 +131,7 @@ Class MainWindow
                Sub()
                    Dim Database As New TwitterTracks.DatabaseAccess.Database(Connection)
                    Dim DatabaseNames = Database.GetAllDatabaseNames.ToList
-                   DatabaseExists = DatabaseNames.Contains(New TwitterTracks.DatabaseAccess.VerbatimIdentifier(DatabaseName))
+                   DatabaseExists = DatabaseNames.Contains(DatabaseName)
                End Sub, _
                Function(Success As Boolean)
                    If Success Then
@@ -150,19 +150,19 @@ Class MainWindow
         Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
         Dim Tracks As List(Of TwitterTracks.DatabaseAccess.Track) = Nothing
         Tasks.DoSqlTaskWithStatusMessage( _
-            ViewModel.AdministratorToolsVM.TracksVM.StatusMessageVM, _
-            "The Tracks could not be read", _
-            Sub()
-                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, DatabaseName)
-                Tracks = TrackDatabase.GetAllTracksWithoutMetadata.ToList
-            End Sub, _
-            Function(Success As Boolean)
-                If Success Then
-                    ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
-                    ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.AddRange(Tracks)
-                End If
-                Return Nothing
-            End Function)
+           ViewModel.AdministratorToolsVM.TracksVM.StatusMessageVM, _
+           "The Tracks could not be read", _
+           Sub()
+               Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, DatabaseName)
+               Tracks = TrackDatabase.GetAllTracksWithoutMetadata.ToList
+           End Sub, _
+           Function(Success As Boolean)
+               If Success Then
+                   ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
+                   ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.AddRange(Tracks)
+               End If
+               Return Nothing
+           End Function)
     End Sub
 
     Private Sub DeleteSelectedTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
@@ -175,11 +175,12 @@ Class MainWindow
                            "Really delete Track?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) <> MessageBoxResult.Yes Then
             Return
         End If
+        Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
         Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.AdministratorToolsVM.TracksVM.StatusMessageVM, _
             "The Track could not be deleted", _
             Sub()
-                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName), Track.EntityId)
+                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, Track.EntityId)
                 ResearcherDatabase.DeleteTrack()
             End Sub, _
             Function(Success As Boolean)
@@ -194,12 +195,14 @@ Class MainWindow
 
     Private Sub CreateTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim CreateTrackResult As TwitterTracks.DatabaseAccess.TrackDatabase.CreateTrackResult = Nothing
+        Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
+        Dim Password = ViewModel.AdministratorToolsVM.CreateTrackVM.Password
         Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
             "The Track could not be created", _
             Sub()
-                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName))
-                CreateTrackResult = TrackDatabase.CreateTrack(ViewModel.AdministratorToolsVM.CreateTrackVM.Password)
+                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, DatabaseName)
+                CreateTrackResult = TrackDatabase.CreateTrack(Password)
             End Sub, _
             Function(Success As Boolean)
                 If Success Then

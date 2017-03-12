@@ -85,11 +85,11 @@
             Dim OldValue = _OpenTweetInfo
             If OldValue IsNot NewValue Then
                 If OldValue IsNot Nothing Then
-                    RemoveHandler OldValue.IsPublishedChanged, AddressOf OpenTweetInfo_IsPublishedChanged
+                    RemoveHandler OldValue.MetadataChanged, AddressOf OpenTweetInfo_MetadataChanged
                 End If
                 _OpenTweetInfo = NewValue
                 If NewValue IsNot Nothing Then
-                    AddHandler NewValue.IsPublishedChanged, AddressOf OpenTweetInfo_IsPublishedChanged
+                    AddHandler NewValue.MetadataChanged, AddressOf OpenTweetInfo_MetadataChanged
                 End If
                 OnExtendedPropertyChanged("OpenTweetInfo", OldValue, NewValue)
             End If
@@ -99,14 +99,14 @@
     <Dependency("OpenTweetInfo")>
     Public ReadOnly Property CanPublish As Boolean
         Get
-            Return OpenTweetInfo IsNot Nothing AndAlso Not OpenTweetInfo.IsPublished
+            Return OpenTweetInfo IsNot Nothing AndAlso Not OpenTweetInfo.Metadata.IsPublished
         End Get
     End Property
 
     <Dependency("OpenTweetInfo", "TrackingStreamIsRunning")>
     Public ReadOnly Property CanStartStream As Boolean
         Get
-            Return OpenTweetInfo IsNot Nothing AndAlso OpenTweetInfo.IsPublished AndAlso Not TrackingStreamIsRunning
+            Return OpenTweetInfo IsNot Nothing AndAlso OpenTweetInfo.Metadata.IsPublished AndAlso Not TrackingStreamIsRunning
         End Get
     End Property
 
@@ -136,7 +136,7 @@
         End If
     End Sub
 
-    Private Sub OpenTweetInfo_IsPublishedChanged()
+    Private Sub OpenTweetInfo_MetadataChanged()
         OnPropertyChanged("CanPublish", "CanStartStream")
     End Sub
 

@@ -32,7 +32,7 @@
             ViewModel.OpenTweetInfo = Dlg.GetOpenTweetInfo
             Database = New TwitterTracks.DatabaseAccess.ResearcherDatabase(ViewModel.OpenTweetInfo.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.OpenTweetInfo.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(ViewModel.OpenTweetInfo.Database.ResearcherId))
             ViewModel.NumberOfTrackedTweets = Database.CountAllTweets()
-            If ViewModel.OpenTweetInfo.IsPublished Then
+            If ViewModel.OpenTweetInfo.Metadata.IsPublished Then
                 StartStream()
             End If
         End If
@@ -53,31 +53,22 @@
             Return
         End If
 
-        Result.IsPublished = Boolean.Parse(Root.<IsPublished>.Value)
+        Result.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata(
+            Boolean.Parse(Root.<Metadata>.<IsPublished>.Value), _
+            Int64.Parse(Root.<Metadata>.<TweetId>.Value), _
+            Int64.Parse(Root.<Metadata>.<CreatedByUserId>.Value), _
+            Root.<Metadata>.<TweetText>.Value, _
+            Root.<Metadata>.<RelevantKeywords>.<Keyword>.Select(Function(i) i.Value), _
+            Root.<Metadata>.<MediaFilePathsToAdd>.<MediaToAdd>.Select(Function(i) i.Value), _
+            Root.<Metadata>.<ConsumerKey>.Value, _
+            Root.<Metadata>.<ConsumerSecret>.Value, _
+            Root.<Metadata>.<AccessToken>.Value, _
+            Root.<Metadata>.<AccessTokenSecret>.Value)
 
         Result.Database.Host = Root.<Database>.<Host>.Value
         Result.Database.Name = Root.<Database>.<Name>.Value
         Result.Database.ResearcherId = Int64.Parse(Root.<Database>.<ResearcherId>.Value)
         Result.Database.Password = Dlg.Password
-
-        If Root.<TweetData>.<Metadata>.Single.Descendants.Any Then
-            Result.TweetData.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata _
-            (
-                Int64.Parse(Root.<TweetData>.<Metadata>.<InitialTweetId>.Value),
-                Int64.Parse(Root.<TweetData>.<Metadata>.<InitialTweetUserId>.Value),
-                Root.<TweetData>.<Metadata>.<InitialTweetFullText>.Value,
-                Root.<TweetData>.<Metadata>.<RelevantKeywords>.Descendants.Select(Function(i) i.Value)
-            )
-        End If
-
-        Result.TweetData.TweetText = Root.<TweetData>.<TweetText>.Value
-        Result.TweetData.MediasToAdd = Root.<TweetData>.<MediasToAdd>.Descendants.Select(Function(i) i.Value).ToList
-        Result.TweetData.Keywords = Root.<TweetData>.<Keywords>.Descendants.Select(Function(i) i.Value).ToList
-
-        Result.TwitterConnection.ConsumerKey = Root.<TwitterConnection>.<ConsumerKey>.Value
-        Result.TwitterConnection.ConsumerSecret = Root.<TwitterConnection>.<ConsumerSecret>.Value
-        Result.TwitterConnection.AccessToken = Root.<TwitterConnection>.<AccessToken>.Value
-        Result.TwitterConnection.AccessTokenSecret = Root.<TwitterConnection>.<AccessTokenSecret>.Value
 
         Result.Database.Connection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection _
         (
@@ -99,12 +90,12 @@
 
         Database = New TwitterTracks.DatabaseAccess.ResearcherDatabase(Result.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(Result.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(Result.Database.ResearcherId))
         Dim ExistingMetadata = Database.TryGetTrackMetadata
-        Dim MetadataExistsAndThereforeTweetIsPublished = ExistingMetadata IsNot Nothing
-        If MetadataExistsAndThereforeTweetIsPublished <> Result.IsPublished Then
-            Dim ErrorMessage = String.Format("The configuration file says the Tweet is {0} published but the database says the opposite.", If(Result.IsPublished, "already", "not yet"))
-            If MetadataExistsAndThereforeTweetIsPublished Then
+        Dim TweetIsPublished = ExistingMetadata IsNot Nothing AndAlso ExistingMetadata.Value.IsPublished
+        If TweetIsPublished <> Result.Metadata.IsPublished Then
+            Dim ErrorMessage = String.Format("The configuration file says the Tweet is {0} published but the database says the opposite.", If(Result.Metadata.IsPublished, "already", "not yet"))
+            If TweetIsPublished Then
                 Dim Metadata = ExistingMetadata.Value
-                ErrorMessage &= String.Format("The database stores the Tweet {1}, created by {2}:{0}{3}", Environment.NewLine, Metadata.InitialTweetId, Metadata.InitialTweetUserId, Metadata.InitialTweetFullText)
+                ErrorMessage &= String.Format("The database stores the Tweet {1}, created by {2}:{0}{3}", Environment.NewLine, Result.Metadata.TweetId, Result.Metadata.CreatedByUserId, Result.Metadata.TweetText)
             End If
             ViewModel.StatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
             Return
@@ -114,7 +105,7 @@
         ViewModel.OpenTweetInfo = Result
 
         ViewModel.NumberOfTrackedTweets = Database.CountAllTweets()
-        If MetadataExistsAndThereforeTweetIsPublished Then
+        If TweetIsPublished Then
             StartStream()
         End If
     End Sub
@@ -122,18 +113,22 @@
     Private Sub PublishTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
         DebugPrint("MainWindow.PublishTweet")
 
-        Dim MissingFiles = ViewModel.OpenTweetInfo.TweetData.MediasToAdd.Where(Function(i) Not System.IO.File.Exists(i)).ToList
+        Dim MissingFiles = ViewModel.OpenTweetInfo.Metadata.MediaFilePathsToAdd.Where(Function(i) Not System.IO.File.Exists(i)).ToList
         If MissingFiles.Any Then
             MessageBox.Show(String.Format("The following files which were selected to be attached to the Tweet do not exist:{0}{1}{0}The Tweet was not published.{0}If the files were moved, move them back to their original position.", Environment.NewLine, String.Join(Environment.NewLine, MissingFiles)))
             Return
         End If
 
         Dim MediaBinaries As New List(Of Byte())
-        For Each i In ViewModel.OpenTweetInfo.TweetData.MediasToAdd
+        For Each i In ViewModel.OpenTweetInfo.Metadata.MediaFilePathsToAdd
             MediaBinaries.Add(System.IO.File.ReadAllBytes(i))
         Next
 
-        Dim PublishResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.PublishTweet(ViewModel.OpenTweetInfo.TweetData.TweetText, MediaBinaries, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
+        Dim AuthenticationToken As New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken( _
+                ViewModel.OpenTweetInfo.Metadata.ConsumerKey, ViewModel.OpenTweetInfo.Metadata.ConsumerSecret, _
+                ViewModel.OpenTweetInfo.Metadata.AccessToken, ViewModel.OpenTweetInfo.Metadata.AccessTokenSecret)
+
+        Dim PublishResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.PublishTweet(ViewModel.OpenTweetInfo.Metadata.TweetText, MediaBinaries, AuthenticationToken)
         If Not PublishResult.Success Then
             Dim ErrorMessage = "Publishing failed:"
             If PublishResult.ErrorException IsNot Nothing Then
@@ -143,7 +138,7 @@
             Return
         End If
 
-        Dim StartStreamResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTweetInfo.TweetData.Keywords, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
+        Dim StartStreamResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTweetInfo.Metadata.RelevantKeywords, AuthenticationToken)
         If Not StartStreamResult.Success Then
             Dim ErrorMessage = "Starting the Twitter API Stream failed after publishing the Tweet (this would be a good time to panic!):"
             If StartStreamResult.ErrorException IsNot Nothing Then
@@ -153,42 +148,36 @@
             Return
         End If
 
-        Dim NewMetadata As New TwitterTracks.DatabaseAccess.TrackMetadata(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTweetInfo.TweetData.TweetText, ViewModel.OpenTweetInfo.TweetData.Keywords)
+        Dim NewMetadata = ViewModel.OpenTweetInfo.Metadata.WithPublishedData(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId)
         Database.UpdateOrCreateTrackMetadata(NewMetadata)
-        ViewModel.OpenTweetInfo.TweetData.Metadata = NewMetadata
+        ViewModel.OpenTweetInfo.Metadata = NewMetadata
 
         ViewModel.StatusMessageVM.ClearStatus()
-        ViewModel.OpenTweetInfo.IsPublished = True
     End Sub
 
     Private Sub SaveConfiguration(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim Root = <GatheringConfiguration>
-                       <IsPublished><%= ViewModel.OpenTweetInfo.IsPublished %></IsPublished>
                        <Database>
                            <Host><%= ViewModel.OpenTweetInfo.Database.Host %></Host>
                            <Name><%= ViewModel.OpenTweetInfo.Database.Name %></Name>
                            <ResearcherId><%= ViewModel.OpenTweetInfo.Database.ResearcherId %></ResearcherId>
                        </Database>
-                       <TweetData>
-                           <%= If(ViewModel.OpenTweetInfo.IsPublished,
-                               <Metadata>
-                                   <InitialTweetId><%= ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetId %></InitialTweetId>
-                                   <InitialTweetUserId><%= ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetUserId %></InitialTweetUserId>
-                                   <InitialTweetFullText><%= ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetFullText %></InitialTweetFullText>
-                                   <RelevantKeywords><%= ViewModel.OpenTweetInfo.TweetData.Metadata.RelevantKeywords.Select(Function(i) <Keyword><%= i %></Keyword>) %></RelevantKeywords>
-                               </Metadata>,
-                               <Metadata/>
-                               ) %>
-                           <TweetText><%= ViewModel.OpenTweetInfo.TweetData.TweetText %></TweetText>
-                           <MediasToAdd><%= ViewModel.OpenTweetInfo.TweetData.MediasToAdd.Select(Function(i) <FilePath><%= i %></FilePath>) %></MediasToAdd>
-                           <Keywords><%= ViewModel.OpenTweetInfo.TweetData.Keywords.Select(Function(i) <Keyword><%= i %></Keyword>) %></Keywords>
-                       </TweetData>
-                       <TwitterConnection>
-                           <ConsumerKey><%= ViewModel.OpenTweetInfo.TwitterConnection.ConsumerKey %></ConsumerKey>
-                           <ConsumerSecret><%= ViewModel.OpenTweetInfo.TwitterConnection.ConsumerSecret %></ConsumerSecret>
-                           <AccessToken><%= ViewModel.OpenTweetInfo.TwitterConnection.AccessToken %></AccessToken>
-                           <AccessTokenSecret><%= ViewModel.OpenTweetInfo.TwitterConnection.AccessTokenSecret %></AccessTokenSecret>
-                       </TwitterConnection>
+                       <Metadata>
+                           <IsPublished><%= ViewModel.OpenTweetInfo.Metadata.IsPublished %></IsPublished>
+                           <TweetId><%= ViewModel.OpenTweetInfo.Metadata.TweetId %></TweetId>
+                           <CreatedByUserId><%= ViewModel.OpenTweetInfo.Metadata.CreatedByUserId %></CreatedByUserId>
+                           <TweetText><%= ViewModel.OpenTweetInfo.Metadata.TweetText %></TweetText>
+                           <RelevantKeywords>
+                               <%= ViewModel.OpenTweetInfo.Metadata.RelevantKeywords.Select(Function(i) <Keyword><%= i %></Keyword>) %>
+                           </RelevantKeywords>
+                           <MediaFilePathsToAdd>
+                               <%= ViewModel.OpenTweetInfo.Metadata.MediaFilePathsToAdd.Select(Function(i) <MediaFilePath><%= i %></MediaFilePath>) %>
+                           </MediaFilePathsToAdd>
+                           <ConsumerKey><%= ViewModel.OpenTweetInfo.Metadata.ConsumerKey %></ConsumerKey>
+                           <ConsumerSecret><%= ViewModel.OpenTweetInfo.Metadata.ConsumerSecret %></ConsumerSecret>
+                           <AccessToken><%= ViewModel.OpenTweetInfo.Metadata.AccessToken %></AccessToken>
+                           <AccessTokenSecret><%= ViewModel.OpenTweetInfo.Metadata.AccessTokenSecret %></AccessTokenSecret>
+                       </Metadata>
                    </GatheringConfiguration>
         Root.Save(TwitterTracks.Common.Paths.GatheringConfigurationFilePath)
     End Sub
@@ -200,7 +189,10 @@
 
     Private Sub StartStream()
         DebugPrint("MainWindow.StartStream")
-        Dim StartStreamResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetId, ViewModel.OpenTweetInfo.TweetData.Metadata.InitialTweetUserId, ViewModel.OpenTweetInfo.TweetData.Keywords, ViewModel.OpenTweetInfo.TwitterConnection.ToAuthenticationToken)
+        Dim AuthenticationToken As New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken( _
+            ViewModel.OpenTweetInfo.Metadata.ConsumerKey, ViewModel.OpenTweetInfo.Metadata.ConsumerSecret, _
+            ViewModel.OpenTweetInfo.Metadata.AccessToken, ViewModel.OpenTweetInfo.Metadata.AccessTokenSecret)
+        Dim StartStreamResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(ViewModel.OpenTweetInfo.Metadata.TweetId, ViewModel.OpenTweetInfo.Metadata.CreatedByUserId, ViewModel.OpenTweetInfo.Metadata.RelevantKeywords, AuthenticationToken)
         If StartStreamResult.Success Then
             ViewModel.StatusMessageVM.ClearStatus()
         Else

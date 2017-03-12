@@ -70,7 +70,9 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Path=FilePath}" VerticalAlignment="Center"/>
+                                        <CommonUI.Controls:HelpLabel Margin="4,0" HelpContent="This file does not exist. You may continue now but you need to restore the file (or remove this entry) before you publish the initial Tweet." HelpIsVisible="{Binding Path=Exists, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
+                                            <TextBlock Grid.Column="0" Text="{Binding Path=FilePath}" VerticalAlignment="Center"/>
+                                        </CommonUI.Controls:HelpLabel>
                                         <Button Grid.Column="1" Command="{Binding Path=RemoveCommand}">Remove</Button>
                                     </Grid>
                                 </DataTemplate>

@@ -83,9 +83,9 @@
                                     </GroupBox>
                                     <GroupBox Header="Tweet:">
                                         <StackPanel>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Text:" MainContent="{Binding Path=OpenTweetInfo.TweetData.TweetText}"/>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Keywords:" MainContent="{Binding Path=OpenTweetInfo.TweetData.Keywords, Converter={StaticResource ResourceKey=SpaceDelimitedListToStringConverter}}"/>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Media:" MainContent="{Binding Path=OpenTweetInfo.TweetData.MediasToAdd.Count}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Text:" MainContent="{Binding Path=OpenTweetInfo.Metadata.TweetText}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Keywords:" MainContent="{Binding Path=OpenTweetInfo.Metadata.RelevantKeywords, Converter={StaticResource SpaceDelimitedListToStringConverter}}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Media:" MainContent="{Binding Path=OpenTweetInfo.Metadata.MediaFilePathsToAdd.Count}"/>
                                             <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTweetInfo.TweetData.Metadata, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
                                                 <CommonUI.Controls:IfContent.TrueContent>
                                                     <StackPanel>

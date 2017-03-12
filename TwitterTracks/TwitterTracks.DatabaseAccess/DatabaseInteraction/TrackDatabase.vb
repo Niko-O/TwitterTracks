@@ -38,10 +38,15 @@ Public Class TrackDatabase
             Dim MetadataTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
             ExecuteNonQuery(New SqlQueryString( _
                 "CREATE TABLE " & MetadataTableIdentifier.EscapedText & " (  " & _
-                "    `InitialTweetId` INT8 NOT NULL,                         " & _
-                "    `InitialTweetUserId` INT8 NOT NULL,                     " & _
-                "    `InitialTweetFullText` TEXT NOT NULL,                   " & _
-                "    `RelevantKeywords` TEXT NOT NULL)                       " & _
+                "    `TweetId` INT8 NULL,                                    " & _
+                "    `CreatedByUserId` INT8 NULL,                            " & _
+                "    `TweetText` TEXT NOT NULL,                              " & _
+                "    `RelevantKeywords` TEXT NOT NULL,                       " & _
+                "    `MediaFilePathsToAdd` TEXT NOT NULL,                    " & _
+                "    `ConsumerKey` TEXT NOT NULL,                            " & _
+                "    `ConsumerSecret` TEXT NOT NULL,                         " & _
+                "    `AccessToken` TEXT NOT NULL,                            " & _
+                "    `AccessTokenSecret` TEXT NOT NULL)                      " & _
                 "    ENGINE = InnoDB;                                        "))
 
             Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)

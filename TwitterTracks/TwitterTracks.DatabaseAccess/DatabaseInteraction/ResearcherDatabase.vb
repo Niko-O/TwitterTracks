@@ -37,10 +37,22 @@ Public Class ResearcherDatabase
 #Region "RowToModel"
 
     Private Shared Function RowToTrackMetadata(Reader As Sql.MySqlDataReader) As TrackMetadata
-        Return New TrackMetadata(Reader.GetInt64("InitialTweetId"), _
-                                 Reader.GetInt64("InitialTweetUserId"), _
-                                 Reader.GetString("InitialTweetFullText"),
-                                 Reader.GetString("RelevantKeywords").Split(" "c))
+        Dim TweetId = Reader.GetNullableInt64("TweetId")
+        Dim CreatedByUserId = Reader.GetNullableInt64("CreatedByUserId")
+        If (TweetId Is Nothing) <> (CreatedByUserId Is Nothing) Then
+            Throw New DataException("The nullity of TweetId and CreatedByUserId does not match.")
+        End If
+        Dim IsPublished = TweetId IsNot Nothing
+        Return New TrackMetadata(IsPublished, _
+                                 If(IsPublished, TweetId.Value, 0), _
+                                 If(IsPublished, CreatedByUserId.Value, 0), _
+                                 Reader.GetString("TweetText"), _
+                                 Reader.GetString("RelevantKeywords").Split(" "c), _
+                                 Reader.GetString("MediaFilePathsToAdd").Split("|"c), _
+                                 Reader.GetString("ConsumerKey"),
+                                 Reader.GetString("ConsumerSecret"),
+                                 Reader.GetString("AccessToken"),
+                                 Reader.GetString("AccessTokenSecret"))
     End Function
 
     Private Shared Function RowToTweet(Reader As Sql.MySqlDataReader) As Tweet
@@ -72,23 +84,52 @@ Public Class ResearcherDatabase
             BeginTransaction()
 
             Dim MetadataTableIdentifier = GetMetadataTableIdentifier()
+
+            Dim FormattedQueryString As SqlQueryString
             If TryGetTrackMetadata() Is Nothing Then
-                ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
-                                                     "(`InitialTweetId`, `InitialTweetUserId`, `InitialTweetFullText`, `RelevantKeywords`) " & _
-                                                     "VALUES (@InitialTweetId, @InitialTweetUserId, @InitialTweetFullText, @RelevantKeywords)", MetadataTableIdentifier), _
-                                New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
-                                New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
-                                New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
-                                New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
+                FormattedQueryString = New SqlQueryString( _
+                    "INSERT INTO " & MetadataTableIdentifier.EscapedText & " (" & _
+                    "    `TweetId`, " & _
+                    "    `CreatedByUserId`, " & _
+                    "    `TweetText`, " & _
+                    "    `RelevantKeywords`, " & _
+                    "    `MediaFilePathsToAdd`, " & _
+                    "    `ConsumerKey`, " & _
+                    "    `ConsumerSecret`, " & _
+                    "    `AccessToken`, " & _
+                    "    `AccessTokenSecret`) " & _
+                    "VALUES (@TweetId, " & _
+                    "        @CreatedByUserId, " & _
+                    "        @TweetText, " & _
+                    "        @RelevantKeywords, " & _
+                    "        @MediaFilePathsToAdd, " & _
+                    "        @ConsumerKey, " & _
+                    "        @ConsumerSecret, " & _
+                    "        @AccessToken, " & _
+                    "        @AccessTokenSecret)")
             Else
-                ExecuteNonQuery(FormatSqlIdentifiers("UPDATE {0} " & _
-                                                     "SET `InitialTweetId` = @InitialTweetId, `InitialTweetUserId` = @InitialTweetUserId, " & _
-                                                     "`InitialTweetFullText` = @InitialTweetFullText, `RelevantKeywords` = @RelevantKeywords)", MetadataTableIdentifier), _
-                                New CommandParameter("@InitialTweetId", Metadata.InitialTweetId), _
-                                New CommandParameter("@InitialTweetUserId", Metadata.InitialTweetUserId), _
-                                New CommandParameter("@InitialTweetFullText", Metadata.InitialTweetFullText), _
-                                New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)))
+                FormattedQueryString = New SqlQueryString( _
+                    "UPDATE " & MetadataTableIdentifier.EscapedText & " " & _
+                    "SET `TweetId`             = @TweetId,              " & _
+                    "    `CreatedByUserId`     = @CreatedByUserId,      " & _
+                    "    `TweetText`           = @TweetText,            " & _
+                    "    `RelevantKeywords`    = @RelevantKeywords,     " & _
+                    "    `MediaFilePathsToAdd` = @MediaFilePathsToAdd,  " & _
+                    "    `ConsumerKey`         = @ConsumerKey,          " & _
+                    "    `ConsumerSecret`      = @ConsumerSecret,       " & _
+                    "    `AccessToken`         = @AccessToken,          " & _
+                    "    `AccessTokenSecret`   = @AccessTokenSecret     ")
             End If
+            ExecuteNonQuery(FormattedQueryString, _
+                            New CommandParameter("@TweetId", If(Metadata.IsPublished, DirectCast(Metadata.TweetId, Object), Nothing)), _
+                            New CommandParameter("@CreatedByUserId", If(Metadata.IsPublished, DirectCast(Metadata.CreatedByUserId, Object), Nothing)), _
+                            New CommandParameter("@TweetText", Metadata.TweetText), _
+                            New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)), _
+                            New CommandParameter("@MediaFilePathsToAdd", String.Join("|", Metadata.MediaFilePathsToAdd)), _
+                            New CommandParameter("@ConsumerKey", Metadata.ConsumerKey), _
+                            New CommandParameter("@ConsumerSecret", Metadata.ConsumerSecret), _
+                            New CommandParameter("@AccessToken", Metadata.AccessToken), _
+                            New CommandParameter("@AccessTokenSecret", Metadata.AccessTokenSecret))
 
             CommitTransaction()
         Finally

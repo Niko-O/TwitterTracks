@@ -6,23 +6,15 @@
 
     Public Shared ReadOnly OpenTweetInfo As OpenTweetInformation = New OpenTweetInformation() _
         .ButAlso(Sub(o As OpenTweetInformation)
-                     o.IsPublished = True
-
                      o.Database.Host = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseHost
                      o.Database.Name = TwitterTracks.Common.UI.Resources.DebugConstants.TrackDatabaseName
                      o.Database.ResearcherId = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseResearcherId
                      o.Database.Password = TwitterTracks.Common.UI.Resources.DebugConstants.ResearcherPassword
                      o.Database.Connection = Nothing
 
-                     o.TweetData.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata(10, 20, TwitterTracks.Common.UI.Resources.DebugConstants.TweetText, {"#Test", "#Hashtag"})
-                     o.TweetData.TweetText = TwitterTracks.Common.UI.Resources.DebugConstants.TweetText
-                     o.TweetData.MediasToAdd = New List(Of String) From {"C:\Foo.jpg", "C:\Bar.png"}
-                     o.TweetData.Keywords = New List(Of String) From {"#Test", "#Hashtag", "Quantenelektrodynamik"}
-
-                     o.TwitterConnection.ConsumerKey = AccessToken.ConsumerKey
-                     o.TwitterConnection.ConsumerSecret = AccessToken.ConsumerSecret
-                     o.TwitterConnection.AccessToken = AccessToken.AccessToken
-                     o.TwitterConnection.AccessTokenSecret = AccessToken.AccessTokenSecret
+                     o.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata( _
+                        True, 10, 20, TwitterTracks.Common.UI.Resources.DebugConstants.TweetText, {"#Test", "#Hashtag", "Quantenelektrodynamik"}, {"C:\Foo.jpg", "C:\Bar.png"}, _
+                        AccessToken.ConsumerKey, AccessToken.ConsumerSecret, AccessToken.AccessToken, AccessToken.AccessTokenSecret)
                  End Sub)
 
     Public Shared ReadOnly AccessToken As TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken
