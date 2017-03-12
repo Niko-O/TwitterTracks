@@ -8,7 +8,8 @@
     <SolidColorBrush x:Key="ErrorBrush" Color="#ffaaaa"/>
     <c:BooleanToBrushConverter x:Key="ErrorBrushConverter" TrueBrush="White" FalseBrush="#ffaaaa"/>
     <c:BooleanToBrushConverter x:Key="ReverseErrorBrushConverter" TrueBrush="#ffaaaa" FalseBrush="White"/>
-    
+    <c:BooleanToBrushConverter x:Key="TransparentErrorBrushConverter" TrueBrush="Transparent" FalseBrush="#ffaaaa"/>
+
     <SolidColorBrush x:Key="WarningBrush" Color="#ffccaa"/>
     <c:BooleanToBrushConverter x:Key="WarningBrushConverter" TrueBrush="White" FalseBrush="#ffccaa"/>
     <c:BooleanToBrushConverter x:Key="ReverseWarningBrushConverter" TrueBrush="#ffccaa" FalseBrush="White"/>

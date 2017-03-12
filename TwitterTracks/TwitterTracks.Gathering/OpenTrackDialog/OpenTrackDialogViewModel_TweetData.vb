@@ -51,6 +51,7 @@ Namespace OpenTrackDialog
         End Sub
         Private Sub MediasToAdd_TypedCollectionChanged(sender As Object, e As EventArgs) Handles _MediasToAdd.TypedCollectionChanged
             OnPropertyChanged("TooManyMediasToAdd")
+            UpdateMediaExistsTimer.IsEnabled = UpdateMediaExistsTimerEnabled AndAlso MediasToAdd.Count <> 0
         End Sub
         Private Sub Medias_Item_Remove(Sender As TweetMediaToAdd)
             MediasToAdd.Remove(Sender)
@@ -69,12 +70,26 @@ Namespace OpenTrackDialog
             End Get
         End Property
 
+        Dim WithEvents UpdateMediaExistsTimer As New System.Windows.Threading.DispatcherTimer With {.IsEnabled = False, .Interval = TimeSpan.FromSeconds(5)}
+        Dim UpdateMediaExistsTimerEnabled As Boolean = True
+
         Public Sub New()
             If IsInDesignMode Then
                 MediasToAdd.Add(New TweetMediaToAdd("C:\Foo.png"))
                 MediasToAdd.Add(New TweetMediaToAdd("C:\Bar.png"))
                 MediasToAdd.Add(New TweetMediaToAdd("C:\Baz.png"))
             End If
+        End Sub
+
+        Private Sub UpdateMediaExists() Handles UpdateMediaExistsTimer.Tick
+            For Each i In MediasToAdd
+                i.UpdateExists()
+            Next
+        End Sub
+
+        Public Sub DisableUpdateMediaExistsTimer()
+            UpdateMediaExistsTimerEnabled = False
+            UpdateMediaExistsTimer.IsEnabled = False
         End Sub
 
     End Class

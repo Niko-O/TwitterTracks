@@ -20,6 +20,11 @@ Namespace OpenTrackDialog
             ViewModel = DirectCast(Me.DataContext, OpenTrackDialogViewModel)
         End Sub
 
+        Protected Overrides Sub OnClosing(e As System.ComponentModel.CancelEventArgs)
+            MyBase.OnClosing(e)
+            ViewModel.TweetDataVM.DisableUpdateMediaExistsTimer()
+        End Sub
+
         Private Sub AddMediaToAdd(sender As System.Object, e As System.Windows.RoutedEventArgs)
             Dim Dlg As New Microsoft.Win32.OpenFileDialog With {.CheckFileExists = True, .CheckPathExists = True, .Multiselect = True, .RestoreDirectory = True, .Title = "Select a file to attach to the Tweet"}
             If Dlg.ShowDialog Then

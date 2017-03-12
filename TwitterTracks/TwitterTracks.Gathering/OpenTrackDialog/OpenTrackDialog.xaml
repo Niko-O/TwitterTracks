@@ -65,7 +65,7 @@
                         >
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
+                                    <Grid Background="{Binding Path=Exists, Converter={StaticResource ResourceKey=TransparentErrorBrushConverter}}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
