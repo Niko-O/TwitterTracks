@@ -154,7 +154,6 @@
       <DependentUpon>Application.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_DatabaseConnection.vb" />
     <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_Summary.vb" />
     <Compile Include="OpenTrackDialog\OpenTrackDialogViewModel_TwitterConnection.vb" />
     <Compile Include="MainWindow\MainWindowViewModel.vb" />

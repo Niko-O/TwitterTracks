@@ -1,0 +1,27 @@
+﻿<UserControl
+	x:Class="UI.Controls.TrackSelectionInput"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="clr-namespace:TwitterTracks.Common.UI.Controls"
+    xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
+    xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
+    mc:Ignorable="d"
+>
+    <UserControl.DataContext>
+        <l:TrackSelectionInputViewModel/>
+    </UserControl.DataContext>
+    <StackPanel>
+        <l:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
+        <TextBox Grid.Column="0" Text="{Binding Path=DatabaseHost, UpdateSourceTrigger=PropertyChanged}" o:DefaultSelectedBehavior.IsDefaultSelected="True"/>
+        <l:HelpLabel MainContent="Track Database Name:" HelpContent="The Name of the Track Database the Researcher belongs to."/>
+        <TextBox Grid.Column="0" Text="{Binding Path=DatabaseName, UpdateSourceTrigger=PropertyChanged}"/>
+        <l:HelpLabel MainContent="Researcher ID:" HelpContent="The ID of the Researcher which us used for database authentication."/>
+        <l:HelpLabel HelpContent="The entered ID cannot possibly be valid as it must be a positive integer." HelpIsVisible="{Binding Path=ResearcherIdIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
+            <TextBox Grid.Column="0" Text="{Binding Path=ResearcherIdText, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ResearcherIdIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+        </l:HelpLabel>
+        <l:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
+        <o:BindablePasswordBox Password="{Binding Path=Password}"/>
+    </StackPanel>
+</UserControl>

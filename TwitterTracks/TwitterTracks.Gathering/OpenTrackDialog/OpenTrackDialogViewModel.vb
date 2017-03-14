@@ -4,8 +4,8 @@ Namespace OpenTrackDialog
     Public Class OpenTrackDialogViewModel
         Inherits ViewModelBase
 
-        Dim _DatabaseConnectionVM As New OpenTrackDialogViewModel_DatabaseConnection
-        Public ReadOnly Property DatabaseConnectionVM As OpenTrackDialogViewModel_DatabaseConnection
+        Dim _DatabaseConnectionVM As New TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel
+        Public ReadOnly Property DatabaseConnectionVM As TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel
             <DebuggerStepThrough()>
             Get
                 Return _DatabaseConnectionVM

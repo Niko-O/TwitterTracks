@@ -68,6 +68,10 @@
     <Compile Include="UI\Controls\ContentLabel.xaml.vb">
       <DependentUpon>ContentLabel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Controls\TrackSelectionInput.xaml.vb">
+      <DependentUpon>TrackSelectionInput.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\TrackSelectionInputViewModel.vb" />
     <Compile Include="UI\Resources.vb" />
     <Compile Include="UI\StatusMessageKindType.vb" />
     <Compile Include="UI\StatusMessageViewModel.vb" />
@@ -80,6 +84,10 @@
     <Page Include="UI\Controls\ContentLabel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Controls\TrackSelectionInput.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Resources.xaml">
       <SubType>Designer</SubType>

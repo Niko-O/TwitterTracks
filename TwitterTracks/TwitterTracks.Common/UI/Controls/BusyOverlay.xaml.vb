@@ -43,7 +43,7 @@ Namespace UI.Controls
         End Sub
         Private Sub OnShowOverlayPropertyChanged()
             Overlay.Visibility = If(ShowOverlay, Windows.Visibility.Visible, Windows.Visibility.Collapsed)
-            IsEnabled = Not ShowOverlay
+            MainContentPresenter.IsEnabled = Not ShowOverlay
         End Sub
 
         Public Property OverlayText As String
@@ -63,14 +63,44 @@ Namespace UI.Controls
             DirectCast(d, BusyOverlay).OnOverlayTextPropertyChanged()
         End Sub
         Private Sub OnOverlayTextPropertyChanged()
-            OverlayTextBlock.Text = OverlayText
+            UpdateOverlayContent()
+        End Sub
+
+        Public Property OverlayContent As Object
+            Get
+                Return DirectCast(GetValue(OverlayContentProperty), Object)
+            End Get
+            Set(value As Object)
+                SetValue(OverlayContentProperty, value)
+            End Set
+        End Property
+        Public Shared ReadOnly OverlayContentProperty As DependencyProperty = _
+            DependencyProperty.Register("OverlayContent", _
+                                        GetType(Object), _
+                                        GetType(BusyOverlay), _
+                                        New FrameworkPropertyMetadata(Nothing, New PropertyChangedCallback(AddressOf OnOverlayContentDependencyPropertyChanged)) With {.DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, .BindsTwoWayByDefault = False})
+        Private Shared Sub OnOverlayContentDependencyPropertyChanged(d As DependencyObject, e As DependencyPropertyChangedEventArgs)
+            DirectCast(d, BusyOverlay).OnOverlayContentPropertyChanged()
+        End Sub
+        Private Sub OnOverlayContentPropertyChanged()
+            UpdateOverlayContent()
         End Sub
 
         Public Sub New()
             InitializeComponent()
             OnMainContentPropertyChanged()
             OnShowOverlayPropertyChanged()
-            OnOverlayTextPropertyChanged()
+            UpdateOverlayContent()
+        End Sub
+
+        Private Sub UpdateOverlayContent()
+            If OverlayContent IsNot Nothing Then
+                OverlayContentPresenter.Content = OverlayContent
+            ElseIf Not String.IsNullOrEmpty(OverlayText) Then
+                OverlayContentPresenter.Content = New TextBlock With {.FontSize = 20, .Text = OverlayText}
+            Else
+                OverlayContentPresenter.Content = Nothing
+            End If
         End Sub
 
     End Class

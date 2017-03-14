@@ -1,7 +1,7 @@
-﻿
-Namespace OpenTrackDialog
 
-    Public Class OpenTrackDialogViewModel_DatabaseConnection
+Namespace UI.Controls
+
+    Public Class TrackSelectionInputViewModel
         Inherits ViewModelBase
 
         Dim _DatabaseHost As String = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseHost
@@ -62,6 +62,10 @@ Namespace OpenTrackDialog
                 Return ResearcherIdIsValid
             End Get
         End Property
+
+        Public Sub New()
+            MyBase.New(True)
+        End Sub
 
     End Class
 

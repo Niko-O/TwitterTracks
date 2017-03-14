@@ -12,7 +12,7 @@
     <Grid>
         <ContentPresenter x:Name="MainContentPresenter"/>
         <Border x:Name="Overlay" Background="#70ffffff" BorderBrush="#70AAAAAA" BorderThickness="10">
-            <TextBlock x:Name="OverlayTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20">Loading...</TextBlock>
+            <ContentPresenter x:Name="OverlayContentPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
     </Grid>
 </UserControl>
