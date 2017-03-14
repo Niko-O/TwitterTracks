@@ -12,22 +12,22 @@
         End Set
     End Property
 
-    <Dependency("OpenTweetInfo")>
+    <Dependency("OpenTrackInfo")>
     Public ReadOnly Property TrackDataSignal As SignalKind
         <DebuggerStepThrough()>
         Get
-            If OpenTweetInfo Is Nothing Then
+            If OpenTrackInfo Is Nothing Then
                 Return SignalKind.Error
             End If
             Return SignalKind.OK
         End Get
     End Property
 
-    <Dependency("OpenTweetInfo", "TrackingStreamIsRunning")>
+    <Dependency("OpenTrackInfo", "TrackingStreamIsRunning")>
     Public ReadOnly Property TrackingSignal As SignalKind
         <DebuggerStepThrough()>
         Get
-            If OpenTweetInfo Is Nothing Then
+            If OpenTrackInfo Is Nothing Then
                 Return SignalKind.Error
             End If
             If Not TrackingStreamIsRunning Then
@@ -37,10 +37,10 @@
         End Get
     End Property
 
-    <Dependency("OpenTweetInfo", "TrackingStreamIsRunning", "StreamDisconnectReason")>
+    <Dependency("OpenTrackInfo", "TrackingStreamIsRunning", "StreamDisconnectReason")>
     Public ReadOnly Property TrackingInfo As String
         Get
-            If OpenTweetInfo Is Nothing Then
+            If OpenTrackInfo Is Nothing Then
                 Return "This should never be visible."
             End If
             If TrackingStreamIsRunning Then
@@ -75,38 +75,38 @@
         End Set
     End Property
 
-    Dim _OpenTweetInfo As OpenTweetInformation = Nothing
-    Public Property OpenTweetInfo As OpenTweetInformation
+    Dim _OpenTrackInfo As OpenTrackInformation = Nothing
+    Public Property OpenTrackInfo As OpenTrackInformation
         <DebuggerStepThrough()>
         Get
-            Return _OpenTweetInfo
+            Return _OpenTrackInfo
         End Get
-        Set(NewValue As OpenTweetInformation)
-            Dim OldValue = _OpenTweetInfo
+        Set(NewValue As OpenTrackInformation)
+            Dim OldValue = _OpenTrackInfo
             If OldValue IsNot NewValue Then
                 If OldValue IsNot Nothing Then
-                    RemoveHandler OldValue.MetadataChanged, AddressOf OpenTweetInfo_MetadataChanged
+                    RemoveHandler OldValue.MetadataChanged, AddressOf OpenTrackInfo_MetadataChanged
                 End If
-                _OpenTweetInfo = NewValue
+                _OpenTrackInfo = NewValue
                 If NewValue IsNot Nothing Then
-                    AddHandler NewValue.MetadataChanged, AddressOf OpenTweetInfo_MetadataChanged
+                    AddHandler NewValue.MetadataChanged, AddressOf OpenTrackInfo_MetadataChanged
                 End If
-                OnExtendedPropertyChanged("OpenTweetInfo", OldValue, NewValue)
+                OnExtendedPropertyChanged("OpenTrackInfo", OldValue, NewValue)
             End If
         End Set
     End Property
 
-    <Dependency("OpenTweetInfo")>
+    <Dependency("OpenTrackInfo")>
     Public ReadOnly Property CanPublish As Boolean
         Get
-            Return OpenTweetInfo IsNot Nothing AndAlso Not OpenTweetInfo.Metadata.IsPublished
+            Return OpenTrackInfo IsNot Nothing AndAlso Not OpenTrackInfo.Metadata.IsPublished
         End Get
     End Property
 
-    <Dependency("OpenTweetInfo", "TrackingStreamIsRunning")>
+    <Dependency("OpenTrackInfo", "TrackingStreamIsRunning")>
     Public ReadOnly Property CanStartStream As Boolean
         Get
-            Return OpenTweetInfo IsNot Nothing AndAlso OpenTweetInfo.Metadata.IsPublished AndAlso Not TrackingStreamIsRunning
+            Return OpenTrackInfo IsNot Nothing AndAlso OpenTrackInfo.Metadata.IsPublished AndAlso Not TrackingStreamIsRunning
         End Get
     End Property
 
@@ -132,11 +132,11 @@
     Public Sub New()
         MyBase.New(True)
         If IsInDesignMode Then
-            OpenTweetInfo = DebugConstants.OpenTweetInfo
+            OpenTrackInfo = DebugConstants.OpenTrackInfo
         End If
     End Sub
 
-    Private Sub OpenTweetInfo_MetadataChanged()
+    Private Sub OpenTrackInfo_MetadataChanged()
         OnPropertyChanged("CanPublish", "CanStartStream")
     End Sub
 

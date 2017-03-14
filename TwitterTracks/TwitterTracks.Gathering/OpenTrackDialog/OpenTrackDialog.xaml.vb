@@ -187,8 +187,8 @@ Namespace OpenTrackDialog
                             End Sub)
         End Sub
 
-        Public Function GetOpenTweetInfo() As OpenTweetInformation
-            Dim Result As New OpenTweetInformation
+        Public Function GetOpenTrackInfo() As OpenTrackInformation
+            Dim Result As New OpenTrackInformation
 
             If DatabaseContainsMetadata AndAlso ViewModel.SummaryVM.TweetAlreadyPublished Then
                 Result.Metadata = ExistingTweetMetadata

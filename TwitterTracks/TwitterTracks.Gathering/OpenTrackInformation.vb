@@ -1,4 +1,4 @@
-﻿Public Class OpenTweetInformation
+﻿Public Class OpenTrackInformation
 
     Public Event MetadataChanged()
 

@@ -4,8 +4,8 @@
 
 #If EnableDebugData Then
 
-    Public Shared ReadOnly OpenTweetInfo As OpenTweetInformation = New OpenTweetInformation() _
-        .ButAlso(Sub(o As OpenTweetInformation)
+    Public Shared ReadOnly OpenTrackInfo As OpenTrackInformation = New OpenTrackInformation() _
+        .ButAlso(Sub(o As OpenTrackInformation)
                      o.Database.Host = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseHost
                      o.Database.Name = TwitterTracks.Common.UI.Resources.DebugConstants.TrackDatabaseName
                      o.Database.ResearcherId = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseResearcherId
@@ -41,7 +41,7 @@
 
 #Else
 
-    Public Shared ReadOnly OpenTweetInfo As OpenTweetInformation = Nothing
+    Public Shared ReadOnly OpenTrackInfo As OpenTrackInformation = Nothing
     Public Shared ReadOnly AccessToken As New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken("", "", "", "")
 
 #End If

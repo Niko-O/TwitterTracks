@@ -56,9 +56,9 @@
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="2*"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="OpenOrCreateTrack">New/Open</Button>
-                            <Button Grid.Row="0" Grid.Column="1" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="LoadConfiguration">Load File</Button>
-                            <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}" Click="SaveConfiguration">Save File</Button>
+                            <Button Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="OpenOrCreateTrack">New/Open</Button>
+                            <Button Grid.Row="0" Grid.Column="1" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="LoadConfiguration">Load File</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}" Click="SaveConfiguration">Save File</Button>
                             <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ResourceKey=SignalButtonStyle}" Background="{Binding Path=TrackDataSignal, Converter={StaticResource ResourceKey=SignalKindToBrushConverter}}">Track Data</Button>
                             <Button Grid.Row="1" Grid.Column="2" Click="PublishTweet" IsEnabled="{Binding Path=CanPublish}">Publish Tweet</Button>
                             <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource ResourceKey=SignalButtonStyle}" Background="{Binding Path=TrackingSignal, Converter={StaticResource ResourceKey=SignalKindToBrushConverter}}">
@@ -71,26 +71,26 @@
                             </Button>
                         </Grid>
                         <!-- Summary -->
-                        <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
+                        <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
                             <CommonUI.Controls:IfContent.TrueContent>
                                 <StackPanel>
                                     <GroupBox Header="Database Connection:">
                                         <StackPanel>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Host:" MainContent="{Binding Path=OpenTweetInfo.Database.Host}"/>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Database:" MainContent="{Binding Path=OpenTweetInfo.Database.Name}"/>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Researcher ID:" MainContent="{Binding Path=OpenTweetInfo.Database.ResearcherId}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Host:" MainContent="{Binding Path=OpenTrackInfo.Database.Host}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Database:" MainContent="{Binding Path=OpenTrackInfo.Database.Name}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Researcher ID:" MainContent="{Binding Path=OpenTrackInfo.Database.ResearcherId}"/>
                                         </StackPanel>
                                     </GroupBox>
                                     <GroupBox Header="Tweet:">
                                         <StackPanel>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Text:" MainContent="{Binding Path=OpenTweetInfo.Metadata.TweetText}"/>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Keywords:" MainContent="{Binding Path=OpenTweetInfo.Metadata.RelevantKeywords, Converter={StaticResource SpaceDelimitedListToStringConverter}}"/>
-                                            <CommonUI.Controls:ContentLabel LabelContent="Media:" MainContent="{Binding Path=OpenTweetInfo.Metadata.MediaFilePathsToAdd.Count}"/>
-                                            <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTweetInfo.TweetData.Metadata, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
+                                            <CommonUI.Controls:ContentLabel LabelContent="Text:" MainContent="{Binding Path=OpenTrackInfo.Metadata.TweetText}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Keywords:" MainContent="{Binding Path=OpenTrackInfo.Metadata.RelevantKeywords, Converter={StaticResource SpaceDelimitedListToStringConverter}}"/>
+                                            <CommonUI.Controls:ContentLabel LabelContent="Media:" MainContent="{Binding Path=OpenTrackInfo.Metadata.MediaFilePathsToAdd.Count}"/>
+                                            <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTrackInfo.TweetData.Metadata, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
                                                 <CommonUI.Controls:IfContent.TrueContent>
                                                     <StackPanel>
-                                                        <CommonUI.Controls:ContentLabel LabelContent="Tweet ID:" MainContent="{Binding Path=OpenTweetInfo.TweetData.Metadata.InitialTweetId}"/>
-                                                        <CommonUI.Controls:ContentLabel LabelContent="Twitter User ID:" MainContent="{Binding Path=OpenTweetInfo.TweetData.Metadata.InitialTweetUserId}"/>
+                                                        <CommonUI.Controls:ContentLabel LabelContent="Tweet ID:" MainContent="{Binding Path=OpenTrackInfo.TweetData.Metadata.InitialTweetId}"/>
+                                                        <CommonUI.Controls:ContentLabel LabelContent="Twitter User ID:" MainContent="{Binding Path=OpenTrackInfo.TweetData.Metadata.InitialTweetUserId}"/>
                                                     </StackPanel>
                                                 </CommonUI.Controls:IfContent.TrueContent>
                                                 <CommonUI.Controls:IfContent.FalseContent>
@@ -123,8 +123,8 @@
                     <TextBlock Grid.Column="0" FontSize="16" Margin="5">
                         Tracked Tweets: <Run Text="{Binding Path=NumberOfTrackedTweets}"/>
                     </TextBlock>
-                    <Button Grid.Column="1" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}" Click="InsertTestData" Padding="6,0">Emergency-Cheat-Button</Button>
-                    <Button Grid.Column="2" IsEnabled="{Binding Path=OpenTweetInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}" Click="InsertTestDataMultiple" Padding="6,0">x10</Button>
+                    <Button Grid.Column="1" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}" Click="InsertTestData" Padding="6,0">Emergency-Cheat-Button</Button>
+                    <Button Grid.Column="2" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}" Click="InsertTestDataMultiple" Padding="6,0">x10</Button>
                 </Grid>
             </Grid>
         </CommonUI.Controls:BusyOverlay>
