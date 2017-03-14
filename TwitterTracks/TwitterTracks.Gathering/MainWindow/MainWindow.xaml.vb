@@ -207,13 +207,13 @@
         End If
     End Sub
 
-    <TwitterTracks.Gathering.TweetinviInterop.MultithreadingAwareness()>
+    <MultithreadingAwareness()>
     Private Sub StreamStarted(sender As Object, e As EventArgs)
         DebugPrint("MainWindow.StreamStarted")
         Dispatcher.Invoke(Sub() ViewModel.TrackingStreamIsRunning = True)
     End Sub
 
-    <TwitterTracks.Gathering.TweetinviInterop.MultithreadingAwareness()>
+    <MultithreadingAwareness()>
     Private Sub StreamStopped(sender As Object, e As TweetinviInterop.StreamStoppedEventArgs)
         Dim WasIntentional = False
         Dim DisconnectReasonString As String
@@ -246,7 +246,7 @@
                           End Sub)
     End Sub
 
-    <TwitterTracks.Gathering.TweetinviInterop.MultithreadingAwareness()>
+    <MultithreadingAwareness()>
     Private Sub TweetReceived(sender As Object, e As TweetinviInterop.TweetReceivedEventArgs)
         If Database Is Nothing Then
             Throw New NopeException

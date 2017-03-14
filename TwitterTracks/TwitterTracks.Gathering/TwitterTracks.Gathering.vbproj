@@ -125,7 +125,6 @@
     <Compile Include="TweetinviInterop\AuthenticationToken.vb" />
     <Compile Include="TweetinviInterop\ITweet.vb" />
     <Compile Include="TweetinviInterop\ITwitterService.vb" />
-    <Compile Include="TweetinviInterop\MultithreadingAwarenessAttribute.vb" />
     <Compile Include="TweetinviInterop\PublishTweetFailReason.vb" />
     <Compile Include="TweetinviInterop\PublishTweetResult.vb" />
     <Compile Include="TweetinviInterop\ServiceProvider.vb" />
