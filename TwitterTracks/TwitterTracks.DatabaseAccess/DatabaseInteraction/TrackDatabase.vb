@@ -1,8 +1,6 @@
 ﻿
 Imports Sql = MySql.Data.MySqlClient
 
-'ToDo: Track consists of EntityId and TrackMetadata. If there is ever additional data stored in the Track table it has to be stored somewhere. Also create TrackPublicData structure and Nullable of that in Track structure.
-
 Public Class TrackDatabase
     Inherits DatabaseBase
 

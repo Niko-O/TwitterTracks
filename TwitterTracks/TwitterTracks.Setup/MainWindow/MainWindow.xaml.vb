@@ -28,7 +28,7 @@ Class MainWindow
                 ViewModel.ConnectionVM.OpenConnectionVM.StatusMessageVM, _
                 "The connection could not be opened", _
                 Sub()
-                    NewConnection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection(ViewModel.ConnectionVM.OpenConnectionVM.DatabaseHost, ViewModel.ConnectionVM.OpenConnectionVM.UserName, ViewModel.ConnectionVM.OpenConnectionVM.Password)
+                    NewConnection = New TwitterTracks.DatabaseAccess.DatabaseConnection(ViewModel.ConnectionVM.OpenConnectionVM.DatabaseHost, ViewModel.ConnectionVM.OpenConnectionVM.UserName, ViewModel.ConnectionVM.OpenConnectionVM.Password)
                     NewConnection.Open()
                 End Sub, _
                 Function(Success As Boolean)
@@ -51,7 +51,7 @@ Class MainWindow
             ViewModel.RootToolsVM.DatabasesVM.StatusMessageVM, _
             "The database names could not be read", _
             Sub()
-                Dim Database As New TwitterTracks.DatabaseAccess.Database(Connection)
+                Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(Connection)
                 Names = Database.GetAllDatabaseNames.Select(Function(i) i.UnescapedText).ToList
             End Sub, _
             Function(Success As Boolean)
@@ -98,7 +98,7 @@ Class MainWindow
            ViewModel.RootToolsVM.CreateDatabaseVM.StatusMessageVM, _
            "The database could not be created", _
            Sub()
-               Dim Database As New TwitterTracks.DatabaseAccess.Database(Connection)
+               Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(Connection)
                Dim TrackDatabaseStuff = Database.CreateTrackDatabase(New TwitterTracks.DatabaseAccess.VerbatimIdentifier(DatabaseName), Password)
                ResultUserName = TrackDatabaseStuff.AdministratorUser.Name
            End Sub, _
@@ -130,7 +130,7 @@ Class MainWindow
                ViewModel.AdministratorToolsVM.SelectionStatusMessageVM, _
                "The database could not be selected", _
                Sub()
-                   Dim Database As New TwitterTracks.DatabaseAccess.Database(Connection)
+                   Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(Connection)
                    Dim DatabaseNames = Database.GetAllDatabaseNames.ToList
                    DatabaseExists = DatabaseNames.Contains(DatabaseName)
                    If DatabaseExists Then

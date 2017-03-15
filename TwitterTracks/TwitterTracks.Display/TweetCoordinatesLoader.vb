@@ -42,7 +42,7 @@
 
         Dim Connection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
         Try
-            Connection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection(Host, TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId), Password)
+            Connection = New TwitterTracks.DatabaseAccess.DatabaseConnection(Host, TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId), Password)
             Connection.Open()
             Dim Database As New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, TrackEntityId)
             Dim Rnd As New Random

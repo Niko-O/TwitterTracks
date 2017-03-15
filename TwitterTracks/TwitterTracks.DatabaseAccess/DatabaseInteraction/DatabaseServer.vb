@@ -1,7 +1,7 @@
 ﻿
 Imports Sql = MySql.Data.MySqlClient
 
-Public Class Database
+Public Class DatabaseServer
     Inherits DatabaseBase
 
     Public Sub New(NewConnection As DatabaseConnection)
@@ -79,6 +79,10 @@ Public Class Database
 
     End Structure
 
+    ''' <summary>
+    ''' Returns a list of the names of all databases in the database server.
+    ''' This includes databases which are not TrackDatabases.
+    ''' </summary>
     Public Function GetAllDatabaseNames() As IEnumerable(Of VerbatimIdentifier)
         Return ExecuteQuery(FormatSqlIdentifiers("SHOW DATABASES;")).Select(Function(Row) New VerbatimIdentifier(Row.GetString(0)))
     End Function

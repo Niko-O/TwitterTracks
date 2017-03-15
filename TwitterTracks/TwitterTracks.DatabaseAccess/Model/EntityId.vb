@@ -13,15 +13,9 @@ Public Structure EntityId
         End Get
     End Property
 
-    Public ReadOnly Property IsUnstored As Boolean
-        Get
-            Return Me = Unstored
-        End Get
-    End Property
-
     Public Sub New(NewRawId As Int64)
         If NewRawId < -1 Then
-            Throw New ArgumentOutOfRangeException("NewRawId", NewRawId, "The RawId must either not be negative to represent an Entity or must be -1.")
+            Throw New ArgumentOutOfRangeException("NewRawId", NewRawId, "The RawId must either not be negative to represent an Entity or must be -1 to represent EntityId.Unstored.")
         End If
         _RawId = NewRawId
     End Sub

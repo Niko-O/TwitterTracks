@@ -27,7 +27,7 @@
             ViewModel.StatusMessageVM, _
             "The metadata could not be read from the database.", _
             Sub()
-                Connection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection(Host, UserName, Password)
+                Connection = New TwitterTracks.DatabaseAccess.DatabaseConnection(Host, UserName, Password)
                 Connection.Open()
                 Dim Database As New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, TrackEntityId)
                 Dim Temp = Database.TryGetTrackMetadata()

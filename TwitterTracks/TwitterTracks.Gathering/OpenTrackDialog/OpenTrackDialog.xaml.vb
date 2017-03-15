@@ -90,7 +90,7 @@ Namespace OpenTrackDialog
                                 Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.DatabaseConnectionVM.DatabaseName)
                                 Dim TrackEntityId = New TwitterTracks.DatabaseAccess.EntityId(Int64.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText))
                                 Dim ResearcherUserName = TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
-                                Dim ResultConnection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection( _
+                                Dim ResultConnection As New TwitterTracks.DatabaseAccess.DatabaseConnection( _
                                     ViewModel.DatabaseConnectionVM.DatabaseHost, _
                                     ResearcherUserName, _
                                     ViewModel.DatabaseConnectionVM.Password)

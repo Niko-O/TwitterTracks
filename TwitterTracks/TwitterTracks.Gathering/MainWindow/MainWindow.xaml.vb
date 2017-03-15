@@ -73,7 +73,7 @@
         Result.Database.ResearcherId = Int64.Parse(Root.<Database>.<ResearcherId>.Value)
         Result.Database.Password = Dlg.Password
 
-        Result.Database.Connection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection _
+        Result.Database.Connection = New TwitterTracks.DatabaseAccess.DatabaseConnection _
         (
             Result.Database.Host, _
             TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName _

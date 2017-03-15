@@ -1,8 +1,6 @@
 ﻿
 Imports Sql = MySql.Data.MySqlClient
 
-'ToDo: Use Transactions
-
 Public Class DatabaseBase
 
     Public Shared Property DebugPrintQueries As Boolean = False
@@ -130,7 +128,7 @@ Public Class DatabaseBase
         Return New MysqlReaderSingleRow(Command, Reader)
     End Function
 
-    Protected Function ExecuteQuery(QueryText As SqlQueryString, ParamArray Parameters As CommandParameter()) As DelegateEnumerable(Of Sql.MySqlDataReader)
+    Protected Function ExecuteQuery(QueryText As SqlQueryString, ParamArray Parameters As CommandParameter()) As IEnumerable(Of Sql.MySqlDataReader)
         Return New DelegateEnumerable(Of Sql.MySqlDataReader)( _
             Function()
                 Dim Command = PrepareCommand(QueryText, Parameters)

@@ -71,7 +71,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseInteraction\CommandParameter.vb" />
-    <Compile Include="ConnectionStrings\MySqlConnectionStringBuilderSource.vb" />
     <Compile Include="DatabaseInteraction\DatabaseBase.vb" />
     <Compile Include="DatabaseInteraction\PublicDatabaseAccessor.vb" />
     <Compile Include="DatabaseInteraction\ResearcherDatabase.vb" />
@@ -79,7 +78,7 @@
     <Compile Include="Identifiers\EscapedIdentifier.vb" />
     <Compile Include="Identifiers\SqlQueryString.vb" />
     <Compile Include="Identifiers\VerbatimIdentifier.vb" />
-    <Compile Include="DatabaseInteraction\Database.vb" />
+    <Compile Include="DatabaseInteraction\DatabaseServer.vb" />
     <Compile Include="DatabaseInteraction\TrackDatabase.vb" />
     <Compile Include="DatabaseInteraction\DatabaseConnection.vb" />
     <Compile Include="Model\EntityId.vb" />
@@ -87,8 +86,6 @@
     <Compile Include="Model\TweetLocation.vb" />
     <Compile Include="Model\TweetLocationType.vb" />
     <Compile Include="Model\DatabaseUser.vb" />
-    <Compile Include="ConnectionStrings\IConnectionStringSource.vb" />
-    <Compile Include="DatabaseInteraction\MySqlRowEnumerator.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>

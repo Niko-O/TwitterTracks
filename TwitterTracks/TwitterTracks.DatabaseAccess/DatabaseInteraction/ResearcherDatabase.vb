@@ -87,29 +87,29 @@ Public Class ResearcherDatabase
 
             Dim FormattedQueryString As SqlQueryString
             If TryGetTrackMetadata() Is Nothing Then
-                FormattedQueryString = New SqlQueryString( _
-                    "INSERT INTO " & MetadataTableIdentifier.EscapedText & " (" & _
-                    "    `TweetId`, " & _
-                    "    `CreatedByUserId`, " & _
-                    "    `TweetText`, " & _
-                    "    `RelevantKeywords`, " & _
-                    "    `MediaFilePathsToAdd`, " & _
-                    "    `ConsumerKey`, " & _
-                    "    `ConsumerSecret`, " & _
-                    "    `AccessToken`, " & _
-                    "    `AccessTokenSecret`) " & _
-                    "VALUES (@TweetId, " & _
-                    "        @CreatedByUserId, " & _
-                    "        @TweetText, " & _
-                    "        @RelevantKeywords, " & _
+                FormattedQueryString = FormatSqlIdentifiers( _
+                    "INSERT INTO {0} (             " & _
+                    "    `TweetId`,                " & _
+                    "    `CreatedByUserId`,        " & _
+                    "    `TweetText`,              " & _
+                    "    `RelevantKeywords`,       " & _
+                    "    `MediaFilePathsToAdd`,    " & _
+                    "    `ConsumerKey`,            " & _
+                    "    `ConsumerSecret`,         " & _
+                    "    `AccessToken`,            " & _
+                    "    `AccessTokenSecret`)      " & _
+                    "VALUES (@TweetId,             " & _
+                    "        @CreatedByUserId,     " & _
+                    "        @TweetText,           " & _
+                    "        @RelevantKeywords,    " & _
                     "        @MediaFilePathsToAdd, " & _
-                    "        @ConsumerKey, " & _
-                    "        @ConsumerSecret, " & _
-                    "        @AccessToken, " & _
-                    "        @AccessTokenSecret)")
+                    "        @ConsumerKey,         " & _
+                    "        @ConsumerSecret,      " & _
+                    "        @AccessToken,         " & _
+                    "        @AccessTokenSecret)   ", MetadataTableIdentifier)
             Else
-                FormattedQueryString = New SqlQueryString( _
-                    "UPDATE " & MetadataTableIdentifier.EscapedText & " " & _
+                FormattedQueryString = FormatSqlIdentifiers( _
+                    "UPDATE {0}                                         " & _
                     "SET `TweetId`             = @TweetId,              " & _
                     "    `CreatedByUserId`     = @CreatedByUserId,      " & _
                     "    `TweetText`           = @TweetText,            " & _
@@ -118,7 +118,7 @@ Public Class ResearcherDatabase
                     "    `ConsumerKey`         = @ConsumerKey,          " & _
                     "    `ConsumerSecret`      = @ConsumerSecret,       " & _
                     "    `AccessToken`         = @AccessToken,          " & _
-                    "    `AccessTokenSecret`   = @AccessTokenSecret     ")
+                    "    `AccessTokenSecret`   = @AccessTokenSecret     ", MetadataTableIdentifier)
             End If
             ExecuteNonQuery(FormattedQueryString, _
                             New CommandParameter("@TweetId", If(Metadata.IsPublished, DirectCast(Metadata.TweetId, Object), Nothing)), _

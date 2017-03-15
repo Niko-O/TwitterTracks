@@ -74,7 +74,7 @@
             Dim TrackEntityId As New TwitterTracks.DatabaseAccess.EntityId(Info.Database.ResearcherId)
             Dim UserName = TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
 
-            MainConnection = TwitterTracks.DatabaseAccess.DatabaseConnection.PlainConnection(Info.Database.Host, UserName, Info.Database.Password)
+            MainConnection = New TwitterTracks.DatabaseAccess.DatabaseConnection(Info.Database.Host, UserName, Info.Database.Password)
             MainConnection.Open()
             MainDatabase = New TwitterTracks.DatabaseAccess.ResearcherDatabase(MainConnection, DatabaseName, TrackEntityId)
 
