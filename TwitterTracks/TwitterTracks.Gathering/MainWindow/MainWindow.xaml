@@ -57,8 +57,6 @@
                                 <ColumnDefinition Width="2*"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="OpenOrCreateTrack">New/Open</Button>
-                            <Button Grid.Row="0" Grid.Column="1" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="LoadConfiguration">Load File</Button>
-                            <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}" Click="SaveConfiguration">Save File</Button>
                             <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ResourceKey=SignalButtonStyle}" Background="{Binding Path=TrackDataSignal, Converter={StaticResource ResourceKey=SignalKindToBrushConverter}}">Track Data</Button>
                             <Button Grid.Row="1" Grid.Column="2" Click="PublishTweet" IsEnabled="{Binding Path=CanPublish}">Publish Tweet</Button>
                             <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource ResourceKey=SignalButtonStyle}" Background="{Binding Path=TrackingSignal, Converter={StaticResource ResourceKey=SignalKindToBrushConverter}}">

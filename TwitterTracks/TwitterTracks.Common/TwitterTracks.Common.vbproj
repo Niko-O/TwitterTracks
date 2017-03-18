@@ -61,7 +61,6 @@
     <Reference Include="C:\Projects\VB\_Libs\OnUtils\OnUtils\bin\Release\OnUtils.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Paths.vb" />
     <Compile Include="UI\Controls\IfContent.xaml.vb">
       <DependentUpon>IfContent.xaml</DependentUpon>
     </Compile>

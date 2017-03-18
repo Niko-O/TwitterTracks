@@ -41,78 +41,6 @@
         End If
     End Sub
 
-    Private Sub LoadConfiguration(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        If Not System.IO.File.Exists(TwitterTracks.Common.Paths.GatheringConfigurationFilePath) Then
-            ViewModel.StatusMessageVM.SetStatus("The configuration file does not exist.", Common.UI.StatusMessageKindType.Warning)
-            Return
-        End If
-        Dim Root = XElement.Load(TwitterTracks.Common.Paths.GatheringConfigurationFilePath)
-
-        Dim Result As New OpenTrackInformation
-
-        Dim Dlg As New PasswordDialog.PasswordDialog With {.Owner = Me}
-        If Not Dlg.ShowDialog Then
-            ViewModel.StatusMessageVM.ClearStatus()
-            Return
-        End If
-
-        Result.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata(
-            Boolean.Parse(Root.<Metadata>.<IsPublished>.Value), _
-            Int64.Parse(Root.<Metadata>.<TweetId>.Value), _
-            Int64.Parse(Root.<Metadata>.<CreatedByUserId>.Value), _
-            Root.<Metadata>.<TweetText>.Value, _
-            Root.<Metadata>.<RelevantKeywords>.<Keyword>.Select(Function(i) i.Value), _
-            Root.<Metadata>.<MediaFilePathsToAdd>.<MediaToAdd>.Select(Function(i) i.Value), _
-            Root.<Metadata>.<ConsumerKey>.Value, _
-            Root.<Metadata>.<ConsumerSecret>.Value, _
-            Root.<Metadata>.<AccessToken>.Value, _
-            Root.<Metadata>.<AccessTokenSecret>.Value)
-
-        Result.Database.Host = Root.<Database>.<Host>.Value
-        Result.Database.Name = Root.<Database>.<Name>.Value
-        Result.Database.ResearcherId = Int64.Parse(Root.<Database>.<ResearcherId>.Value)
-        Result.Database.Password = Dlg.Password
-
-        Result.Database.Connection = New TwitterTracks.DatabaseAccess.DatabaseConnection _
-        (
-            Result.Database.Host, _
-            TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName _
-            (
-                New TwitterTracks.DatabaseAccess.VerbatimIdentifier(Result.Database.Name), _
-                New TwitterTracks.DatabaseAccess.EntityId(Result.Database.ResearcherId)
-            ), _
-            Result.Database.Password
-        )
-
-        Try
-            Result.Database.Connection.Open()
-        Catch ex As System.Data.Common.DbException
-            ViewModel.StatusMessageVM.SetStatus("The database connection could not be opened. The password is probably wrong or the database is not running." & Environment.NewLine & ex.Message, Common.UI.StatusMessageKindType.Error)
-            Return
-        End Try
-
-        Database = New TwitterTracks.DatabaseAccess.ResearcherDatabase(Result.Database.Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(Result.Database.Name), New TwitterTracks.DatabaseAccess.EntityId(Result.Database.ResearcherId))
-        Dim ExistingMetadata = Database.TryGetTrackMetadata
-        Dim TweetIsPublished = ExistingMetadata IsNot Nothing AndAlso ExistingMetadata.Value.IsPublished
-        If TweetIsPublished <> Result.Metadata.IsPublished Then
-            Dim ErrorMessage = String.Format("The configuration file says the Tweet is {0} published but the database says the opposite.", If(Result.Metadata.IsPublished, "already", "not yet"))
-            If TweetIsPublished Then
-                Dim Metadata = ExistingMetadata.Value
-                ErrorMessage &= String.Format("The database stores the Tweet {1}, created by {2}:{0}{3}", Environment.NewLine, Result.Metadata.TweetId, Result.Metadata.CreatedByUserId, Result.Metadata.TweetText)
-            End If
-            ViewModel.StatusMessageVM.SetStatus(ErrorMessage, Common.UI.StatusMessageKindType.Error)
-            Return
-        End If
-
-        ViewModel.StatusMessageVM.ClearStatus()
-        ViewModel.OpenTrackInfo = Result
-
-        ViewModel.NumberOfTrackedTweets = Database.CountAllTweets()
-        If TweetIsPublished Then
-            StartStream()
-        End If
-    End Sub
-
     Private Sub PublishTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
         DebugPrint("MainWindow.PublishTweet")
 
@@ -156,33 +84,6 @@
         ViewModel.OpenTrackInfo.Metadata = NewMetadata
 
         ViewModel.StatusMessageVM.ClearStatus()
-    End Sub
-
-    Private Sub SaveConfiguration(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        Dim Root = <GatheringConfiguration>
-                       <Database>
-                           <Host><%= ViewModel.OpenTrackInfo.Database.Host %></Host>
-                           <Name><%= ViewModel.OpenTrackInfo.Database.Name %></Name>
-                           <ResearcherId><%= ViewModel.OpenTrackInfo.Database.ResearcherId %></ResearcherId>
-                       </Database>
-                       <Metadata>
-                           <IsPublished><%= ViewModel.OpenTrackInfo.Metadata.IsPublished %></IsPublished>
-                           <TweetId><%= ViewModel.OpenTrackInfo.Metadata.TweetId %></TweetId>
-                           <CreatedByUserId><%= ViewModel.OpenTrackInfo.Metadata.CreatedByUserId %></CreatedByUserId>
-                           <TweetText><%= ViewModel.OpenTrackInfo.Metadata.TweetText %></TweetText>
-                           <RelevantKeywords>
-                               <%= ViewModel.OpenTrackInfo.Metadata.RelevantKeywords.Select(Function(i) <Keyword><%= i %></Keyword>) %>
-                           </RelevantKeywords>
-                           <MediaFilePathsToAdd>
-                               <%= ViewModel.OpenTrackInfo.Metadata.MediaFilePathsToAdd.Select(Function(i) <MediaFilePath><%= i %></MediaFilePath>) %>
-                           </MediaFilePathsToAdd>
-                           <ConsumerKey><%= ViewModel.OpenTrackInfo.Metadata.ConsumerKey %></ConsumerKey>
-                           <ConsumerSecret><%= ViewModel.OpenTrackInfo.Metadata.ConsumerSecret %></ConsumerSecret>
-                           <AccessToken><%= ViewModel.OpenTrackInfo.Metadata.AccessToken %></AccessToken>
-                           <AccessTokenSecret><%= ViewModel.OpenTrackInfo.Metadata.AccessTokenSecret %></AccessTokenSecret>
-                       </Metadata>
-                   </GatheringConfiguration>
-        Root.Save(TwitterTracks.Common.Paths.GatheringConfigurationFilePath)
     End Sub
 
     Private Sub ManuallyStartTrackingStream(sender As System.Object, e As System.Windows.RoutedEventArgs)
