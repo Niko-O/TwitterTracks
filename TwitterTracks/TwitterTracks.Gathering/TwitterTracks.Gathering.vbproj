@@ -122,17 +122,13 @@
     </ApplicationDefinition>
     <Compile Include="DebugConstants.vb" />
     <Compile Include="OpenTrackInformation.vb" />
-    <Compile Include="TweetinviInterop\AuthenticationToken.vb" />
-    <Compile Include="TweetinviInterop\ITweet.vb" />
-    <Compile Include="TweetinviInterop\ITwitterService.vb" />
-    <Compile Include="TweetinviInterop\PublishTweetFailReason.vb" />
-    <Compile Include="TweetinviInterop\PublishTweetResult.vb" />
-    <Compile Include="TweetinviInterop\ServiceProvider.vb" />
-    <Compile Include="TweetinviInterop\StartTwitterStreamResult.vb" />
-    <Compile Include="TweetinviInterop\StreamStoppedEventArgs.vb" />
-    <Compile Include="TweetinviInterop\StreamStopReason.vb" />
-    <Compile Include="TweetinviInterop\TweetReceivedEventArgs.vb" />
-    <Compile Include="TweetinviInterop\ValidationResult.vb" />
+    <Compile Include="Streaming\PublishTweetFailReason.vb" />
+    <Compile Include="Streaming\PublishTweetResult.vb" />
+    <Compile Include="Streaming\StartTwitterStreamResult.vb" />
+    <Compile Include="Streaming\StreamStoppedEventArgs.vb" />
+    <Compile Include="Streaming\StreamStopReason.vb" />
+    <Compile Include="Streaming\TweetReceivedEventArgs.vb" />
+    <Compile Include="Streaming\ValidationResult.vb" />
     <Compile Include="MainWindow\SignalKind.vb" />
     <Compile Include="MainWindow\SignalKindToBrushConverter.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndex.vb" />
@@ -195,8 +191,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OpenTrackDialog\TweetMediaToAdd.vb" />
-    <Compile Include="Implementation\Tweet.vb" />
-    <Compile Include="Isolation\Stream.vb" />
+    <Compile Include="Streaming\TweetinviTweet.vb" />
+    <Compile Include="Streaming\Stream.vb" />
     <Compile Include="My Project\AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -214,7 +210,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Implementation\TweetinviService.vb" />
+    <Compile Include="Streaming\TweetinviService.vb" />
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>

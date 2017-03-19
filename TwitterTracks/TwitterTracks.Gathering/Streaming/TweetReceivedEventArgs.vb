@@ -1,11 +1,11 @@
 ﻿
-Namespace TweetinviInterop
+Namespace Streaming
 
     Public Class TweetReceivedEventArgs
         Inherits EventArgs
 
-        Dim _Tweet As ITweet
-        Public ReadOnly Property Tweet As ITweet
+        Dim _Tweet As TweetinviTweet
+        Public ReadOnly Property Tweet As TweetinviTweet
             <DebuggerStepThrough()>
             Get
                 Return _Tweet
@@ -28,7 +28,7 @@ Namespace TweetinviInterop
             End Get
         End Property
 
-        Public Sub New(NewTweet As ITweet, NewTweetinviMatchOn As Tweetinvi.Streaming.MatchOn, NewAdditionalData As String)
+        Public Sub New(NewTweet As TweetinviTweet, NewTweetinviMatchOn As Tweetinvi.Streaming.MatchOn, NewAdditionalData As String)
             _Tweet = NewTweet
             _TweetinviMatchOn = NewTweetinviMatchOn
             _AdditionalData = NewAdditionalData

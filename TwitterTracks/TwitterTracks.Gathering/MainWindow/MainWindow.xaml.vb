@@ -6,9 +6,9 @@
     Public Sub New()
         InitializeComponent()
         ViewModel = DirectCast(Me.DataContext, MainWindowViewModel)
-        AddHandler TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StreamStarted, AddressOf StreamStarted
-        AddHandler TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StreamStopped, AddressOf StreamStopped
-        AddHandler TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.TweetReceived, AddressOf TweetReceived
+        AddHandler Streaming.TweetinviService.Instance.StreamStarted, AddressOf StreamStarted
+        AddHandler Streaming.TweetinviService.Instance.StreamStopped, AddressOf StreamStopped
+        AddHandler Streaming.TweetinviService.Instance.TweetReceived, AddressOf TweetReceived
     End Sub
 
     Protected Overrides Sub OnClosing(e As System.ComponentModel.CancelEventArgs)
@@ -21,7 +21,7 @@
         If Not e.Cancel Then
             If ViewModel.TrackingStreamIsRunning Then
                 DebugPrint("MainWindow.OnClosing")
-                TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StopTwitterStream()
+                Streaming.TweetinviService.Instance.StopTwitterStream()
             End If
         End If
     End Sub
@@ -55,11 +55,11 @@
             MediaBinaries.Add(System.IO.File.ReadAllBytes(i))
         Next
 
-        Dim AuthenticationToken As New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken( _
+        Dim AuthenticationToken As New Tweetinvi.Models.TwitterCredentials( _
                 ViewModel.OpenTrackInfo.Metadata.ConsumerKey, ViewModel.OpenTrackInfo.Metadata.ConsumerSecret, _
                 ViewModel.OpenTrackInfo.Metadata.AccessToken, ViewModel.OpenTrackInfo.Metadata.AccessTokenSecret)
 
-        Dim PublishResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.PublishTweet(ViewModel.OpenTrackInfo.Metadata.TweetText, MediaBinaries, AuthenticationToken)
+        Dim PublishResult = Streaming.TweetinviService.Instance.PublishTweet(ViewModel.OpenTrackInfo.Metadata.TweetText, MediaBinaries, AuthenticationToken)
         If Not PublishResult.Success Then
             Dim ErrorMessage = "Publishing failed:"
             If PublishResult.ErrorException IsNot Nothing Then
@@ -69,7 +69,7 @@
             Return
         End If
 
-        Dim StartStreamResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTrackInfo.Metadata.RelevantKeywords, AuthenticationToken)
+        Dim StartStreamResult = Streaming.TweetinviService.Instance.StartTwitterStream(PublishResult.ResultTweet.Id, PublishResult.ResultTweet.CreatedByUserId, ViewModel.OpenTrackInfo.Metadata.RelevantKeywords, AuthenticationToken)
         If Not StartStreamResult.Success Then
             Dim ErrorMessage = "Starting the Twitter API Stream failed after publishing the Tweet (this would be a good time to panic!):"
             If StartStreamResult.ErrorException IsNot Nothing Then
@@ -93,10 +93,10 @@
 
     Private Sub StartStream()
         DebugPrint("MainWindow.StartStream")
-        Dim AuthenticationToken As New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken( _
+        Dim AuthenticationToken As New Tweetinvi.Models.TwitterCredentials( _
             ViewModel.OpenTrackInfo.Metadata.ConsumerKey, ViewModel.OpenTrackInfo.Metadata.ConsumerSecret, _
             ViewModel.OpenTrackInfo.Metadata.AccessToken, ViewModel.OpenTrackInfo.Metadata.AccessTokenSecret)
-        Dim StartStreamResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.StartTwitterStream(ViewModel.OpenTrackInfo.Metadata.TweetId, ViewModel.OpenTrackInfo.Metadata.CreatedByUserId, ViewModel.OpenTrackInfo.Metadata.RelevantKeywords, AuthenticationToken)
+        Dim StartStreamResult = Streaming.TweetinviService.Instance.StartTwitterStream(ViewModel.OpenTrackInfo.Metadata.TweetId, ViewModel.OpenTrackInfo.Metadata.CreatedByUserId, ViewModel.OpenTrackInfo.Metadata.RelevantKeywords, AuthenticationToken)
         If StartStreamResult.Success Then
             ViewModel.StatusMessageVM.ClearStatus()
         Else
@@ -115,15 +115,15 @@
     End Sub
 
     <MultithreadingAwareness()>
-    Private Sub StreamStopped(sender As Object, e As TweetinviInterop.StreamStoppedEventArgs)
+    Private Sub StreamStopped(sender As Object, e As Streaming.StreamStoppedEventArgs)
         Dim WasIntentional = False
         Dim DisconnectReasonString As String
         Select Case e.Reason
-            Case TweetinviInterop.StreamStopReason.Disconnected
+            Case Streaming.StreamStopReason.Disconnected
                 DisconnectReasonString = String.Format("Twitter sent a disconnect message:{0}Code: {1}{0}Reason: {2}", Environment.NewLine, e.Code, e.ReasonName)
-            Case TweetinviInterop.StreamStopReason.LimitReached
+            Case Streaming.StreamStopReason.LimitReached
                 DisconnectReasonString = String.Format("Limit was reached. {0} Tweets were not received.", e.NumberOfTweetsNotReceived)
-            Case TweetinviInterop.StreamStopReason.Stopped
+            Case Streaming.StreamStopReason.Stopped
                 If e.Exception Is Nothing Then
                     DisconnectReasonString = "The stream was stopped manually."
                     WasIntentional = True
@@ -142,13 +142,13 @@
                               ViewModel.TrackingStreamIsRunning = False
                               ViewModel.StreamDisconnectReason = DisconnectReasonString
                               If Not WasIntentional Then
-                                  TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.ResumeTwitterStream()
+                                  Streaming.TweetinviService.Instance.ResumeTwitterStream()
                               End If
                           End Sub)
     End Sub
 
     <MultithreadingAwareness()>
-    Private Sub TweetReceived(sender As Object, e As TweetinviInterop.TweetReceivedEventArgs)
+    Private Sub TweetReceived(sender As Object, e As Streaming.TweetReceivedEventArgs)
         If Database Is Nothing Then
             Throw New NopeException
             Return

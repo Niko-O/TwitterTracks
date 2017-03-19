@@ -17,7 +17,7 @@
                         AccessToken.ConsumerKey, AccessToken.ConsumerSecret, AccessToken.AccessToken, AccessToken.AccessTokenSecret)
                  End Sub)
 
-    Public Shared ReadOnly AccessToken As TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken
+    Public Shared ReadOnly AccessToken As Tweetinvi.Models.TwitterCredentials
     Shared Sub New()
         'Case 1: When the code is executed in the XAML designer this is the absolute directory path of the solution directory of the project which calls this code (e.g. "C:\Blah\Solution").
         'Case 2: But when the code is executed in the debugger or by running an exe directly, this is the working directory of the exe (e.g. "C:\Blah\Solution\Project\bin\Debug").
@@ -36,7 +36,7 @@
         End If
         Dim Lines = System.IO.File.ReadAllLines(FilePath, System.Text.Encoding.UTF8)
         'Lines(0) leaves room for a comment.
-        AccessToken = New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken(Lines(1), Lines(2), Lines(3), Lines(4))
+        AccessToken = New Tweetinvi.Models.TwitterCredentials(Lines(1), Lines(2), Lines(3), Lines(4))
     End Sub
 
 #Else

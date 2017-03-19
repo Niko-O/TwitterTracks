@@ -173,9 +173,9 @@ Namespace OpenTrackDialog
         End Sub
 
         Private Sub BeginTwitterConnectionGoForward()
-            Dim Token As New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken(ViewModel.TwitterConnectionVM.ConsumerKey, ViewModel.TwitterConnectionVM.ConsumerSecret, ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
+            Dim Token As New Tweetinvi.Models.TwitterCredentials(ViewModel.TwitterConnectionVM.ConsumerKey, ViewModel.TwitterConnectionVM.ConsumerSecret, ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
             Tasks.StartTask(Sub()
-                                Dim ValidationResult = TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.ValidateAuthenticationToken(Token)
+                                Dim ValidationResult = Streaming.TweetinviService.Instance.ValidateAuthenticationToken(Token)
                                 If ValidationResult.IsValid Then
                                     Tasks.FinishTask(Sub()
                                                          ViewModel.StatusMessageVM.ClearStatus()

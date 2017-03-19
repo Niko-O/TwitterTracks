@@ -1,16 +1,8 @@
 ﻿
-Namespace TweetinviInterop
+Namespace Streaming
 
     Public Class StreamStoppedEventArgs
         Inherits EventArgs
-        'LimitReached
-        '  NumberOfTweetsNotReceived
-        'Stopped
-        ' Exception
-        ' Message
-        '  Code Integer
-        '  Reason String
-        '  StreamName
 
         Dim _Reason As StreamStopReason
         Public ReadOnly Property Reason As StreamStopReason

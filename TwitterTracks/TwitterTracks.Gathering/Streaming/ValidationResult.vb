@@ -1,5 +1,5 @@
 ﻿
-Namespace TweetinviInterop
+Namespace Streaming
 
     Public Structure ValidationResult
 

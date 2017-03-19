@@ -1,5 +1,5 @@
 ﻿
-Namespace TweetinviInterop
+Namespace Streaming
 
     Public Enum PublishTweetFailReason As Integer
         None = 0

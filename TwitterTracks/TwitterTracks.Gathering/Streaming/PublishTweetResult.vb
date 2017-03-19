@@ -1,5 +1,5 @@
 ﻿
-Namespace TweetinviInterop
+Namespace Streaming
 
     Public Class PublishTweetResult
 
@@ -11,8 +11,8 @@ Namespace TweetinviInterop
             End Get
         End Property
 
-        Dim _ResultTweet As ITweet
-        Public ReadOnly Property ResultTweet As ITweet
+        Dim _ResultTweet As TweetinviTweet
+        Public ReadOnly Property ResultTweet As TweetinviTweet
             <DebuggerStepThrough()>
             Get
                 Return _ResultTweet
@@ -35,7 +35,7 @@ Namespace TweetinviInterop
             End Get
         End Property
 
-        Public Sub New(NewResultTweet As ITweet)
+        Public Sub New(NewResultTweet As TweetinviTweet)
             _Success = True
             _ResultTweet = NewResultTweet
             _FailReason = PublishTweetFailReason.None

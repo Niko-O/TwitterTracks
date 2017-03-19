@@ -18,7 +18,7 @@ Namespace OpenTrackDialog
         <Dependency("TweetText")>
         Public ReadOnly Property TweetTextLength As Integer
             Get
-                Return TwitterTracks.Gathering.TweetinviInterop.ServiceProvider.Service.CountTweetLength(TweetText)
+                Return Streaming.TweetinviService.Instance.CountTweetLength(TweetText)
             End Get
         End Property
 
