@@ -20,18 +20,18 @@ Namespace Streaming
             End Get
         End Property
 
-        Dim _AdditionalData As String
-        Public ReadOnly Property AdditionalData As String
+        Dim _IsRetweet As Boolean
+        Public ReadOnly Property IsRetweet As Boolean
             <DebuggerStepThrough()>
             Get
-                Return _AdditionalData
+                Return _IsRetweet
             End Get
         End Property
 
-        Public Sub New(NewTweet As TweetinviTweet, NewTweetinviMatchOn As Tweetinvi.Streaming.MatchOn, NewAdditionalData As String)
+        Public Sub New(NewTweet As TweetinviTweet, NewTweetinviMatchOn As Tweetinvi.Streaming.MatchOn, NewIsRetweet As Boolean)
             _Tweet = NewTweet
             _TweetinviMatchOn = NewTweetinviMatchOn
-            _AdditionalData = NewAdditionalData
+            _IsRetweet = NewIsRetweet
         End Sub
 
     End Class

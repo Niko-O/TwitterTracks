@@ -34,37 +34,38 @@ Public Class TrackDatabase
             Dim TrackEntityId = ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0}() VALUES ()", TrackTableIdentifier)).InsertId
 
             Dim MetadataTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
-            ExecuteNonQuery(New SqlQueryString( _
-                "CREATE TABLE " & MetadataTableIdentifier.EscapedText & " (  " & _
-                "    `TweetId` INT8 NULL,                                    " & _
-                "    `CreatedByUserId` INT8 NULL,                            " & _
-                "    `TweetText` TEXT NOT NULL,                              " & _
-                "    `RelevantKeywords` TEXT NOT NULL,                       " & _
-                "    `MediaFilePathsToAdd` TEXT NOT NULL,                    " & _
-                "    `ConsumerKey` TEXT NOT NULL,                            " & _
-                "    `ConsumerSecret` TEXT NOT NULL,                         " & _
-                "    `AccessToken` TEXT NOT NULL,                            " & _
-                "    `AccessTokenSecret` TEXT NOT NULL)                      " & _
-                "    ENGINE = InnoDB;                                        "))
+            ExecuteNonQuery(FormatSqlIdentifiers( _
+                "CREATE TABLE {0} (                       " & _
+                "    `TweetId`             INT8     NULL, " & _
+                "    `CreatedByUserId`     INT8     NULL, " & _
+                "    `TweetText`           TEXT NOT NULL, " & _
+                "    `RelevantKeywords`    TEXT NOT NULL, " & _
+                "    `MediaFilePathsToAdd` TEXT NOT NULL, " & _
+                "    `ConsumerKey`         TEXT NOT NULL, " & _
+                "    `ConsumerSecret`      TEXT NOT NULL, " & _
+                "    `AccessToken`         TEXT NOT NULL, " & _
+                "    `AccessTokenSecret`   TEXT NOT NULL  " & _
+                ") ENGINE = InnoDB;                       ", MetadataTableIdentifier))
 
             Dim TweetTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TweetTableName(TrackEntityId).Escape)
-            ExecuteNonQuery(New SqlQueryString( _
-                "CREATE TABLE " & TweetTableIdentifier.EscapedText & " (  " & _
-                "    `Id` INT NOT NULL AUTO_INCREMENT,                    " & _
-                "    `ContentHash` TEXT NOT NULL,                         " & _
-                "    `PublishDateTime` INT8 NOT NULL,                     " & _
-                "    `LocationType` INT NOT NULL,                         " & _
-                "    `UserRegion` TEXT NULL,                              " & _
-                "    `Latitude` DOUBLE NULL,                              " & _
-                "    `Longitude` DOUBLE NULL,                             " & _
-                "    `Debug_TweetId` INT8 NULL,                           " & _
-                "    `Debug_TweetContent` TEXT NULL,                      " & _
+            ExecuteNonQuery(FormatSqlIdentifiers( _
+                "CREATE TABLE {0} (                                       " & _
+                "    `Id`                 INT    NOT NULL AUTO_INCREMENT, " & _
+                "    `IsRetweet`          BOOL   NOT NULL,                " & _
+                "    `MatchingKeywords`   TEXT   NOT NULL,                " & _
+                "    `PublishDateTime`    INT8   NOT NULL,                " & _
+                "    `LocationType`       INT    NOT NULL,                " & _
+                "    `UserRegion`         TEXT       NULL,                " & _
+                "    `Latitude`           DOUBLE     NULL,                " & _
+                "    `Longitude`          DOUBLE     NULL,                " & _
+                "    `Debug_TweetId`      INT8       NULL,                " & _
+                "    `Debug_TweetContent` TEXT       NULL,                " & _
                 "    INDEX `Idx_PublishDateTime` (`PublishDateTime` ASC), " & _
-                "    INDEX `Idx_LocationType` (`LocationType` ASC),       " & _
-                "    INDEX `Idx_Latitude` (`Latitude` ASC),               " & _
-                "    INDEX `Idx_Longitude` (`Longitude` ASC),             " & _
-                "    PRIMARY KEY (`Id`))                                  " & _
-                "    ENGINE = InnoDB;                                     "))
+                "    INDEX `Idx_LocationType`    (`LocationType`    ASC), " & _
+                "    INDEX `Idx_Latitude`        (`Latitude`        ASC), " & _
+                "    INDEX `Idx_Longitude`       (`Longitude`       ASC), " & _
+                "    PRIMARY KEY                 (`Id`)                   " & _
+                ") ENGINE = InnoDB;                                       ", TweetTableIdentifier))
 
             Dim ResearcherName As String = Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
             For Each Host In {"%", "localhost"}

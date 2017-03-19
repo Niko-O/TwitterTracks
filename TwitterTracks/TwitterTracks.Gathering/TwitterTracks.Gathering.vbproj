@@ -121,6 +121,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DebugConstants.vb" />
+    <Compile Include="MainWindow\KeywordRegexStore.vb" />
     <Compile Include="OpenTrackInformation.vb" />
     <Compile Include="Streaming\PublishTweetFailReason.vb" />
     <Compile Include="Streaming\PublishTweetResult.vb" />

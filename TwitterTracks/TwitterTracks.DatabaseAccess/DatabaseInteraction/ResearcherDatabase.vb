@@ -57,7 +57,8 @@ Public Class ResearcherDatabase
 
     Private Shared Function RowToTweet(Reader As Sql.MySqlDataReader) As Tweet
         Return New Tweet(Reader.GetEntityId("Id"), _
-                         Reader.GetString("ContentHash"), _
+                         Reader.GetBoolean("IsRetweet"), _
+                         Reader.GetString("MatchingKeywords").Split(" "c), _
                          Helpers.UnixTimestampToUtc(Reader.GetInt64("PublishDateTime")), _
                          TweetLocation.ParseDatabaseValue(DirectCast(Reader.GetInt32("LocationType"), TweetLocationType), _
                                                           Reader.GetNullableString("UserRegion"), _
@@ -147,12 +148,13 @@ Public Class ResearcherDatabase
         Return ExecuteScalar(Of Int64)(FormatSqlIdentifiers("SELECT COUNT(*) FROM {0}", TweetTableIdentifier))
     End Function
 
-    Public Sub CreateTweet(ContentHash As String, PublishDateTime As DateTime, Location As TweetLocation, Debug_TweetId As Int64?, Debug_TweetContent As String)
+    Public Sub CreateTweet(IsRetweet As Boolean, MatchingKeywords As IEnumerable(Of String), PublishDateTime As DateTime, Location As TweetLocation, Debug_TweetId As Int64?, Debug_TweetContent As String)
         Dim TweetTableIdentifier = GetTweetTableIdentifier()
         ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
-                                             "(`ContentHash`, `PublishDateTime`, `LocationType`, `UserRegion`, `Latitude`, `Longitude`, `Debug_TweetId`, `Debug_TweetContent`) " & _
-                                             "VALUES (@ContentHash, @PublishDateTime, @LocationType, @UserRegion, @Latitude, @Longitude, @Debug_TweetId, @Debug_TweetContent)", TweetTableIdentifier), _
-                        New CommandParameter("@ContentHash", ContentHash), _
+                                             "(`IsRetweet`, `MatchingKeywords`, `PublishDateTime`, `LocationType`, `UserRegion`, `Latitude`, `Longitude`, `Debug_TweetId`, `Debug_TweetContent`) " & _
+                                             "VALUES (@IsRetweet, @MatchingKeywords, @PublishDateTime, @LocationType, @UserRegion, @Latitude, @Longitude, @Debug_TweetId, @Debug_TweetContent)", TweetTableIdentifier), _
+                        New CommandParameter("@IsRetweet", IsRetweet), _
+                        New CommandParameter("@MatchingKeywords", MatchingKeywords), _
                         New CommandParameter("@PublishDateTime", PublishDateTime.ToUnixTimestamp), _
                         New CommandParameter("@LocationType", Location.LocationType), _
                         New CommandParameter("@UserRegion", Location.UserRegion), _

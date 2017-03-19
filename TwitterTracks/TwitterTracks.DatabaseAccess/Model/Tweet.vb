@@ -1,4 +1,7 @@
-﻿Public Structure Tweet
+﻿
+Imports System.Collections.ObjectModel
+
+Public Structure Tweet
 
     Private _EntityId As EntityId
     Public ReadOnly Property EntityId As EntityId
@@ -8,11 +11,19 @@
         End Get
     End Property
 
-    Private _ContentHash As String
-    Public ReadOnly Property ContentHash As String
+    Private _IsRetweet As Boolean
+    Public ReadOnly Property IsRetweet As Boolean
         <DebuggerStepThrough()>
         Get
-            Return _ContentHash
+            Return _IsRetweet
+        End Get
+    End Property
+
+    Private _MatchingKeywords As ReadOnlyCollection(Of String)
+    Public ReadOnly Property MatchingKeywords As ReadOnlyCollection(Of String)
+        <DebuggerStepThrough()>
+        Get
+            Return _MatchingKeywords
         End Get
     End Property
 
@@ -48,9 +59,10 @@
         End Get
     End Property
 
-    Public Sub New(NewEntityId As EntityId, NewContentHash As String, NewPublishDateTime As DateTime, NewLocation As TweetLocation, NewDebug_TweetId As Int64?, NewDebug_TweetContent As String)
+    Public Sub New(NewEntityId As EntityId, NewIsRetweet As Boolean, NewMatchingKeywords As IEnumerable(Of String), NewPublishDateTime As DateTime, NewLocation As TweetLocation, NewDebug_TweetId As Int64?, NewDebug_TweetContent As String)
         _EntityId = NewEntityId
-        _ContentHash = NewContentHash
+        _IsRetweet = NewIsRetweet
+        _MatchingKeywords = New ReadOnlyCollection(Of String)(NewMatchingKeywords.ToList)
         _PublishDateTime = NewPublishDateTime
         _Location = NewLocation
         _Debug_TweetId = NewDebug_TweetId

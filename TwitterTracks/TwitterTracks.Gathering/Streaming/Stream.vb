@@ -3,9 +3,9 @@ Namespace Streaming
 
     Public Class Stream
 
-        Public Event TweetReceived(Tweet As Tweetinvi.Models.ITweet, MatchOn As Tweetinvi.Streaming.MatchOn, AdditionalData As String)
-        Private Sub OnTweetReceived(Tweet As Tweetinvi.Models.ITweet, MatchOn As Tweetinvi.Streaming.MatchOn, AdditionalData As String)
-            RaiseEvent TweetReceived(Tweet, MatchOn, AdditionalData)
+        Public Event TweetReceived(Tweet As Tweetinvi.Models.ITweet, MatchOn As Tweetinvi.Streaming.MatchOn, IsRetweet As Boolean)
+        Private Sub OnTweetReceived(Tweet As Tweetinvi.Models.ITweet, MatchOn As Tweetinvi.Streaming.MatchOn, IsRetweet As Boolean)
+            RaiseEvent TweetReceived(Tweet, MatchOn, IsRetweet)
         End Sub
 
         Public Event Started()
@@ -68,7 +68,7 @@ Namespace Streaming
 
         Private Sub TweetReceivedByKeywordsCallback(Tweet As Tweetinvi.Models.ITweet)
             DebugPrint("Stream.TweetReceivedByKeywordsCallback: " & Tweet.Id)
-            OnTweetReceived(Tweet, Tweetinvi.Streaming.MatchOn.None, "TweetReceivedByKeywordsCallback")
+            OnTweetReceived(Tweet, Tweetinvi.Streaming.MatchOn.None, False)
         End Sub
 
         Private Sub Stream_NonMatchingTweetReceived(sender As Object, e As Tweetinvi.Events.TweetEventArgs) Handles Stream.NonMatchingTweetReceived
@@ -77,7 +77,7 @@ Namespace Streaming
             If IsChildOfOrOriginalTweet(e.Tweet) Then
                 DebugPrint("Strema.Stream_NonMatchingTweetReceived: " & e.Tweet.Id)
                 DebugPrint("    Is retweet of initial Tweet.")
-                OnTweetReceived(e.Tweet, Tweetinvi.Streaming.MatchOn.None, "Retweet")
+                OnTweetReceived(e.Tweet, Tweetinvi.Streaming.MatchOn.None, True)
             End If
         End Sub
 

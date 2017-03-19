@@ -1,4 +1,7 @@
-﻿Class MainWindow 
+﻿Class MainWindow
+
+    <MultithreadingAwareness()>
+    Dim KeywordRegexes As New KeywordRegexStore
 
     Dim ViewModel As MainWindowViewModel
     Dim Database As TwitterTracks.DatabaseAccess.ResearcherDatabase = Nothing
@@ -161,7 +164,8 @@
         Else
             Location = TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates(e.Tweet.UserRegion)
         End If
-        Database.CreateTweet(e.Tweet.Text.GetHashCode.ToString, e.Tweet.PublishDateTime, Location, e.Tweet.Id, e.Tweet.Text)
+        Dim MatchingKeywords = ViewModel.OpenTrackInfo.Metadata.RelevantKeywords.Where(Function(i) KeywordRegexes.GetRegex(i).IsMatch(e.Tweet.Text))
+        Database.CreateTweet(e.IsRetweet, MatchingKeywords, e.Tweet.PublishDateTime, Location, e.Tweet.Id, e.Tweet.Text)
         Dispatcher.Invoke(Sub() ViewModel.NumberOfTrackedTweets += 1)
     End Sub
 
@@ -177,9 +181,9 @@
     Dim TestDataIndex As Integer = 0
     Private ReadOnly TestData As New List(Of Action(Of TwitterTracks.DatabaseAccess.ResearcherDatabase)) From _
     {
-        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet("1001", Helpers.UnixTimestampToUtc(1490000001), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("England, Vereinigtes Königreich"), Nothing, Nothing), _
-        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet("1002", Helpers.UnixTimestampToUtc(1490000002), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("Österreich"), Nothing, Nothing), _
-        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet("1003", Helpers.UnixTimestampToUtc(1490000003), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("New York"), Nothing, Nothing)
+        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet(True, {}, Helpers.UnixTimestampToUtc(1490000001), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("England, Vereinigtes Königreich"), Nothing, Nothing), _
+        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet(False, {"#Test"}, Helpers.UnixTimestampToUtc(1490000002), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("Österreich"), Nothing, Nothing), _
+        Sub(Database As TwitterTracks.DatabaseAccess.ResearcherDatabase) Database.CreateTweet(True, {"#Twitter", "#Test"}, Helpers.UnixTimestampToUtc(1490000003), TwitterTracks.DatabaseAccess.TweetLocation.FromUserRegionWithPotentialForCoordinates("New York"), Nothing, Nothing)
     }
 
     Private Sub InsertTestData(sender As System.Object, e As System.Windows.RoutedEventArgs)

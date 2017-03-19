@@ -83,8 +83,8 @@ Namespace Streaming
             RaiseEvent StreamStopped(Me, e)
         End Sub
 
-        Private Sub CurrentStream_TweetReceived(Tweet As Tweetinvi.Models.ITweet, MatchOn As Tweetinvi.Streaming.MatchOn, AdditionalData As String) Handles CurrentStream.TweetReceived
-            RaiseEvent TweetReceived(Me, New TweetReceivedEventArgs(New TweetinviTweet(Tweet), MatchOn, AdditionalData))
+        Private Sub CurrentStream_TweetReceived(Tweet As Tweetinvi.Models.ITweet, MatchOn As Tweetinvi.Streaming.MatchOn, IsRetweet As Boolean) Handles CurrentStream.TweetReceived
+            RaiseEvent TweetReceived(Me, New TweetReceivedEventArgs(New TweetinviTweet(Tweet), MatchOn, IsRetweet))
         End Sub
 
     End Class
