@@ -18,46 +18,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowBusyOverlay}">
-            <CommonUI.Controls:BusyOverlay.OverlayContent>
-                <CommonUI.Controls:IfContent Condition="{Binding Path=ShowContinueAnywaysButton}">
-                    <CommonUI.Controls:IfContent.TrueContent>
-                        <Border Background="White" BorderThickness="1" BorderBrush="Black">
-                            <Grid>
-                                <Grid.Resources>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Padding" Value="6"/>
-                                        <Setter Property="Margin" Value="2"/>
-                                    </Style>
-                                </Grid.Resources>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" FontSize="14">
-                                    The data in the database indicates that<LineBreak/>
-                                    the initial Tweet is not yet published.<LineBreak/>
-                                    You may continue but there are<LineBreak/>
-                                    likely not be any Tweets available.
-                                </TextBlock>
-                                <Button Grid.Row="1" Grid.Column="0" Click="ContinueAnyways">
-                                    Continue
-                                </Button>
-                                <Button Grid.Row="1" Grid.Column="1" Click="CancelContinueAnyways">
-                                    Cancel
-                                </Button>
-                            </Grid>
-                        </Border>
-                    </CommonUI.Controls:IfContent.TrueContent>
-                    <CommonUI.Controls:IfContent.FalseContent>
-                        <TextBlock>Loading...</TextBlock>
-                    </CommonUI.Controls:IfContent.FalseContent>
-                </CommonUI.Controls:IfContent>
-            </CommonUI.Controls:BusyOverlay.OverlayContent>
+        <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=IsBusy}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

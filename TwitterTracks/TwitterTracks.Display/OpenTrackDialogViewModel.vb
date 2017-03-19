@@ -20,28 +20,10 @@ Public Class OpenTrackDialogViewModel
         End Set
     End Property
 
-    Dim _ShowContinueAnywaysButton As Boolean = DebugConstants.ShowContinueAnywaysButton
-    Public Property ShowContinueAnywaysButton As Boolean
-        <DebuggerStepThrough()>
-        Get
-            Return _ShowContinueAnywaysButton
-        End Get
-        Set(value As Boolean)
-            ExtendedChangeIfDifferent(_ShowContinueAnywaysButton, value, "ShowContinueAnywaysButton")
-        End Set
-    End Property
-
-    <Dependency("IsBusy", "ShowContinueAnywaysButton")>
-    Public ReadOnly Property ShowBusyOverlay As Boolean
-        Get
-            Return IsBusy OrElse ShowContinueAnywaysButton
-        End Get
-    End Property
-
     <Dependency("ShowBusyOverlay")>
     Public ReadOnly Property CanCloseOk As Boolean
         Get
-            Return Not ShowBusyOverlay AndAlso DatabaseConnectionVM.IsValid
+            Return Not IsBusy AndAlso DatabaseConnectionVM.IsValid
         End Get
     End Property
 

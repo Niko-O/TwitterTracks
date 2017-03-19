@@ -23,6 +23,7 @@
         Dim UserName = TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
         Dim Password = ViewModel.DatabaseConnectionVM.Password
 
+        Dim MetadataInDatabase As TwitterTracks.DatabaseAccess.TrackMetadata? = Nothing
         Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.StatusMessageVM, _
             "The metadata could not be read from the database.", _
@@ -30,38 +31,19 @@
                 Connection = New TwitterTracks.DatabaseAccess.DatabaseConnection(Host, UserName, Password)
                 Connection.Open()
                 Dim Database As New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, TrackEntityId)
-                Dim Temp = Database.TryGetTrackMetadata()
-                HasMetadata = Temp IsNot Nothing
-                If HasMetadata Then
-                    Metadata = Temp.Value
-                End If
+                MetadataInDatabase = Database.TryGetTrackMetadata()
             End Sub, _
             Function(Success As Boolean)
                 If Success Then
+                    HasMetadata = MetadataInDatabase IsNot Nothing
                     If HasMetadata Then
-                        If Metadata.IsPublished Then
-                            Me.DialogResult = True
-                            Me.Close()
-                        Else
-                            ViewModel.ShowContinueAnywaysButton = True
-                            ViewModel.StatusMessageVM.SetStatus("The initial Tweet is not yet published.", Common.UI.StatusMessageKindType.Warning)
-                        End If
-                    Else
-                        ViewModel.ShowContinueAnywaysButton = True
-                        ViewModel.StatusMessageVM.SetStatus("The database does not contain any metadata.", Common.UI.StatusMessageKindType.Warning)
+                        Metadata = MetadataInDatabase.Value
                     End If
+                    Me.DialogResult = True
+                    Me.Close()
                 End If
                 Return Nothing
             End Function)
-    End Sub
-
-    Private Sub ContinueAnyways(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        Me.DialogResult = True
-        Me.Close()
-    End Sub
-
-    Private Sub CancelContinueAnyways(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        ViewModel.ShowContinueAnywaysButton = False
     End Sub
 
     Private Sub CloseCancel(sender As System.Object, e As System.Windows.RoutedEventArgs)
@@ -74,10 +56,6 @@
 
         If HasMetadata Then
             Result.Metadata = Metadata
-        Else
-            'Result.Metadata = TwitterTracks.DatabaseAccess.TrackMetadata.FromUnpublished( _
-            '    ViewModel.TweetDataVM.TweetText, ViewModel.KeywordsVM.Keywords.Select(Function(i) i.Text), ViewModel.TweetDataVM.MediasToAdd.Select(Function(i) i.FilePath), _
-            '    ViewModel.TwitterConnectionVM.ConsumerKey, ViewModel.TwitterConnectionVM.ConsumerSecret, ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
         End If
 
         Result.Database.Host = ViewModel.DatabaseConnectionVM.DatabaseHost
