@@ -1,6 +1,7 @@
 ﻿Class MainWindow
 
-    Private Shared ReadOnly MarkerBrush As New SolidColorBrush(Color.FromArgb(128, 255, 0, 0))
+    Private Shared ReadOnly RetweetMarkerBrush As New SolidColorBrush(Color.FromArgb(128, 255, 0, 0))
+    Private Shared ReadOnly NonRetweetMarkerBrush As New SolidColorBrush(Color.FromArgb(128, 0, 0, 255))
 
     Dim ViewModel As MainWindowViewModel
 
@@ -47,7 +48,7 @@
                 Case DatabaseAccess.TweetLocationType.TweetCoordinates, _
                      DatabaseAccess.TweetLocationType.UserRegionWithCoordinates
                     NumberOfTweetsWithCoordinates += 1
-                    AddMarker(i.Location.Latitude, i.Location.Longitude)
+                    AddMarker(i.Location.Latitude, i.Location.Longitude, i.IsRetweet)
                 Case DatabaseAccess.TweetLocationType.UserRegionWithPotentialForCoordinates
                     CoordinatesLoader.EnqueueTweet(i)
             End Select
@@ -94,10 +95,10 @@
 
     Private Sub CoordinatesLoader_TweetCoordinatesLoaded(sender As Object, e As TweetCoordinatesLoadedEventArgs) Handles CoordinatesLoader.TweetCoordinatesLoaded
         ViewModel.NumberOfTweetsWithCoordinates += 1
-        AddMarker(e.Latitude, e.Longitude)
+        AddMarker(e.Latitude, e.Longitude, e.Tweet.IsRetweet)
     End Sub
 
-    Private Sub AddMarker(Latitude As Double, Longitude As Double)
+    Private Sub AddMarker(Latitude As Double, Longitude As Double, IsRetweet As Boolean)
         MapControl.Markers.Add(New GMap.NET.WindowsPresentation.GMapMarker(New GMap.NET.PointLatLng(Latitude, Longitude)) With _
                                {
                                    .Shape = New Ellipse With _
@@ -105,7 +106,7 @@
                                        .Width = 10,
                                        .Height = 10,
                                        .RenderTransform = New TranslateTransform(-5, -5),
-                                       .Fill = MarkerBrush
+                                       .Fill = If(IsRetweet, RetweetMarkerBrush, NonRetweetMarkerBrush)
                                    }
                                })
     End Sub

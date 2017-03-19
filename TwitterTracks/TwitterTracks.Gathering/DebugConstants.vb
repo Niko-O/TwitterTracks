@@ -4,19 +4,7 @@
 
 #If EnableDebugData Then
 
-    Public Shared ReadOnly OpenTrackInfo As OpenTrackInformation = New OpenTrackInformation() _
-        .ButAlso(Sub(o As OpenTrackInformation)
-                     o.Database.Host = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseHost
-                     o.Database.Name = TwitterTracks.Common.UI.Resources.DebugConstants.TrackDatabaseName
-                     o.Database.ResearcherId = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseResearcherId
-                     o.Database.Password = TwitterTracks.Common.UI.Resources.DebugConstants.ResearcherPassword
-                     o.Database.Connection = Nothing
-
-                     o.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata( _
-                        True, 10, 20, TwitterTracks.Common.UI.Resources.DebugConstants.TweetText, {"#Test", "#Hashtag", "Quantenelektrodynamik"}, {"C:\Foo.jpg", "C:\Bar.png"}, _
-                        AccessToken.ConsumerKey, AccessToken.ConsumerSecret, AccessToken.AccessToken, AccessToken.AccessTokenSecret)
-                 End Sub)
-
+    Public Shared ReadOnly OpenTrackInfo As OpenTrackInformation 
     Public Shared ReadOnly AccessToken As Tweetinvi.Models.TwitterCredentials
     Shared Sub New()
         'Case 1: When the code is executed in the XAML designer this is the absolute directory path of the solution directory of the project which calls this code (e.g. "C:\Blah\Solution").
@@ -37,6 +25,16 @@
         Dim Lines = System.IO.File.ReadAllLines(FilePath, System.Text.Encoding.UTF8)
         'Lines(0) leaves room for a comment.
         AccessToken = New Tweetinvi.Models.TwitterCredentials(Lines(1), Lines(2), Lines(3), Lines(4))
+
+        OpenTrackInfo = New OpenTrackInformation()
+        OpenTrackInfo.Database.Host = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseHost
+        OpenTrackInfo.Database.Name = TwitterTracks.Common.UI.Resources.DebugConstants.TrackDatabaseName
+        OpenTrackInfo.Database.ResearcherId = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseResearcherId
+        OpenTrackInfo.Database.Password = TwitterTracks.Common.UI.Resources.DebugConstants.ResearcherPassword
+        OpenTrackInfo.Database.Connection = Nothing
+        OpenTrackInfo.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata( _
+            True, 10, 20, TwitterTracks.Common.UI.Resources.DebugConstants.TweetText, {"#Test", "#Hashtag", "Quantenelektrodynamik"}, {"C:\Foo.jpg", "C:\Bar.png"}, _
+            AccessToken.ConsumerKey, AccessToken.ConsumerSecret, AccessToken.AccessToken, AccessToken.AccessTokenSecret)
     End Sub
 
 #Else
