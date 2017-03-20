@@ -154,7 +154,7 @@ Public Class ResearcherDatabase
                                              "(`IsRetweet`, `MatchingKeywords`, `PublishDateTime`, `LocationType`, `UserRegion`, `Latitude`, `Longitude`, `Debug_TweetId`, `Debug_TweetContent`) " & _
                                              "VALUES (@IsRetweet, @MatchingKeywords, @PublishDateTime, @LocationType, @UserRegion, @Latitude, @Longitude, @Debug_TweetId, @Debug_TweetContent)", TweetTableIdentifier), _
                         New CommandParameter("@IsRetweet", IsRetweet), _
-                        New CommandParameter("@MatchingKeywords", MatchingKeywords), _
+                        New CommandParameter("@MatchingKeywords", String.Join(" ", MatchingKeywords)), _
                         New CommandParameter("@PublishDateTime", PublishDateTime.ToUnixTimestamp), _
                         New CommandParameter("@LocationType", Location.LocationType), _
                         New CommandParameter("@UserRegion", Location.UserRegion), _
