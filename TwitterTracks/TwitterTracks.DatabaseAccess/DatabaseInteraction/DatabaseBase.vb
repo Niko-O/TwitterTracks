@@ -17,6 +17,9 @@ Public Class DatabaseBase
     Dim CurrentTransactionIsCommitted As Boolean
 
     Public Sub New(NewConnection As DatabaseConnection)
+        If NewConnection Is Nothing Then
+            Throw New ArgumentNullException("NewConnection")
+        End If
         _Connection = NewConnection
     End Sub
 

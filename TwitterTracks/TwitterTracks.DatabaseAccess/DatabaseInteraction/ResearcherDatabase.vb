@@ -22,6 +22,9 @@ Public Class ResearcherDatabase
 
     Public Sub New(NewConnection As DatabaseConnection, NewDatabaseName As VerbatimIdentifier, NewTrackEntityId As EntityId)
         MyBase.New(NewConnection)
+        If NewDatabaseName Is Nothing Then
+            Throw New ArgumentNullException("NewDatabaseName")
+        End If
         _DatabaseName = NewDatabaseName
         _TrackEntityId = NewTrackEntityId
     End Sub

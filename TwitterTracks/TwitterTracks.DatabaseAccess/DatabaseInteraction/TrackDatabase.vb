@@ -12,8 +12,11 @@ Public Class TrackDatabase
         End Get
     End Property
 
-    Public Sub New(NewConnection As DatabaseConnection, NewDatabaseName As VerbatimIdentifier)
+    Public Sub New(NewConnection As DatabaseConnection, NewDatabaseName As VerbatimIdentifier)        
         MyBase.New(NewConnection)
+        If NewDatabaseName Is Nothing Then
+            Throw New ArgumentNullException("NewDatabaseName")
+        End If
         _DatabaseName = NewDatabaseName
     End Sub
 
