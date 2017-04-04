@@ -23,13 +23,6 @@ Public Class TrackDatabase
 #Region "Administrator"
 
     Public Function CreateTrack(ResearcherPassword As String) As CreateTrackResult
-        'Insert Track
-        'Create Metadata Table
-        'Create Tweet Table
-        'Create User
-        'Assign Select, Insert, Update, Delete Acces to Metadata, Tweet Table
-        'Flush
-
         Try
             BeginTransaction()
 
@@ -79,13 +72,6 @@ Public Class TrackDatabase
                 ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TweetTableIdentifier, ResearcherIdentifier))
             Next
 
-            'ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER @ResearcherName IDENTIFIED BY @ResearcherPassword;"), _
-            '        New CommandParameter("@ResearcherName", ResearcherName), _
-            '        New CommandParameter("@ResearcherPassword", ResearcherPassword))
-            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @ResearcherName;", MetadataTableIdentifier), _
-            '                New CommandParameter("@ResearcherName", ResearcherName))
-            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @ResearcherName;", TweetTableIdentifier), _
-            '                New CommandParameter("@ResearcherName", ResearcherName))
 
             ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 

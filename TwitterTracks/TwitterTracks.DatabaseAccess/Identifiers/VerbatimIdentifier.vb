@@ -26,7 +26,7 @@ Public Class VerbatimIdentifier
         Return UnescapedText.GetHashCode
     End Function
 
-    Public Overloads Function Equals(other As VerbatimIdentifier) As Boolean Implements System.IEquatable(Of VerbatimIdentifier).Equals
+    Public Overloads Function Equals(other As VerbatimIdentifier) As Boolean Implements IEquatable(Of VerbatimIdentifier).Equals
         Return Me.UnescapedText = other.UnescapedText
     End Function
 
@@ -54,7 +54,7 @@ Public Class VerbatimIdentifier
     ''' <summary>
     ''' Escapes an identifier according to http://dev.mysql.com/doc/refman/5.7/en/identifiers.html
     ''' This function will always return a quoted string, quoted with <see cref="QuoteCharacter"/> and it assumes that <paramref name="Unescaped"/> is not quoted.
-    ''' Since all Unicode characters in the BMP (except the 0-character, see below) are supported, this function simply doubles quotes in <paramref name="Unescaped"/>, puts quotes around it and returns the resulting string.
+    ''' Since all Unicode characters in the Basic Multilingual Plane (except the 0-character, see below) are supported, this function simply doubles quotes in <paramref name="Unescaped"/>, puts quotes around it and returns the resulting string.
     ''' Since the 0-character is not supported and it cannot be escaped, this function throws an <see cref="ArgumentException"/> if <paramref name="Unescaped"/> contains any of those.
     ''' </summary>
     ''' <param name="Unescaped">The unescaped, unquoted identifier which must not contain 0-characters.</param>

@@ -9,13 +9,6 @@ Public Class DatabaseServer
     End Sub
 
     Public Function CreateTrackDatabase(DatabaseName As VerbatimIdentifier, AdministratorPassword As String) As CreateTrackDatabaseResult
-        'Create Database
-        'Create Track Table
-        'Create User
-        'Grant Create, Drop to Database.* Table
-        'Grant Select, Insert, Update, Delete to Database.Track
-        'Flush
-
         Try
             BeginTransaction()
 
@@ -23,11 +16,11 @@ Public Class DatabaseServer
             ExecuteNonQuery(FormatSqlIdentifiers("CREATE DATABASE {0}", DatabaseName.Escape))
 
             Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
-            ExecuteNonQuery(New SqlQueryString( _
-                "CREATE TABLE " & TrackTableIdentifier.EscapedText & " ( " & _
-                "  `Id` INT NOT NULL AUTO_INCREMENT,                     " & _
-                "  PRIMARY KEY (`Id`))                                   " & _
-                "ENGINE = InnoDB;                                        "))
+            ExecuteNonQuery(FormatSqlIdentifiers( _
+                "CREATE TABLE {0} (                  " & _
+                "  `Id` INT NOT NULL AUTO_INCREMENT, " & _
+                "  PRIMARY KEY (`Id`))               " & _
+                "ENGINE = InnoDB;                    ", TrackTableIdentifier))
 
             Dim AdministratorName As String = Relations.UserNames.AdministratorUserName(DatabaseName)
             For Each Host In {"%", "localhost"}
@@ -37,13 +30,6 @@ Public Class DatabaseServer
                 ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO {1};", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable), AdministratorIdentifier))
                 ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TrackTableIdentifier, AdministratorIdentifier))
             Next
-            'ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER @AdministratorName IDENTIFIED BY @AdministratorPassword;"), _
-            '        New CommandParameter("@AdministratorName", AdministratorName), _
-            '        New CommandParameter("@AdministratorPassword", AdministratorPassword))
-            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO @AdministratorName;", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable)), _
-            '                New CommandParameter("@AdministratorName", AdministratorName))
-            'ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO @AdministratorName;", TrackTableIdentifier), _
-            '                New CommandParameter("@AdministratorName", AdministratorName))
 
             ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 

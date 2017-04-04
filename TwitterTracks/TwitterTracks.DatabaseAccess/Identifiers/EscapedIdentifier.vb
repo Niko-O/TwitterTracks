@@ -21,7 +21,7 @@ Public Class EscapedIdentifier
         Return EscapedText.GetHashCode
     End Function
 
-    Public Overloads Function Equals(other As EscapedIdentifier) As Boolean Implements System.IEquatable(Of EscapedIdentifier).Equals
+    Public Overloads Function Equals(other As EscapedIdentifier) As Boolean Implements IEquatable(Of EscapedIdentifier).Equals
         Return Me.EscapedText = other.EscapedText
     End Function
 
