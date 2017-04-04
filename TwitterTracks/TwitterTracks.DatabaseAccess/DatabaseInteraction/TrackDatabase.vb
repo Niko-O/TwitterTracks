@@ -72,9 +72,6 @@ Public Class TrackDatabase
                 ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TweetTableIdentifier, ResearcherIdentifier))
             Next
 
-
-            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
-
             CommitTransaction()
             Return New CreateTrackResult(New Track(TrackEntityId, Nothing), New DatabaseUser(ResearcherName, ResearcherPassword), New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, TrackEntityId))
         Finally
@@ -140,7 +137,6 @@ Public Class TrackDatabase
                 ExecuteNonQuery(FormatSqlIdentifiers("DROP USER {0}", AdministratorIdentifier))
             Next
             ExecuteNonQuery(FormatSqlIdentifiers("DROP DATABASE {0}", DatabaseName.Escape))
-            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 
             CommitTransaction()
         Finally

@@ -225,7 +225,6 @@ Public Class ResearcherDatabase
             ExecuteNonQuery(FormatSqlIdentifiers("DROP TABLE {0};", GetMetadataTableIdentifier))
             Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
             ExecuteNonQuery(FormatSqlIdentifiers("DELETE FROM {0} WHERE `Id` = @Id;", TrackTableIdentifier), New CommandParameter("@Id", TrackEntityId.RawId))
-            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 
             CommitTransaction()
         Finally

@@ -27,11 +27,9 @@ Public Class DatabaseServer
                 Dim AdministratorIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(AdministratorName).Escape, New VerbatimIdentifier(Host).Escape)
                 ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER {0} IDENTIFIED BY @AdministratorPassword;", AdministratorIdentifier), _
                                 New CommandParameter("@AdministratorPassword", AdministratorPassword))
-                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP ON {0} TO {1};", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable), AdministratorIdentifier))
-                ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TrackTableIdentifier, AdministratorIdentifier))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable), AdministratorIdentifier))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE USER ON {0} TO {1} WITH GRANT OPTION;", Relations.TableNames.TableIdentifier(Relations.WildcardDatabase, Relations.WildcardTable), AdministratorIdentifier))
             Next
-
-            ExecuteNonQuery(FormatSqlIdentifiers("FLUSH PRIVILEGES;"))
 
             CommitTransaction()
             Return New CreateTrackDatabaseResult(TrackDB, New DatabaseUser(AdministratorName, AdministratorPassword))

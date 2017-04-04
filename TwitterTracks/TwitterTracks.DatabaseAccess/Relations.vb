@@ -1,6 +1,7 @@
 ﻿Public Class Relations
 
     Public Const RelationSeparationCharacter As Char = "~"c
+    Public Shared ReadOnly WildcardDatabase As New EscapedIdentifier("*")
     Public Shared ReadOnly WildcardTable As New EscapedIdentifier("*")
 
     Public Class UserNames
