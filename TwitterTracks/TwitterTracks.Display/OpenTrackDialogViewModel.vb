@@ -20,7 +20,6 @@ Public Class OpenTrackDialogViewModel
         End Set
     End Property
 
-    <Dependency("ShowBusyOverlay")>
     Public ReadOnly Property CanCloseOk As Boolean
         Get
             Return Not IsBusy AndAlso DatabaseConnectionVM.IsValid
