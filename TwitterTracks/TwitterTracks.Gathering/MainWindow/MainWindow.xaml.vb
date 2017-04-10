@@ -59,7 +59,7 @@
         Next
 
         Dim AuthenticationToken As New Tweetinvi.Models.TwitterCredentials( _
-                ViewModel.OpenTrackInfo.Metadata.ConsumerKey, ViewModel.OpenTrackInfo.Metadata.ConsumerSecret, _
+                ViewModel.OpenTrackInfo.ApplicationToken.ConsumerKey, ViewModel.OpenTrackInfo.ApplicationToken.ConsumerSecret, _
                 ViewModel.OpenTrackInfo.Metadata.AccessToken, ViewModel.OpenTrackInfo.Metadata.AccessTokenSecret)
 
         Dim PublishResult = Streaming.TweetinviService.Instance.PublishTweet(ViewModel.OpenTrackInfo.Metadata.TweetText, MediaBinaries, AuthenticationToken)
@@ -89,15 +89,10 @@
         ViewModel.StatusMessageVM.ClearStatus()
     End Sub
 
-    Private Sub ManuallyStartTrackingStream(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        DebugPrint("MainWindow.ManuallyStartTrackingStream")
-        StartStream()
-    End Sub
-
     Private Sub StartStream()
         DebugPrint("MainWindow.StartStream")
         Dim AuthenticationToken As New Tweetinvi.Models.TwitterCredentials( _
-            ViewModel.OpenTrackInfo.Metadata.ConsumerKey, ViewModel.OpenTrackInfo.Metadata.ConsumerSecret, _
+            ViewModel.OpenTrackInfo.ApplicationToken.ConsumerKey, ViewModel.OpenTrackInfo.ApplicationToken.ConsumerSecret, _
             ViewModel.OpenTrackInfo.Metadata.AccessToken, ViewModel.OpenTrackInfo.Metadata.AccessTokenSecret)
         Dim StartStreamResult = Streaming.TweetinviService.Instance.StartTwitterStream(ViewModel.OpenTrackInfo.Metadata.TweetId, ViewModel.OpenTrackInfo.Metadata.CreatedByUserId, ViewModel.OpenTrackInfo.Metadata.RelevantKeywords, AuthenticationToken)
         If StartStreamResult.Success Then

@@ -4,7 +4,7 @@ Namespace OpenTrackDialog
     Public Class OpenTrackDialogViewModel
         Inherits ViewModelBase
 
-        Dim _DatabaseConnectionVM As New TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel
+        Dim WithEvents _DatabaseConnectionVM As New TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel(True, False)
         Public ReadOnly Property DatabaseConnectionVM As TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel
             <DebuggerStepThrough()>
             Get
@@ -12,23 +12,7 @@ Namespace OpenTrackDialog
             End Get
         End Property
 
-        Dim _TweetDataVM As New OpenTrackDialogViewModel_TweetData
-        Public ReadOnly Property TweetDataVM As OpenTrackDialogViewModel_TweetData
-            <DebuggerStepThrough()>
-            Get
-                Return _TweetDataVM
-            End Get
-        End Property
-
-        Dim _KeywordsVM As New OpenTrackDialogViewModel_Keywords
-        Public ReadOnly Property KeywordsVM As OpenTrackDialogViewModel_Keywords
-            <DebuggerStepThrough()>
-            Get
-                Return _KeywordsVM
-            End Get
-        End Property
-
-        Dim _TwitterConnectionVM As New OpenTrackDialogViewModel_TwitterConnection
+        Dim WithEvents _TwitterConnectionVM As New OpenTrackDialogViewModel_TwitterConnection
         Public ReadOnly Property TwitterConnectionVM As OpenTrackDialogViewModel_TwitterConnection
             <DebuggerStepThrough()>
             Get
@@ -36,7 +20,23 @@ Namespace OpenTrackDialog
             End Get
         End Property
 
-        Dim _SummaryVM As New OpenTrackDialogViewModel_Summary
+        Dim WithEvents _TweetDataVM As New OpenTrackDialogViewModel_TweetData
+        Public ReadOnly Property TweetDataVM As OpenTrackDialogViewModel_TweetData
+            <DebuggerStepThrough()>
+            Get
+                Return _TweetDataVM
+            End Get
+        End Property
+
+        Dim WithEvents _KeywordsVM As New OpenTrackDialogViewModel_Keywords
+        Public ReadOnly Property KeywordsVM As OpenTrackDialogViewModel_Keywords
+            <DebuggerStepThrough()>
+            Get
+                Return _KeywordsVM
+            End Get
+        End Property
+
+        Dim WithEvents _SummaryVM As New OpenTrackDialogViewModel_Summary
         Public ReadOnly Property SummaryVM As OpenTrackDialogViewModel_Summary
             <DebuggerStepThrough()>
             Get
@@ -81,12 +81,12 @@ Namespace OpenTrackDialog
                 Select Case CurrentTabIndex
                     Case DialogTabIndex.DatabaseConnection
                         Return DatabaseConnectionVM.IsValid
+                    Case DialogTabIndex.TwitterConnection
+                        Return TwitterConnectionVM.IsValid
                     Case DialogTabIndex.TweetData
                         Return TweetDataVM.IsValid
                     Case DialogTabIndex.Keywords
                         Return KeywordsVM.IsValid
-                    Case DialogTabIndex.TwitterConnection
-                        Return TwitterConnectionVM.IsValid
                     Case DialogTabIndex.Summary
                         Return True
                     Case Else
@@ -127,6 +127,13 @@ Namespace OpenTrackDialog
 
         Public Sub New()
             MyBase.New(True)
+        End Sub
+
+        Private Sub ChildVM_PropertyChanged(sender As Object, e As System.ComponentModel.PropertyChangedEventArgs) Handles _DatabaseConnectionVM.PropertyChanged, _TwitterConnectionVM.PropertyChanged, _TweetDataVM.PropertyChanged, _KeywordsVM.PropertyChanged, _SummaryVM.PropertyChanged
+            Select Case e.PropertyName
+                Case "IsValid"
+                    OnPropertyChanged("CanGoForward")
+            End Select
         End Sub
 
     End Class

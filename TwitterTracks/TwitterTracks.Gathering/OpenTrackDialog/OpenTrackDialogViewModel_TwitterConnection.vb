@@ -4,40 +4,26 @@ Namespace OpenTrackDialog
     Public Class OpenTrackDialogViewModel_TwitterConnection
         Inherits ViewModelBase
 
-        Dim _ConsumerKey As String = DebugConstants.AccessToken.ConsumerKey
-        Public Property ConsumerKey As String
+        Dim _AuthorizationPin As String = ""
+        Public Property AuthorizationPin As String
             <DebuggerStepThrough()>
             Get
-                Return _ConsumerKey
+                Return _AuthorizationPin
             End Get
             Set(value As String)
-                ExtendedChangeIfDifferent(_ConsumerKey, value, "ConsumerKey")
+                ExtendedChangeIfDifferent(_AuthorizationPin, value, "AuthorizationPin")
             End Set
         End Property
 
-        <Dependency("ConsumerKey")>
-        Public ReadOnly Property ConsumerKeyIsValid As Boolean
-            Get
-                Return Not String.IsNullOrWhiteSpace(ConsumerKey)
-            End Get
-        End Property
-
-        Dim _ConsumerSecret As String = DebugConstants.AccessToken.ConsumerSecret
-        Public Property ConsumerSecret As String
+        Dim _PinIsValid As Boolean = False
+        Public Property PinIsValid As Boolean
             <DebuggerStepThrough()>
             Get
-                Return _ConsumerSecret
+                Return _PinIsValid
             End Get
-            Set(value As String)
-                ExtendedChangeIfDifferent(_ConsumerSecret, value, "ConsumerSecret")
+            Set(value As Boolean)
+                ExtendedChangeIfDifferent(_PinIsValid, value, "PinIsValid")
             End Set
-        End Property
-
-        <Dependency("ConsumerSecret")>
-        Public ReadOnly Property ConsumerSecretIsValid As Boolean
-            Get
-                Return Not String.IsNullOrWhiteSpace(ConsumerSecret)
-            End Get
         End Property
 
         Dim _AccessToken As String = DebugConstants.AccessToken.AccessToken
@@ -51,13 +37,6 @@ Namespace OpenTrackDialog
             End Set
         End Property
 
-        <Dependency("AccessToken")>
-        Public ReadOnly Property AccessTokenIsValid As Boolean
-            Get
-                Return Not String.IsNullOrWhiteSpace(AccessToken)
-            End Get
-        End Property
-
         Dim _AccessTokenSecret As String = DebugConstants.AccessToken.AccessTokenSecret
         Public Property AccessTokenSecret As String
             <DebuggerStepThrough()>
@@ -69,17 +48,10 @@ Namespace OpenTrackDialog
             End Set
         End Property
 
-        <Dependency("AccessTokenSecret")>
-        Public ReadOnly Property AccessTokenSecretIsValid As Boolean
-            Get
-                Return Not String.IsNullOrWhiteSpace(AccessTokenSecret)
-            End Get
-        End Property
-
-        <Dependency("ConsumerKey", "ConsumerSecret", "AccessToken", "AccessTokenSecret")>
+        <Dependency("PinIsValid")>
         Public ReadOnly Property IsValid As Boolean
             Get
-                Return ConsumerKeyIsValid AndAlso ConsumerSecretIsValid AndAlso AccessTokenIsValid AndAlso AccessTokenSecretIsValid
+                Return PinIsValid
             End Get
         End Property
 

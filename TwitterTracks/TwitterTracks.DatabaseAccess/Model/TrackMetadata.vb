@@ -52,22 +52,6 @@ Public Structure TrackMetadata
         End Get
     End Property
 
-    Private _ConsumerKey As String
-    Public ReadOnly Property ConsumerKey As String
-        <DebuggerStepThrough()>
-        Get
-            Return _ConsumerKey
-        End Get
-    End Property
-
-    Private _ConsumerSecret As String
-    Public ReadOnly Property ConsumerSecret As String
-        <DebuggerStepThrough()>
-        Get
-            Return _ConsumerSecret
-        End Get
-    End Property
-
     Private _AccessToken As String
     Public ReadOnly Property AccessToken As String
         <DebuggerStepThrough()>
@@ -90,18 +74,20 @@ Public Structure TrackMetadata
                    NewTweetText As String, _
                    NewRelevantKeywords As IEnumerable(Of String), _
                    NewMediaFilePathsToAdd As IEnumerable(Of String), _
-                   NewConsumerKey As String, _
-                   NewConsumerSecret As String, _
                    NewAccessToken As String, _
                    NewAccessTokenSecret As String)
+        If NewAccessToken Is Nothing Then
+            Throw New ArgumentNullException("NewAccessToken")
+        End If
+        If NewAccessTokenSecret Is Nothing Then
+            Throw New ArgumentNullException("NewAccessTokenSecret")
+        End If
         _IsPublished = NewIsPublished
         _TweetId = NewTweetId
         _CreatedByUserId = NewCreatedByUserId
         _TweetText = NewTweetText
         _RelevantKeywords = New ReadOnlyCollection(Of String)(NewRelevantKeywords.ToList)
         _MediaFilePathsToAdd = New ReadOnlyCollection(Of String)(NewMediaFilePathsToAdd.ToList)
-        _ConsumerKey = NewConsumerKey
-        _ConsumerSecret = NewConsumerSecret
         _AccessToken = NewAccessToken
         _AccessTokenSecret = NewAccessTokenSecret
     End Sub
@@ -117,16 +103,12 @@ Public Structure TrackMetadata
     Public Shared Function FromUnpublished(NewTweetText As String, _
                                            NewRelevantKeywords As IEnumerable(Of String), _
                                            NewMediaFilePathsToAdd As IEnumerable(Of String), _
-                                           NewConsumerKey As String, _
-                                           NewConsumerSecret As String, _
                                            NewAccessToken As String, _
                                            NewAccessTokenSecret As String) As TrackMetadata
         Return New TrackMetadata(False, 0, 0, _
                                  NewTweetText, _
                                  NewRelevantKeywords, _
                                  NewMediaFilePathsToAdd, _
-                                 NewConsumerKey, _
-                                 NewConsumerSecret, _
                                  NewAccessToken, _
                                  NewAccessTokenSecret)
     End Function
@@ -136,8 +118,6 @@ Public Structure TrackMetadata
                                          NewTweetText As String, _
                                          NewRelevantKeywords As IEnumerable(Of String), _
                                          NewMediaFilePathsToAdd As IEnumerable(Of String), _
-                                         NewConsumerKey As String, _
-                                         NewConsumerSecret As String, _
                                          NewAccessToken As String, _
                                          NewAccessTokenSecret As String) As TrackMetadata
         Return New TrackMetadata(True, _
@@ -146,8 +126,6 @@ Public Structure TrackMetadata
                                  NewTweetText, _
                                  NewRelevantKeywords, _
                                  NewMediaFilePathsToAdd, _
-                                 NewConsumerKey, _
-                                 NewConsumerSecret, _
                                  NewAccessToken, _
                                  NewAccessTokenSecret)
     End Function

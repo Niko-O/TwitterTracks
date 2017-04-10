@@ -13,9 +13,6 @@
     <Window.DataContext>
         <l:MainWindowViewModel/>
     </Window.DataContext>
-    <Window.Resources>
-        <l:SignalKindToBrushConverter x:Key="SignalKindToBrushConverter"/>
-    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -29,46 +26,9 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Grid.Row="1">
-                        <!-- Graphics -->
-                        <Grid Height="150">
-                            <Grid.Resources>
-                                <Style x:Key="SignalButtonStyle" TargetType="Button">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" BorderBrush="Gray" BorderThickness="1">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="2*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="OpenOrCreateTrack">New/Open</Button>
-                            <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ResourceKey=SignalButtonStyle}" Background="{Binding Path=TrackDataSignal, Converter={StaticResource ResourceKey=SignalKindToBrushConverter}}">Track Data</Button>
-                            <Button Grid.Row="1" Grid.Column="2" Click="PublishTweet" IsEnabled="{Binding Path=CanPublish}">Publish Tweet</Button>
-                            <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource ResourceKey=SignalButtonStyle}" Background="{Binding Path=TrackingSignal, Converter={StaticResource ResourceKey=SignalKindToBrushConverter}}">
-                                Tracking
-                                <Button.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem IsEnabled="{Binding Path=CanStartStream}" Header="Manually start Tracking" Click="ManuallyStartTrackingStream"/>
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                            </Button>
-                        </Grid>
+                    <StackPanel>
                         <!-- Summary -->
+                        <Button Grid.Row="0" Grid.Column="0" Padding="10" IsEnabled="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ReverseObjectToBooleanConverter}}" Click="OpenOrCreateTrack">New/Open</Button>
                         <CommonUI.Controls:IfContent Condition="{Binding Path=OpenTrackInfo, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
                             <CommonUI.Controls:IfContent.TrueContent>
                                 <StackPanel>
@@ -100,15 +60,15 @@
                                     <GroupBox Header="Twitter Connection:">
                                         Yes
                                     </GroupBox>
-                                    <GroupBox Header="Tracking:">
-                                        <TextBlock Text="{Binding Path=TrackingInfo}"/>
-                                    </GroupBox>
                                 </StackPanel>
                             </CommonUI.Controls:IfContent.TrueContent>
                             <CommonUI.Controls:IfContent.FalseContent>
                                 No Track Data loaded.
                             </CommonUI.Controls:IfContent.FalseContent>
                         </CommonUI.Controls:IfContent>
+                        <!-- Tracking -->
+                        <Button Grid.Row="1" Grid.Column="2" Padding="10" Click="PublishTweet" IsEnabled="{Binding Path=CanPublish}">Publish Tweet</Button>
+                        <TextBlock Padding="6,2" Text="{Binding Path=TrackingInfo}" Background="{Binding Path=TrackingIsOk, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
                     </StackPanel>
                 </ScrollViewer>
                 <!-- Count -->

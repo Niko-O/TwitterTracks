@@ -4,6 +4,22 @@ Namespace UI.Controls
     Public Class TrackSelectionInputViewModel
         Inherits ViewModelBase
 
+        Dim _ShowResearcherIdInput As Boolean
+        Public ReadOnly Property ShowResearcherIdInput As Boolean
+            <DebuggerStepThrough()>
+            Get
+                Return _ShowResearcherIdInput
+            End Get
+        End Property
+
+        Dim _TrackDatabaseNameIsUsedAsUserNameInstead As Boolean
+        Public ReadOnly Property TrackDatabaseNameIsUsedAsUserNameInstead As Boolean
+            <DebuggerStepThrough()>
+            Get
+                Return _TrackDatabaseNameIsUsedAsUserNameInstead
+            End Get
+        End Property
+
         Dim _DatabaseHost As String = TwitterTracks.Common.UI.Resources.DebugConstants.DatabaseHost
         Public Property DatabaseHost As String
             <DebuggerStepThrough()>
@@ -15,14 +31,14 @@ Namespace UI.Controls
             End Set
         End Property
 
-        Dim _DatabaseName As String = TwitterTracks.Common.UI.Resources.DebugConstants.TrackDatabaseName
-        Public Property DatabaseName As String
+        Dim _DatabaseNameOrUserName As String = TwitterTracks.Common.UI.Resources.DebugConstants.TrackDatabaseName
+        Public Property DatabaseNameOrUserName As String
             <DebuggerStepThrough()>
             Get
-                Return _DatabaseName
+                Return _DatabaseNameOrUserName
             End Get
             Set(value As String)
-                ExtendedChangeIfDifferent(_DatabaseName, value, "DatabaseName")
+                ExtendedChangeIfDifferent(_DatabaseNameOrUserName, value, "DatabaseNameOrUserName")
             End Set
         End Property
 
@@ -40,8 +56,13 @@ Namespace UI.Controls
         <Dependency("ResearcherIdText")>
         Public ReadOnly Property ResearcherIdIsValid As Boolean
             Get
+                If Not ShowResearcherIdInput Then
+                    Return True
+                End If
                 Dim Temp As Int64
-                Return Not String.IsNullOrWhiteSpace(ResearcherIdText) AndAlso Int64.TryParse(ResearcherIdText, Temp) AndAlso Temp > 0
+                Return Not String.IsNullOrWhiteSpace(ResearcherIdText) AndAlso _
+                       Int64.TryParse(ResearcherIdText, Temp) AndAlso _
+                       Temp > 0
             End Get
         End Property
 
@@ -63,8 +84,14 @@ Namespace UI.Controls
             End Get
         End Property
 
-        Public Sub New()
+        Public Sub New(NewShowResearcherIdInput As Boolean, NewTrackDatabaseNameIsUsedAsUserNameInstead As Boolean)
             MyBase.New(True)
+            _ShowResearcherIdInput = NewShowResearcherIdInput
+            _TrackDatabaseNameIsUsedAsUserNameInstead = NewTrackDatabaseNameIsUsedAsUserNameInstead
+        End Sub
+
+        Public Sub New()
+            Me.New(True, False)
         End Sub
 
     End Class

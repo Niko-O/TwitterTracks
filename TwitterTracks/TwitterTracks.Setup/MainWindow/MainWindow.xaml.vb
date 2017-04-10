@@ -4,7 +4,14 @@ Imports System.Threading.Tasks
 Class MainWindow
 
     Dim ViewModel As MainWindowViewModel
-    Dim Connection As TwitterTracks.DatabaseAccess.DatabaseConnection
+
+    Dim RootConnection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
+    Dim AdministratorConnection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
+    Dim AdministratorDatabaseName As TwitterTracks.DatabaseAccess.VerbatimIdentifier = Nothing
+    Dim ResearcherConnection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
+    Dim ResearcherDatabaseName As TwitterTracks.DatabaseAccess.VerbatimIdentifier = Nothing
+    Dim ResearcherEntityId As TwitterTracks.DatabaseAccess.EntityId = Nothing
+
     Dim WithEvents Tasks As New TwitterTracks.Common.UI.Tasks.WindowTaskManager(Me.Dispatcher)
     Private Sub Tasks_IsBusyChanged() Handles Tasks.IsBusyChanged
         ViewModel.IsBusy = Tasks.IsBusy
@@ -17,27 +24,103 @@ Class MainWindow
 
 #Region "Connection"
 
-    Private Sub ConnectToDatabaseOrCloseConnection(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        If ViewModel.IsConnectedToDatabase Then
-            Connection.Close()
-            Connection = Nothing
-            ViewModel.IsConnectedToDatabase = False
+    Private Sub RootTools_ToggleConnection(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        If ViewModel.RootToolsVM.IsConnectedToDatabase Then
+            RootConnection.Close()
+            RootConnection = Nothing
+            ViewModel.RootToolsVM.IsConnectedToDatabase = False
         Else
             Dim NewConnection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
             Tasks.DoSqlTaskWithStatusMessage( _
-                ViewModel.ConnectionVM.OpenConnectionVM.StatusMessageVM, _
+                ViewModel.RootToolsVM.DatabaseConnectionStatusMessageVM, _
                 "The connection could not be opened", _
                 Sub()
-                    NewConnection = New TwitterTracks.DatabaseAccess.DatabaseConnection(ViewModel.ConnectionVM.OpenConnectionVM.DatabaseHost, ViewModel.ConnectionVM.OpenConnectionVM.UserName, ViewModel.ConnectionVM.OpenConnectionVM.Password)
+                    NewConnection = New TwitterTracks.DatabaseAccess.DatabaseConnection( _
+                        ViewModel.RootToolsVM.DatabaseConnectionVM.DatabaseHost, _
+                        ViewModel.RootToolsVM.DatabaseConnectionVM.DatabaseNameOrUserName, _
+                        ViewModel.RootToolsVM.DatabaseConnectionVM.Password)
                     NewConnection.Open()
                 End Sub, _
                 Function(Success As Boolean)
                     If Success Then
-                        Connection = NewConnection
-                        ViewModel.IsConnectedToDatabase = True
+                        RootConnection = NewConnection
+                        ViewModel.RootToolsVM.IsConnectedToDatabase = True
                     End If
                     Return Nothing
-                End Function)
+                End Function, _
+                Sub(Success As Boolean)
+                    If Success Then
+                        RefreshDatabaseList(sender, e)
+                    End If
+                End Sub)
+        End If
+    End Sub
+
+    Private Sub AdministratorTools_ToggleConnection(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        If ViewModel.AdministratorToolsVM.IsConnectedToDatabase Then
+            AdministratorConnection.Close()
+            AdministratorConnection = Nothing
+            ViewModel.AdministratorToolsVM.IsConnectedToDatabase = False
+            'ToDo: Clear state depending on selected database.
+            ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
+            ViewModel.AdministratorToolsVM.TracksVM.SelectedAvailableTrack = Nothing
+        Else
+            Dim Host = ViewModel.AdministratorToolsVM.DatabaseConnectionVM.DatabaseHost
+            Dim Password = ViewModel.AdministratorToolsVM.DatabaseConnectionVM.Password
+            Dim NewConnection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
+            AdministratorDatabaseName = New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseConnectionVM.DatabaseNameOrUserName)
+            Tasks.DoSqlTaskWithStatusMessage( _
+                ViewModel.AdministratorToolsVM.DatabaseConnectionStatusMessageVM, _
+                "The connection could not be opened", _
+                Sub()
+                    NewConnection = New TwitterTracks.DatabaseAccess.DatabaseConnection(Host, TwitterTracks.DatabaseAccess.Relations.UserNames.AdministratorUserName(AdministratorDatabaseName), Password)
+                    NewConnection.Open()
+                End Sub, _
+                Function(Success As Boolean)
+                    If Success Then
+                        AdministratorConnection = NewConnection
+                        ViewModel.AdministratorToolsVM.IsConnectedToDatabase = True
+                    End If
+                    Return Nothing
+                End Function, _
+                Sub(Success As Boolean)
+                    If Success Then
+                        BeginRefreshTrackList(True)
+                    End If
+                End Sub)
+        End If
+    End Sub
+
+    Private Sub ResearcherTools_ToggleConnection(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        If ViewModel.ResearcherToolsVM.IsConnectedToDatabase Then
+            ResearcherConnection.Close()
+            ResearcherConnection = Nothing
+            ViewModel.ResearcherToolsVM.IsConnectedToDatabase = False
+        Else
+            Dim Host = ViewModel.ResearcherToolsVM.DatabaseConnectionVM.DatabaseHost
+            Dim Password = ViewModel.ResearcherToolsVM.DatabaseConnectionVM.Password
+            Dim NewConnection As TwitterTracks.DatabaseAccess.DatabaseConnection = Nothing
+            ResearcherDatabaseName = New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.ResearcherToolsVM.DatabaseConnectionVM.DatabaseNameOrUserName)
+            ResearcherEntityId = New TwitterTracks.DatabaseAccess.EntityId(Int64.Parse(ViewModel.ResearcherToolsVM.DatabaseConnectionVM.ResearcherIdText))
+            Tasks.DoSqlTaskWithStatusMessage( _
+                ViewModel.ResearcherToolsVM.DatabaseConnectionStatusMessageVM, _
+                "The connection could not be opened", _
+                Sub()
+                    NewConnection = New TwitterTracks.DatabaseAccess.DatabaseConnection(Host, TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(ResearcherDatabaseName, ResearcherEntityId), Password)
+                    NewConnection.Open()
+                End Sub, _
+                Function(Success As Boolean)
+                    If Success Then
+                        ResearcherConnection = NewConnection
+                        ViewModel.ResearcherToolsVM.IsConnectedToDatabase = True
+                    End If
+                    Return Nothing
+                End Function, _
+                Sub(Success As Boolean)
+                    If Success Then
+                        UpdateTrackMetadata(sender, e)
+                    End If
+                End Sub)
         End If
     End Sub
 
@@ -51,7 +134,7 @@ Class MainWindow
             ViewModel.RootToolsVM.DatabasesVM.StatusMessageVM, _
             "The database names could not be read", _
             Sub()
-                Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(Connection)
+                Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(RootConnection)
                 Names = Database.GetAllDatabaseNames.Select(Function(i) i.UnescapedText).ToList
             End Sub, _
             Function(Success As Boolean)
@@ -77,7 +160,7 @@ Class MainWindow
             ViewModel.RootToolsVM.DatabasesVM.StatusMessageVM, _
             "The database could not be deleted", _
             Sub()
-                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(DatabaseName))
+                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(RootConnection, New TwitterTracks.DatabaseAccess.VerbatimIdentifier(DatabaseName))
                 TrackDatabase.DeleteDatabase()
             End Sub, _
             Function(Success As Boolean)
@@ -98,7 +181,7 @@ Class MainWindow
            ViewModel.RootToolsVM.CreateDatabaseVM.StatusMessageVM, _
            "The database could not be created", _
            Sub()
-               Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(Connection)
+               Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(RootConnection)
                Dim TrackDatabaseStuff = Database.CreateTrackDatabase(New TwitterTracks.DatabaseAccess.VerbatimIdentifier(DatabaseName), Password)
                ResultUserName = TrackDatabaseStuff.AdministratorUser.Name
            End Sub, _
@@ -116,51 +199,83 @@ Class MainWindow
 
 #Region "Administrator Tools"
 
-    Private Sub ToggleSelectedAdministratorDatabase(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        If ViewModel.AdministratorToolsVM.DatabaseIsSelected Then
-            ViewModel.AdministratorToolsVM.DatabaseIsSelected = False
-            'ToDo: Clear state depending on selected database.
-            ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
-            ViewModel.AdministratorToolsVM.TracksVM.SelectedAvailableTrack = Nothing
-        Else
-            Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
-            Dim DatabaseExists As Boolean = False
-            Dim Tracks As List(Of TwitterTracks.DatabaseAccess.Track) = Nothing
-            Tasks.DoSqlTaskWithStatusMessage( _
-               ViewModel.AdministratorToolsVM.SelectionStatusMessageVM, _
-               "The database could not be selected", _
-               Sub()
-                   Dim Database As New TwitterTracks.DatabaseAccess.DatabaseServer(Connection)
-                   Dim DatabaseNames = Database.GetAllDatabaseNames.ToList
-                   DatabaseExists = DatabaseNames.Contains(DatabaseName)
-                   If DatabaseExists Then
-                       Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, DatabaseName)
-                       Tracks = TrackDatabase.GetAllTracksWithoutMetadata.ToList
-                   End If
-               End Sub, _
-               Function(Success As Boolean)
-                   If Success Then
-                       ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.Clear()
-                       If DatabaseExists Then
-                           ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.AddRange(Tracks)
-                           ViewModel.AdministratorToolsVM.DatabaseIsSelected = True
-                       Else
-                           Return Tuple.Create(String.Format("Database ""{0}"" does not exist.", DatabaseName), TwitterTracks.Common.UI.StatusMessageKindType.Error)
-                       End If
-                   End If
-                   Return Nothing
-               End Function)
-        End If
+    Private Sub UpdateApplicationTokenStoredInDatabase()
+        Dim ApplicationToken As TwitterTracks.DatabaseAccess.ApplicationToken? = Nothing
+        Tasks.DoSqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.ApplicationTokenVM.StatusMessageVM, _
+            "The Application Token could not be read", _
+            Sub()
+                Dim Database As New TwitterTracks.DatabaseAccess.TrackDatabase(AdministratorConnection, AdministratorDatabaseName)
+                ApplicationToken = Database.TryGetApplicationToken()
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    Dim Exists = ApplicationToken IsNot Nothing
+                    ViewModel.AdministratorToolsVM.ApplicationTokenVM.IsStoredInDatabase = Exists
+                    If Exists Then
+                        ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerKeyInDatabase = ApplicationToken.Value.ConsumerKey
+                        ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerSecretInDatabase = ApplicationToken.Value.ConsumerSecret
+                    End If
+                End If
+                Return Nothing
+            End Function)
+    End Sub
+
+    Private Sub OpenTwitterAppsPage(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        Using P As New Process
+            P.StartInfo.FileName = "https://apps.twitter.com/app/new"
+            P.Start()
+        End Using
+    End Sub
+
+    Private Sub SaveApplicationKeys(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        Dim ApplicationToken As New TwitterTracks.DatabaseAccess.ApplicationToken(ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerKeyToSet, ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerSecretToSet)
+        Tasks.DoSqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.ApplicationTokenVM.StatusMessageVM, _
+            "The Application Token could not be read", _
+            Sub()
+                Dim Database As New TwitterTracks.DatabaseAccess.TrackDatabase(AdministratorConnection, AdministratorDatabaseName)
+                Database.UpdateOrCreateApplicationToken(ApplicationToken)
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    ViewModel.AdministratorToolsVM.ApplicationTokenVM.IsStoredInDatabase = True
+                    ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerKeyInDatabase = ApplicationToken.ConsumerKey
+                    ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerSecretInDatabase = ApplicationToken.ConsumerSecret
+                End If
+                Return Nothing
+            End Function)
+    End Sub
+
+    Private Sub DeleteApplicationKeys(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        Tasks.DoSqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.ApplicationTokenVM.StatusMessageVM, _
+            "The Application Token could not be read", _
+            Sub()
+                Dim Database As New TwitterTracks.DatabaseAccess.TrackDatabase(AdministratorConnection, AdministratorDatabaseName)
+                Database.DeleteApplicationToken()
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    ViewModel.AdministratorToolsVM.ApplicationTokenVM.IsStoredInDatabase = False
+                    ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerKeyInDatabase = ""
+                    ViewModel.AdministratorToolsVM.ApplicationTokenVM.ConsumerSecretInDatabase = ""
+                End If
+                Return Nothing
+            End Function)
     End Sub
 
     Private Sub RefreshTrackList(sender As System.Object, e As System.Windows.RoutedEventArgs)
-        Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
+        BeginRefreshTrackList(False)
+    End Sub
+
+    Private Sub BeginRefreshTrackList(UpdateApplicationTokenOnEnd As Boolean)
         Dim Tracks As List(Of TwitterTracks.DatabaseAccess.Track) = Nothing
         Tasks.DoSqlTaskWithStatusMessage( _
            ViewModel.AdministratorToolsVM.TracksVM.StatusMessageVM, _
            "The Tracks could not be read", _
            Sub()
-               Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, DatabaseName)
+               Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(AdministratorConnection, AdministratorDatabaseName)
                Tracks = TrackDatabase.GetAllTracksWithoutMetadata.ToList
            End Sub, _
            Function(Success As Boolean)
@@ -169,7 +284,12 @@ Class MainWindow
                    ViewModel.AdministratorToolsVM.TracksVM.AvailableTracks.AddRange(Tracks)
                End If
                Return Nothing
-           End Function)
+           End Function, _
+           Sub(Success As Boolean)
+               If UpdateApplicationTokenOnEnd Then
+                   UpdateApplicationTokenStoredInDatabase()
+               End If
+           End Sub)
     End Sub
 
     Private Sub DeleteSelectedTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
@@ -182,12 +302,11 @@ Class MainWindow
                            "Really delete Track?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) <> MessageBoxResult.Yes Then
             Return
         End If
-        Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
         Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.AdministratorToolsVM.TracksVM.StatusMessageVM, _
             "The Track could not be deleted", _
             Sub()
-                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(Connection, DatabaseName, Track.EntityId)
+                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(AdministratorConnection, AdministratorDatabaseName, Track.EntityId)
                 ResearcherDatabase.DeleteTrack()
             End Sub, _
             Function(Success As Boolean)
@@ -202,13 +321,12 @@ Class MainWindow
 
     Private Sub CreateTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim CreateTrackResult As TwitterTracks.DatabaseAccess.TrackDatabase.CreateTrackResult = Nothing
-        Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.AdministratorToolsVM.DatabaseName)
         Dim Password = ViewModel.AdministratorToolsVM.CreateTrackVM.Password
         Tasks.DoSqlTaskWithStatusMessage( _
             ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
             "The Track could not be created", _
             Sub()
-                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(Connection, DatabaseName)
+                Dim TrackDatabase As New TwitterTracks.DatabaseAccess.TrackDatabase(AdministratorConnection, AdministratorDatabaseName)
                 CreateTrackResult = TrackDatabase.CreateTrack(Password)
             End Sub, _
             Function(Success As Boolean)
@@ -218,6 +336,92 @@ Class MainWindow
                     ViewModel.AdministratorToolsVM.CreateTrackVM.CreatedResearcherId = CreateTrackResult.ResearcherUser.Name
                     ViewModel.AdministratorToolsVM.CreateTrackVM.Password = ""
                     ViewModel.AdministratorToolsVM.CreateTrackVM.RetypePassword = ""
+                End If
+                Return Nothing
+            End Function)
+    End Sub
+
+#End Region
+
+#Region "Researcher Tools"
+
+    Private Sub UpdateTrackMetadata(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        Dim NewMetadata As TwitterTracks.DatabaseAccess.TrackMetadata? = Nothing
+        Tasks.DoSqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
+            "The metadata could not be read", _
+            Sub()
+                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(ResearcherConnection, ResearcherDatabaseName, ResearcherEntityId)
+                NewMetadata = ResearcherDatabase.TryGetTrackMetadata
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    ViewModel.ResearcherToolsVM.DeleteMetadataVM.Metadata = NewMetadata
+                End If
+                Return Nothing
+            End Function)
+    End Sub
+
+    Private Sub UnpublishInitialTweet(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        If MessageBox.Show("Are you sure you want to unpublish the initial Tweet? This cannot be undone.", "Unpublish initial Tweet?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) <> MessageBoxResult.Yes Then
+            Return
+        End If
+        Dim NewMetadata As TwitterTracks.DatabaseAccess.TrackMetadata? = Nothing
+        Tasks.DoSqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
+            "The initial Tweet could not be unpublished", _
+            Sub()
+                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(ResearcherConnection, ResearcherDatabaseName, ResearcherEntityId)
+                Dim ExistingMetadata = ResearcherDatabase.TryGetTrackMetadata
+                If ExistingMetadata Is Nothing OrElse Not ExistingMetadata.Value.IsPublished Then
+                    Return
+                End If
+                With ExistingMetadata.Value
+                    NewMetadata = TwitterTracks.DatabaseAccess.TrackMetadata.FromUnpublished(.TweetText, .RelevantKeywords, .MediaFilePathsToAdd, .AccessTokenSecret, .AccessTokenSecret)
+                End With
+                ResearcherDatabase.UpdateOrCreateTrackMetadata(NewMetadata.Value)
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    ViewModel.ResearcherToolsVM.DeleteMetadataVM.Metadata = NewMetadata
+                End If
+                Return Nothing
+            End Function)
+    End Sub
+
+    Private Sub DeleteAllMetadata(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        If MessageBox.Show("Are you sure you want to unpublish the initial Tweet and delete all information about keywords, files and so on? This cannot be undone.", "Delete information?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) <> MessageBoxResult.Yes Then
+            Return
+        End If
+        Tasks.DoSqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
+            "The metadata could not be deleted", _
+            Sub()
+                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(ResearcherConnection, ResearcherDatabaseName, ResearcherEntityId)
+                ResearcherDatabase.DeleteTrackMetadata()
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    ViewModel.ResearcherToolsVM.DeleteMetadataVM.Metadata = Nothing
+                End If
+                Return Nothing
+            End Function)
+    End Sub
+
+    Private Sub DeleteAllTweets(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        If MessageBox.Show("Are you sure you want to delete all of the Tweets in this Track? This cannot be undone.", "Delete all Tweets?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) <> MessageBoxResult.Yes Then
+            Return
+        End If
+        Tasks.DoSqlTaskWithStatusMessage( _
+            ViewModel.AdministratorToolsVM.CreateTrackVM.StatusMessageVM, _
+            "The Tweets could not be deleted", _
+            Sub()
+                Dim ResearcherDatabase As New TwitterTracks.DatabaseAccess.ResearcherDatabase(ResearcherConnection, ResearcherDatabaseName, ResearcherEntityId)
+                ResearcherDatabase.DeleteAllTweets()
+            End Sub, _
+            Function(Success As Boolean)
+                If Success Then
+                    ViewModel.ResearcherToolsVM.DeleteMetadataVM.Metadata = Nothing
                 End If
                 Return Nothing
             End Function)

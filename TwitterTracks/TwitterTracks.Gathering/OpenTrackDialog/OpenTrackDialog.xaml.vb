@@ -6,9 +6,14 @@ Namespace OpenTrackDialog
         Private Shared ReadOnly HashtagRegex As New System.Text.RegularExpressions.Regex("(^|\s)(?<Hashtag>#.*?)(\s|$)", Text.RegularExpressions.RegexOptions.Compiled)
 
         Dim Connection As TwitterTracks.DatabaseAccess.DatabaseConnection
+        Dim DatabaseContainsApplicationToken As Boolean = False
         Dim DatabaseContainsMetadata As Boolean = False
+        Dim ExistingApplicationToken As TwitterTracks.DatabaseAccess.ApplicationToken
         Dim ExistingTweetMetadata As TwitterTracks.DatabaseAccess.TrackMetadata
-        
+
+        Dim AuthenticationContext As Tweetinvi.Models.IAuthenticationContext = Nothing
+        Dim AuthenticationToken As Tweetinvi.Models.ITwitterCredentials = Nothing
+
         Dim ViewModel As OpenTrackDialogViewModel
         Dim WithEvents Tasks As New TwitterTracks.Common.UI.Tasks.WindowTaskManager(Me.Dispatcher)
         Private Sub Tasks_IsBusyChanged() Handles Tasks.IsBusyChanged
@@ -45,17 +50,17 @@ Namespace OpenTrackDialog
             Select Case ViewModel.CurrentTabIndex
                 Case DialogTabIndex.DatabaseConnection
                     Throw New NopeException
-                Case DialogTabIndex.TweetData
+                Case DialogTabIndex.TwitterConnection
                     ViewModel.CurrentTabIndex = DialogTabIndex.DatabaseConnection
+                Case DialogTabIndex.TweetData
+                    ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
                 Case DialogTabIndex.Keywords
                     ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
-                Case DialogTabIndex.TwitterConnection
-                    ViewModel.CurrentTabIndex = DialogTabIndex.Keywords
                 Case DialogTabIndex.Summary
                     If ViewModel.SummaryVM.TweetAlreadyPublished Then
                         ViewModel.CurrentTabIndex = DialogTabIndex.DatabaseConnection
                     Else
-                        ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
+                        ViewModel.CurrentTabIndex = DialogTabIndex.Keywords
                     End If
                 Case Else
                     Throw New NopeException
@@ -66,12 +71,12 @@ Namespace OpenTrackDialog
             Select Case ViewModel.CurrentTabIndex
                 Case DialogTabIndex.DatabaseConnection
                     BeginDatabaseGoForward()
+                Case DialogTabIndex.TwitterConnection
+                    BeginTwitterConnectionGoForward()
                 Case DialogTabIndex.TweetData
                     BeginTweetDataGoForward()
                 Case DialogTabIndex.Keywords
                     BeginKeywordsGoForward()
-                Case DialogTabIndex.TwitterConnection
-                    BeginTwitterConnectionGoForward()
                 Case DialogTabIndex.Summary
                     Me.DialogResult = True
                     Me.Close()
@@ -86,14 +91,13 @@ Namespace OpenTrackDialog
         End Sub
 
         Private Sub BeginDatabaseGoForward()
+            Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.DatabaseConnectionVM.DatabaseNameOrUserName)
+            Dim TrackEntityId = New TwitterTracks.DatabaseAccess.EntityId(Int64.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText))
+            Dim ResearcherUserName = TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
+            Dim Host = ViewModel.DatabaseConnectionVM.DatabaseHost
+            Dim Password = ViewModel.DatabaseConnectionVM.Password
             Tasks.StartTask(Sub()
-                                Dim DatabaseName As New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.DatabaseConnectionVM.DatabaseName)
-                                Dim TrackEntityId = New TwitterTracks.DatabaseAccess.EntityId(Int64.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText))
-                                Dim ResearcherUserName = TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
-                                Dim ResultConnection As New TwitterTracks.DatabaseAccess.DatabaseConnection( _
-                                    ViewModel.DatabaseConnectionVM.DatabaseHost, _
-                                    ResearcherUserName, _
-                                    ViewModel.DatabaseConnectionVM.Password)
+                                Dim ResultConnection As New TwitterTracks.DatabaseAccess.DatabaseConnection(Host, ResearcherUserName, Password)
                                 Try
                                     ResultConnection.Open()
                                 Catch ex As System.Data.Common.DbException
@@ -101,6 +105,13 @@ Namespace OpenTrackDialog
                                     Return
                                 End Try
                                 Dim Database As New TwitterTracks.DatabaseAccess.ResearcherDatabase(ResultConnection, DatabaseName, TrackEntityId)
+                                Dim ApplicationToken As TwitterTracks.DatabaseAccess.ApplicationToken?
+                                Try
+                                    ApplicationToken = Database.TryGetApplicationToken
+                                Catch ex As System.Data.Common.DbException
+                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The Application Token could not be read:" & Environment.NewLine & TwitterTracks.Common.UI.Tasks.WindowTaskManager.SqlExceptionToErrorMessage(ex), Common.UI.StatusMessageKindType.Error))
+                                    Return
+                                End Try
                                 Dim Metadata As TwitterTracks.DatabaseAccess.TrackMetadata?
                                 Try
                                     Metadata = Database.TryGetTrackMetadata
@@ -108,42 +119,105 @@ Namespace OpenTrackDialog
                                     Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The Track Metadata could not be read:" & Environment.NewLine & TwitterTracks.Common.UI.Tasks.WindowTaskManager.SqlExceptionToErrorMessage(ex), Common.UI.StatusMessageKindType.Error))
                                     Return
                                 End Try
+                                Dim NewAuthenticationContext As Tweetinvi.Models.IAuthenticationContext = Nothing
+                                If ApplicationToken IsNot Nothing AndAlso Metadata Is Nothing Then
+                                    Try
+                                        NewAuthenticationContext = Tweetinvi.AuthFlow.InitAuthentication(New Tweetinvi.Models.TwitterCredentials(ApplicationToken.Value.ConsumerKey, ApplicationToken.Value.ConsumerSecret))
+                                    Catch ex As Tweetinvi.Exceptions.TwitterException
+                                        Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The Application Token is invalid. Please contact your Administrator to check back on the Twitter App." & Environment.NewLine & ex.GetType.Name & ": " & ex.Message, Common.UI.StatusMessageKindType.Error))
+                                        Return
+                                    End Try
+                                    If NewAuthenticationContext Is Nothing Then
+                                        Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The Application Token is invalid. Please contact your Administrator to check back on the Twitter App.", Common.UI.StatusMessageKindType.Error))
+                                        Return
+                                    End If
+                                End If
                                 Tasks.FinishTask(Sub()
                                                      Connection = ResultConnection
+
+                                                     DatabaseContainsApplicationToken = ApplicationToken IsNot Nothing
+                                                     If Not DatabaseContainsApplicationToken Then
+                                                         ViewModel.StatusMessageVM.SetStatus("No Application Token was found in the database. Please contact your Administrator to register a Twitter App with the Setup program.", Common.UI.StatusMessageKindType.Error)
+                                                         Return
+                                                     End If
+                                                     ExistingApplicationToken = ApplicationToken.Value
+
                                                      DatabaseContainsMetadata = Metadata IsNot Nothing
-                                                     If DatabaseContainsMetadata Then
-                                                         ExistingTweetMetadata = Metadata.Value
-
-                                                         ViewModel.SummaryVM.TweetAlreadyPublished = ExistingTweetMetadata.IsPublished
-
-                                                         ViewModel.TweetDataVM.TweetText = ExistingTweetMetadata.TweetText
-                                                         ViewModel.KeywordsVM.Keywords.Clear()
-                                                         ViewModel.KeywordsVM.Keywords.AddRange(ExistingTweetMetadata.RelevantKeywords.Select(Function(i) New KeywordToAdd With {.IsCustom = True, .Text = i}))
-                                                         ViewModel.TweetDataVM.MediasToAdd.Clear()
-                                                         ViewModel.TweetDataVM.MediasToAdd.AddRange(ExistingTweetMetadata.MediaFilePathsToAdd.Select(Function(i) New TweetMediaToAdd(i)))
-                                                         ViewModel.TwitterConnectionVM.ConsumerKey = ExistingTweetMetadata.ConsumerKey
-                                                         ViewModel.TwitterConnectionVM.ConsumerSecret = ExistingTweetMetadata.ConsumerSecret
-                                                         ViewModel.TwitterConnectionVM.AccessToken = ExistingTweetMetadata.AccessToken
-                                                         ViewModel.TwitterConnectionVM.AccessTokenSecret = ExistingTweetMetadata.AccessTokenSecret
-
-                                                         If ExistingTweetMetadata.IsPublished Then
-                                                             ViewModel.SummaryVM.PublishedTweetId = ExistingTweetMetadata.TweetId
-                                                             ViewModel.SummaryVM.TweetText = ExistingTweetMetadata.TweetText
-                                                             ViewModel.SummaryVM.Keywords = String.Join(" ", ExistingTweetMetadata.RelevantKeywords)
-
-                                                             ViewModel.StatusMessageVM.SetStatus("Metadata was found in the database. The initial Tweet is already published", Common.UI.StatusMessageKindType.Warning)
-                                                             ViewModel.CurrentTabIndex = DialogTabIndex.Summary
-                                                         Else
-                                                             ViewModel.StatusMessageVM.SetStatus("Metadata was found in the database. The initial Tweet is not yet published", Common.UI.StatusMessageKindType.JustText)
-                                                             ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
-                                                         End If
-                                                     Else
+                                                     If Not DatabaseContainsMetadata Then
+                                                         ViewModel.TwitterConnectionVM.PinIsValid = False
+                                                         AuthenticationContext = NewAuthenticationContext
                                                          ViewModel.SummaryVM.TweetAlreadyPublished = False
                                                          ViewModel.StatusMessageVM.SetStatus("No metadata was found in the database.", Common.UI.StatusMessageKindType.JustText)
-                                                         ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
+                                                         ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
+                                                         Return
+                                                     End If
+                                                     ExistingTweetMetadata = Metadata.Value
+                                                     ViewModel.TwitterConnectionVM.AccessToken = ExistingTweetMetadata.AccessToken
+                                                     ViewModel.TwitterConnectionVM.AccessTokenSecret = ExistingTweetMetadata.AccessTokenSecret
+                                                     ViewModel.TweetDataVM.TweetText = ExistingTweetMetadata.TweetText
+                                                     ViewModel.TweetDataVM.MediasToAdd.Clear()
+                                                     ViewModel.TweetDataVM.MediasToAdd.AddRange(ExistingTweetMetadata.MediaFilePathsToAdd.Select(Function(i) New TweetMediaToAdd(i)))
+                                                     ViewModel.KeywordsVM.Keywords.Clear()
+                                                     ViewModel.KeywordsVM.Keywords.AddRange(ExistingTweetMetadata.RelevantKeywords.Select(Function(i) New KeywordToAdd With {.IsCustom = True, .Text = i}))
+                                                     ViewModel.SummaryVM.TweetAlreadyPublished = ExistingTweetMetadata.IsPublished
+
+                                                     If ExistingTweetMetadata.IsPublished Then
+                                                         ViewModel.SummaryVM.PublishedTweetId = ExistingTweetMetadata.TweetId
+                                                         ViewModel.SummaryVM.TweetText = ExistingTweetMetadata.TweetText
+                                                         ViewModel.SummaryVM.Keywords = String.Join(" ", ExistingTweetMetadata.RelevantKeywords)
+                                                         AuthenticationToken = New Tweetinvi.Models.TwitterCredentials(ExistingApplicationToken.ConsumerKey, ExistingApplicationToken.ConsumerSecret, ExistingTweetMetadata.AccessToken, ExistingTweetMetadata.AccessTokenSecret)
+
+                                                         ViewModel.StatusMessageVM.SetStatus("Metadata was found in the database. The initial Tweet is already published", Common.UI.StatusMessageKindType.Warning)
+                                                         ViewModel.CurrentTabIndex = DialogTabIndex.Summary
+                                                     Else
+                                                         ViewModel.TwitterConnectionVM.PinIsValid = False
+                                                         AuthenticationContext = NewAuthenticationContext
+                                                         ViewModel.StatusMessageVM.SetStatus("Metadata was found in the database. The initial Tweet is not yet published", Common.UI.StatusMessageKindType.JustText)
+                                                         ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
                                                      End If
                                                  End Sub)
                             End Sub)
+        End Sub
+
+        Private Sub OpenAuthenticationPage(sender As System.Object, e As System.Windows.RoutedEventArgs)
+            Try
+                Using P As New Process
+                    P.StartInfo.FileName = AuthenticationContext.AuthorizationURL
+                    P.Start()
+                End Using
+            Catch ex As Exception
+                Clipboard.SetText(AuthenticationContext.AuthorizationURL)
+                MessageBox.Show("The browser could not be started automatically for some reason. The URL was copied to the clipboard. Please open the website manually.")
+            End Try
+        End Sub
+
+        Private Sub ValidatePin(sender As System.Object, e As System.Windows.RoutedEventArgs)
+            Dim Pin = ViewModel.TwitterConnectionVM.AuthorizationPin
+            Dim Context = AuthenticationContext
+            Tasks.StartTask(Sub()
+                                Dim NewAuthenticationToken As Tweetinvi.Models.ITwitterCredentials = Nothing
+                                Try
+                                    NewAuthenticationToken = Tweetinvi.AuthFlow.CreateCredentialsFromVerifierCode(Pin, Context)
+                                Catch ex As Tweetinvi.Exceptions.TwitterException
+                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The PIN could not be validated. Please make sure there are no typos and that you have indeed authorized the Twitter App." & Environment.NewLine & ex.GetType.Name & ": " & ex.Message, Common.UI.StatusMessageKindType.Error))
+                                    Return
+                                End Try
+                                If NewAuthenticationToken Is Nothing Then
+                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus("The PIN could not be validated. Please make sure there are no typos and that you have indeed authorized the Twitter App.", Common.UI.StatusMessageKindType.Error))
+                                    Return
+                                End If
+                                Tasks.FinishTask(Sub()
+                                                     ViewModel.StatusMessageVM.ClearStatus()
+                                                     AuthenticationToken = NewAuthenticationToken
+                                                     ViewModel.TwitterConnectionVM.PinIsValid = True
+                                                     ViewModel.TwitterConnectionVM.AccessToken = AuthenticationToken.AccessToken
+                                                     ViewModel.TwitterConnectionVM.AccessTokenSecret = AuthenticationToken.AccessTokenSecret
+                                                 End Sub)
+                            End Sub)
+        End Sub
+
+        Private Sub BeginTwitterConnectionGoForward()
+            ViewModel.CurrentTabIndex = DialogTabIndex.TweetData
         End Sub
 
         Private Sub BeginTweetDataGoForward()
@@ -169,37 +243,24 @@ Namespace OpenTrackDialog
                 ViewModel.SummaryVM.Keywords = String.Join(" ", ViewModel.KeywordsVM.Keywords.Select(Function(i) i.Text))
             End If
             ViewModel.StatusMessageVM.ClearStatus()
-            ViewModel.CurrentTabIndex = DialogTabIndex.TwitterConnection
-        End Sub
-
-        Private Sub BeginTwitterConnectionGoForward()
-            Dim Token As New Tweetinvi.Models.TwitterCredentials(ViewModel.TwitterConnectionVM.ConsumerKey, ViewModel.TwitterConnectionVM.ConsumerSecret, ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
-            Tasks.StartTask(Sub()
-                                Dim ValidationResult = Streaming.TweetinviService.Instance.ValidateAuthenticationToken(Token)
-                                If ValidationResult.IsValid Then
-                                    Tasks.FinishTask(Sub()
-                                                         ViewModel.StatusMessageVM.ClearStatus()
-                                                         ViewModel.CurrentTabIndex = DialogTabIndex.Summary
-                                                     End Sub)
-                                Else
-                                    Tasks.FinishTask(Sub() ViewModel.StatusMessageVM.SetStatus(ValidationResult.ErrorMessage, Common.UI.StatusMessageKindType.Error))
-                                End If
-                            End Sub)
+            ViewModel.CurrentTabIndex = DialogTabIndex.Summary
         End Sub
 
         Public Function GetOpenTrackInfo() As OpenTrackInformation
             Dim Result As New OpenTrackInformation
+
+            Result.ApplicationToken = ExistingApplicationToken
 
             If DatabaseContainsMetadata AndAlso ViewModel.SummaryVM.TweetAlreadyPublished Then
                 Result.Metadata = ExistingTweetMetadata
             Else
                 Result.Metadata = TwitterTracks.DatabaseAccess.TrackMetadata.FromUnpublished( _
                     ViewModel.TweetDataVM.TweetText, ViewModel.KeywordsVM.Keywords.Select(Function(i) i.Text), ViewModel.TweetDataVM.MediasToAdd.Select(Function(i) i.FilePath), _
-                    ViewModel.TwitterConnectionVM.ConsumerKey, ViewModel.TwitterConnectionVM.ConsumerSecret, ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
+                    ViewModel.TwitterConnectionVM.AccessToken, ViewModel.TwitterConnectionVM.AccessTokenSecret)
             End If
 
             Result.Database.Host = ViewModel.DatabaseConnectionVM.DatabaseHost
-            Result.Database.Name = ViewModel.DatabaseConnectionVM.DatabaseName
+            Result.Database.Name = ViewModel.DatabaseConnectionVM.DatabaseNameOrUserName
             Result.Database.ResearcherId = If(ViewModel.DatabaseConnectionVM.ResearcherIdIsValid, Integer.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText), -1)
             Result.Database.Password = ViewModel.DatabaseConnectionVM.Password
             Result.Database.Connection = Connection

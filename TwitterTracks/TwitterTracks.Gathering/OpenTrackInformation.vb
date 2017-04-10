@@ -2,6 +2,7 @@
 
     Public Event MetadataChanged()
 
+    Public Property ApplicationToken As TwitterTracks.DatabaseAccess.ApplicationToken
     Public Property Metadata As TwitterTracks.DatabaseAccess.TrackMetadata
 
     Dim _Database As New DatabaseContainer

@@ -67,6 +67,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MainWindow\AdministratorTools\MainWindowViewModel_AdministratorTools_ApplicationToken.vb" />
     <Compile Include="MainWindow\AdministratorTools\MainWindowViewModel_AdministratorTools_Tracks.vb" />
     <Page Include="MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -79,6 +80,7 @@
     <Compile Include="DebugConstants.vb" />
     <Compile Include="MainWindow\AdministratorTools\MainWindowViewModel_AdministratorTools_CreateTrack.vb" />
     <Compile Include="MainWindow\Connection\MainWindowViewModel_Connection_OpenConnection.vb" />
+    <Compile Include="MainWindow\ResearcherTools\MainWindowViewModel_ResearcherTools_DeleteMetadata.vb" />
     <Compile Include="MainWindow\RootTools\MainWindowViewModel_RootTools_Databases.vb" />
     <Compile Include="MainWindow\MainWindowViewModel.vb" />
     <Compile Include="MainWindow\MainWindow.xaml.vb">

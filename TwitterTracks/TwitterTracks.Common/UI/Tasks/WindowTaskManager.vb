@@ -36,24 +36,32 @@ Namespace UI.Tasks
             CurrentTask = Task.Factory.StartNew(Sub()
                                                     Try
                                                         BackgroundThreadMethod()
-                                                    Catch ex As Exception
+                                                    Catch ex As Exception When Not Debugger.IsAttached
                                                         Dispatcher.BeginInvoke(Sub() Throw New UnhandledTaskException(ex))
                                                     End Try
                                                 End Sub)
         End Sub
 
-        Public Sub FinishTask(GuiThreadMethod As Action)
-            Dispatcher.BeginInvoke(Sub()
-                                       If CurrentTask Is Nothing Then
-                                           Throw New NopeException("There is currently no task running.")
-                                       End If
-                                       GuiThreadMethod()
-                                       CurrentTask = Nothing
-                                       IsBusy = False
-                                   End Sub)
+        Public Sub FinishTask(GuiThreadMethod As Action, Optional FollowupMethod As Action = Nothing)
+            Dim A = Sub()
+                        If CurrentTask Is Nothing Then
+                            Throw New NopeException("There is currently no task running.")
+                        End If
+                        GuiThreadMethod()
+                        CurrentTask = Nothing
+                        IsBusy = False
+                        If FollowupMethod IsNot Nothing Then
+                            FollowupMethod()
+                        End If
+                    End Sub
+            Dispatcher.BeginInvoke(A)
         End Sub
 
-        Public Sub DoSqlTaskWithStatusMessage(StatusMessageVM As StatusMessageViewModel, ErrorDescriptor As String, BackgroundThreadMethod As Action, GuiThreadMethod As Func(Of Boolean, Tuple(Of String, StatusMessageKindType)))
+        Public Sub DoSqlTaskWithStatusMessage(StatusMessageVM As StatusMessageViewModel, _
+                                              ErrorDescriptor As String, _
+                                              BackgroundThreadMethod As Action, _
+                                              GuiThreadMethodOnFinish As Func(Of Boolean, Tuple(Of String, StatusMessageKindType)), _
+                                              Optional GuiThreadMethodOnEnd As Action(Of Boolean) = Nothing)
             StartTask(Sub()
                           Dim ErrorException As System.Data.Common.DbException = Nothing
                           Try
@@ -61,8 +69,9 @@ Namespace UI.Tasks
                           Catch ex As System.Data.Common.DbException
                               ErrorException = ex
                           End Try
+                          Dim Success = ErrorException Is Nothing
                           FinishTask(Sub()
-                                         Dim ResultMessageOverride = GuiThreadMethod(ErrorException Is Nothing)
+                                         Dim ResultMessageOverride = GuiThreadMethodOnFinish(Success)
                                          If ErrorException Is Nothing Then
                                              If ResultMessageOverride Is Nothing Then
                                                  StatusMessageVM.ClearStatus()
@@ -76,7 +85,8 @@ Namespace UI.Tasks
                                              End If
                                              StatusMessageVM.SetStatus(ErrorMessage, StatusMessageKindType.Error)
                                          End If
-                                     End Sub)
+                                     End Sub, _
+                                     If(GuiThreadMethodOnEnd Is Nothing, Nothing, New Action(Sub() GuiThreadMethodOnEnd(Success))))
                       End Sub)
         End Sub
 

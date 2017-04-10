@@ -81,6 +81,7 @@
     <Compile Include="DatabaseInteraction\DatabaseServer.vb" />
     <Compile Include="DatabaseInteraction\TrackDatabase.vb" />
     <Compile Include="DatabaseInteraction\DatabaseConnection.vb" />
+    <Compile Include="Model\ApplicationToken.vb" />
     <Compile Include="Model\EntityId.vb" />
     <Compile Include="Model\Tweet.vb" />
     <Compile Include="Model\TweetLocation.vb" />

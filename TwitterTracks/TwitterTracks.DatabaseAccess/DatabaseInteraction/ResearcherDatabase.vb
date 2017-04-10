@@ -52,8 +52,6 @@ Public Class ResearcherDatabase
                                  Reader.GetString("TweetText"), _
                                  Reader.GetString("RelevantKeywords").Split(" "c), _
                                  Reader.GetString("MediaFilePathsToAdd").Split("|"c), _
-                                 Reader.GetString("ConsumerKey"),
-                                 Reader.GetString("ConsumerSecret"),
                                  Reader.GetString("AccessToken"),
                                  Reader.GetString("AccessTokenSecret"))
     End Function
@@ -70,6 +68,8 @@ Public Class ResearcherDatabase
     End Function
 
 #End Region
+
+#Region "Researcher"
 
     Public Function TryGetTrackMetadata() As TrackMetadata?
         Using Row = ExecuteSingleRowQuery(False, FormatSqlIdentifiers("SELECT * FROM {0}", GetMetadataTableIdentifier))
@@ -130,6 +130,25 @@ Public Class ResearcherDatabase
             EndTransaction()
         End Try
     End Sub
+
+    Public Sub DeleteTrackMetadata()
+        ExecuteNonQuery(FormatSqlIdentifiers("DELETE FROM {0}", GetMetadataTableIdentifier))
+    End Sub
+
+    Public Sub DeleteAllTweets()
+        ExecuteNonQuery(FormatSqlIdentifiers("DELETE FROM {0}", GetTweetTableIdentifier))
+    End Sub
+
+    '@Duplication See TrackDatabase.TryGetApplicationToken
+    Public Function TryGetApplicationToken() As ApplicationToken?
+        Using Row = ExecuteSingleRowQuery(False, FormatSqlIdentifiers("SELECT * FROM {0}", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.ApplicationTokenTableName.Escape)))
+            If Row Is Nothing Then
+                Return Nothing
+            Else
+                Return New ApplicationToken(Row.Reader.GetString("ConsumerKey"), Row.Reader.GetString("ConsumerSecret"))
+            End If
+        End Using
+    End Function
 
     Public Function GetAllTweets() As IEnumerable(Of Tweet)
         Dim TweetTableIdentifier = GetTweetTableIdentifier()
@@ -200,6 +219,10 @@ Public Class ResearcherDatabase
                    .Select(Function(Row) RowToTweet(Row))
     End Function
 
+#End Region
+
+#Region "Administrator"
+
     Public Sub DeleteTrack()
         Try
             BeginTransaction()
@@ -211,7 +234,7 @@ Public Class ResearcherDatabase
             Next
             ExecuteNonQuery(FormatSqlIdentifiers("DROP TABLE {0};", GetTweetTableIdentifier))
             ExecuteNonQuery(FormatSqlIdentifiers("DROP TABLE {0};", GetMetadataTableIdentifier))
-            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TrackTableName.Escape)
             ExecuteNonQuery(FormatSqlIdentifiers("DELETE FROM {0} WHERE `Id` = @Id;", TrackTableIdentifier), New CommandParameter("@Id", TrackEntityId.RawId))
 
             CommitTransaction()
@@ -219,5 +242,7 @@ Public Class ResearcherDatabase
             EndTransaction()
         End Try
     End Sub
+
+#End Region
 
 End Class

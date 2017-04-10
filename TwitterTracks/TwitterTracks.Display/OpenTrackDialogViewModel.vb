@@ -1,7 +1,7 @@
 Public Class OpenTrackDialogViewModel
     Inherits ViewModelBase
 
-    Dim WithEvents _DatabaseConnectionVM As New TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel
+    Dim WithEvents _DatabaseConnectionVM As New TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel(True, False)
     Public ReadOnly Property DatabaseConnectionVM As TwitterTracks.Common.UI.Controls.TrackSelectionInputViewModel
         <DebuggerStepThrough()>
         Get

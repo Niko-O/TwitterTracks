@@ -1,14 +1,11 @@
 ﻿Class MainWindow
 
-    Private Shared ReadOnly RetweetMarkerBrush As New SolidColorBrush(Color.FromArgb(128, 255, 0, 0))
-    Private Shared ReadOnly NonRetweetMarkerBrush As New SolidColorBrush(Color.FromArgb(128, 0, 0, 255))
-
     Dim ViewModel As MainWindowViewModel
 
     Dim MainConnection As TwitterTracks.DatabaseAccess.DatabaseConnection
     Dim MainDatabase As TwitterTracks.DatabaseAccess.ResearcherDatabase
 
-    Dim WithEvents PullTweetsTimer As New System.Windows.Threading.DispatcherTimer With {.Interval = TimeSpan.FromSeconds(5), .IsEnabled = False}
+    Dim WithEvents PullTweetsTimer As New System.Windows.Threading.DispatcherTimer With {.Interval = TimeSpan.FromSeconds(1), .IsEnabled = False}
     Dim NewestTweetId As Int64 = -1
 
     Dim WithEvents CoordinatesLoader As TweetCoordinatesLoader = Nothing
@@ -106,7 +103,7 @@
                                        .Width = 10,
                                        .Height = 10,
                                        .RenderTransform = New TranslateTransform(-5, -5),
-                                       .Fill = If(IsRetweet, RetweetMarkerBrush, NonRetweetMarkerBrush)
+                                       .Fill = If(IsRetweet, TwitterTracks.Common.UI.Resources.RetweetMarkerBrush, TwitterTracks.Common.UI.Resources.NonRetweetMarkerBrush)
                                    }
                                })
     End Sub

@@ -20,13 +20,25 @@ Public Class TrackDatabase
         _DatabaseName = NewDatabaseName
     End Sub
 
+    Private Function GetApplicationTokenIdentifier() As EscapedIdentifier
+        Return Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.ApplicationTokenTableName.Escape)
+    End Function
+
+#Region "RowToModel"
+
+    Private Shared Function RowToApplicationToken(Reader As Sql.MySqlDataReader) As ApplicationToken
+        Return New ApplicationToken(Reader.GetString("ConsumerKey"), Reader.GetString("ConsumerSecret"))
+    End Function
+
+#End Region
+
 #Region "Administrator"
 
     Public Function CreateTrack(ResearcherPassword As String) As CreateTrackResult
         Try
             BeginTransaction()
 
-            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TrackTableName.Escape)
             Dim TrackEntityId = ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0}() VALUES ()", TrackTableIdentifier)).InsertId
 
             Dim MetadataTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.MetadataTableName(TrackEntityId).Escape)
@@ -59,6 +71,7 @@ Public Class TrackDatabase
                 "    PRIMARY KEY                 (`Id`)                   " & _
                 ") ENGINE = InnoDB;                                       ", TweetTableIdentifier))
 
+            Dim ApplicationTokenTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.ApplicationTokenTableName.Escape)
             Dim ResearcherName As String = Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
             For Each Host In {"%", "localhost"}
                 Dim ResearcherIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(ResearcherName).Escape, New VerbatimIdentifier(Host).Escape)
@@ -66,6 +79,7 @@ Public Class TrackDatabase
                                 New CommandParameter("@ResearcherPassword", ResearcherPassword))
                 ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", MetadataTableIdentifier, ResearcherIdentifier))
                 ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", TweetTableIdentifier, ResearcherIdentifier))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT SELECT ON {0} TO {1};", ApplicationTokenTableIdentifier, ResearcherIdentifier))
             Next
 
             CommitTransaction()
@@ -110,9 +124,53 @@ Public Class TrackDatabase
     End Structure
 
     Public Function GetAllTracksWithoutMetadata() As IEnumerable(Of Track)
-        Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
+        Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TrackTableName.Escape)
         Return ExecuteQuery(FormatSqlIdentifiers("SELECT * FROM {0}", TrackTableIdentifier)).Select(Function(Row) New Track(Row.GetEntityId("Id"), Nothing))
     End Function
+
+    Public Function TryGetApplicationToken() As ApplicationToken?
+        Using Row = ExecuteSingleRowQuery(False, FormatSqlIdentifiers("SELECT * FROM {0}", GetApplicationTokenIdentifier))
+            If Row Is Nothing Then
+                Return Nothing
+            Else
+                Return RowToApplicationToken(Row.Reader)
+            End If
+        End Using
+    End Function
+
+    Public Sub UpdateOrCreateApplicationToken(Token As ApplicationToken)
+        Try
+            BeginTransaction()
+
+            Dim ApplicationTokenIdentifier = GetApplicationTokenIdentifier()
+
+            Dim FormattedQueryString As SqlQueryString
+            If TryGetApplicationToken() Is Nothing Then
+                FormattedQueryString = FormatSqlIdentifiers( _
+                    "INSERT INTO {0} (        " & _
+                    "    `ConsumerKey`,       " & _
+                    "    `ConsumerSecret`)    " & _
+                    "VALUES (@ConsumerKey,    " & _
+                    "        @ConsumerSecret) ", ApplicationTokenIdentifier)
+            Else
+                FormattedQueryString = FormatSqlIdentifiers( _
+                    "UPDATE {0}                             " & _
+                    "SET `ConsumerKey`    = @ConsumerKey,   " & _
+                    "    `ConsumerSecret` = @ConsumerSecret ", ApplicationTokenIdentifier)
+            End If
+            ExecuteNonQuery(FormattedQueryString, _
+                            New CommandParameter("@ConsumerKey", Token.ConsumerKey), _
+                            New CommandParameter("@ConsumerSecret", Token.ConsumerSecret))
+
+            CommitTransaction()
+        Finally
+            EndTransaction()
+        End Try
+    End Sub
+
+    Public Sub DeleteApplicationToken()
+        ExecuteNonQuery(FormatSqlIdentifiers("DELETE FROM {0}", GetApplicationTokenIdentifier))
+    End Sub
 
 #End Region
 

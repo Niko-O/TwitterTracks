@@ -12,28 +12,20 @@
         End Set
     End Property
 
-    <Dependency("OpenTrackInfo")>
-    Public ReadOnly Property TrackDataSignal As SignalKind
-        <DebuggerStepThrough()>
-        Get
-            If OpenTrackInfo Is Nothing Then
-                Return SignalKind.Error
-            End If
-            Return SignalKind.OK
-        End Get
-    End Property
-
     <Dependency("OpenTrackInfo", "TrackingStreamIsRunning")>
-    Public ReadOnly Property TrackingSignal As SignalKind
+    Public ReadOnly Property TrackingSignal As Boolean
         <DebuggerStepThrough()>
         Get
             If OpenTrackInfo Is Nothing Then
-                Return SignalKind.Error
+                Return True
             End If
-            If Not TrackingStreamIsRunning Then
-                Return SignalKind.Error
+            If TrackingStreamIsRunning Then
+                Return True
             End If
-            Return SignalKind.OK
+            If Not String.IsNullOrEmpty(StreamDisconnectReason) Then
+                Return False
+            End If
+            Return True
         End Get
     End Property
 
@@ -41,13 +33,13 @@
     Public ReadOnly Property TrackingInfo As String
         Get
             If OpenTrackInfo Is Nothing Then
-                Return "This should never be visible."
+                Return "No Track Data loaded."
             End If
             If TrackingStreamIsRunning Then
                 Return "Stream connected and tracking."
             End If
             If Not String.IsNullOrEmpty(StreamDisconnectReason) Then
-                Return StreamDisconnectReason
+                Return "Disconnected: " & StreamDisconnectReason
             End If
             Return "Waiting for start."
         End Get

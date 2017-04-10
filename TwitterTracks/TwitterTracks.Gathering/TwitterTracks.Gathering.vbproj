@@ -130,8 +130,6 @@
     <Compile Include="Streaming\StreamStopReason.vb" />
     <Compile Include="Streaming\TweetReceivedEventArgs.vb" />
     <Compile Include="Streaming\ValidationResult.vb" />
-    <Compile Include="MainWindow\SignalKind.vb" />
-    <Compile Include="MainWindow\SignalKindToBrushConverter.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndex.vb" />
     <Compile Include="OpenTrackDialog\DialogTabIndexToIntConverter.vb" />
     <Compile Include="OpenTrackDialog\KeywordToAdd.vb" />

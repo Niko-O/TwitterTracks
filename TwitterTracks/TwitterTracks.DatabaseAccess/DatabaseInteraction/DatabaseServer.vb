@@ -15,20 +15,29 @@ Public Class DatabaseServer
             Dim TrackDB As New TrackDatabase(Connection, DatabaseName)
             ExecuteNonQuery(FormatSqlIdentifiers("CREATE DATABASE {0}", DatabaseName.Escape))
 
-            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, New VerbatimIdentifier(Relations.TableNames.TrackTableName).Escape)
+            Dim TrackTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.TrackTableName.Escape)
+            Dim ApplicationTokenTableIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.TableNames.ApplicationTokenTableName.Escape)
+            Dim WildcardInDatabaseIdentifier = Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable)
+            Dim WildcardEverywhereIdentifier = Relations.TableNames.TableIdentifier(Relations.WildcardDatabase, Relations.WildcardTable)
+
             ExecuteNonQuery(FormatSqlIdentifiers( _
                 "CREATE TABLE {0} (                  " & _
                 "  `Id` INT NOT NULL AUTO_INCREMENT, " & _
-                "  PRIMARY KEY (`Id`))               " & _
-                "ENGINE = InnoDB;                    ", TrackTableIdentifier))
+                "  PRIMARY KEY (`Id`)                " & _
+                ") ENGINE = InnoDB;                  ", TrackTableIdentifier))
+            ExecuteNonQuery(FormatSqlIdentifiers( _
+                "CREATE TABLE {0} (                " & _
+                "  `ConsumerKey`    TEXT NOT NULL, " & _
+                "  `ConsumerSecret` TEXT NOT NULL  " & _
+                ") ENGINE = InnoDB;                ", ApplicationTokenTableIdentifier))
 
             Dim AdministratorName As String = Relations.UserNames.AdministratorUserName(DatabaseName)
             For Each Host In {"%", "localhost"}
                 Dim AdministratorIdentifier = Relations.UserNames.UserIdentifier(New VerbatimIdentifier(AdministratorName).Escape, New VerbatimIdentifier(Host).Escape)
                 ExecuteNonQuery(FormatSqlIdentifiers("CREATE USER {0} IDENTIFIED BY @AdministratorPassword;", AdministratorIdentifier), _
                                 New CommandParameter("@AdministratorPassword", AdministratorPassword))
-                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", Relations.TableNames.TableIdentifier(DatabaseName.Escape, Relations.WildcardTable), AdministratorIdentifier))
-                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE USER ON {0} TO {1} WITH GRANT OPTION;", Relations.TableNames.TableIdentifier(Relations.WildcardDatabase, Relations.WildcardTable), AdministratorIdentifier))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON {0} TO {1};", WildcardInDatabaseIdentifier, AdministratorIdentifier))
+                ExecuteNonQuery(FormatSqlIdentifiers("GRANT CREATE USER ON {0} TO {1} WITH GRANT OPTION;", WildcardEverywhereIdentifier, AdministratorIdentifier))
             Next
 
             CommitTransaction()

@@ -1,6 +1,6 @@
 ﻿Public Class DebugConstants
 
-#Const EnableDebugData = True
+#Const EnableDebugData = False
 
 #If EnableDebugData Then
 
@@ -33,14 +33,15 @@
         OpenTrackInfo.Database.Password = TwitterTracks.Common.UI.Resources.DebugConstants.ResearcherPassword
         OpenTrackInfo.Database.Connection = Nothing
         OpenTrackInfo.Metadata = New TwitterTracks.DatabaseAccess.TrackMetadata( _
-            True, 10, 20, TwitterTracks.Common.UI.Resources.DebugConstants.TweetText, {"#Test", "#Hashtag", "Quantenelektrodynamik"}, {"C:\Foo.jpg", "C:\Bar.png"}, _
-            AccessToken.ConsumerKey, AccessToken.ConsumerSecret, AccessToken.AccessToken, AccessToken.AccessTokenSecret)
+            True, 10, 20, TwitterTracks.Common.UI.Resources.DebugConstants.TweetText, _
+            {"#Test", "#Hashtag", "Quantenelektrodynamik"}, {"C:\Foo.jpg", "C:\Bar.png"}, _
+            AccessToken.AccessToken, AccessToken.AccessTokenSecret)
     End Sub
 
 #Else
 
     Public Shared ReadOnly OpenTrackInfo As OpenTrackInformation = Nothing
-    Public Shared ReadOnly AccessToken As New TwitterTracks.Gathering.TweetinviInterop.AuthenticationToken("", "", "", "")
+    Public Shared ReadOnly AccessToken As New Tweetinvi.Models.TwitterCredentials("", "", "", "")
 
 #End If
 

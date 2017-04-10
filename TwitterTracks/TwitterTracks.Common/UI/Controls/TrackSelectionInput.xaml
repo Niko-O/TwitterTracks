@@ -15,12 +15,25 @@
     <StackPanel>
         <l:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
         <TextBox Grid.Column="0" Text="{Binding Path=DatabaseHost, UpdateSourceTrigger=PropertyChanged}" o:DefaultSelectedBehavior.IsDefaultSelected="True"/>
-        <l:HelpLabel MainContent="Track Database Name:" HelpContent="The Name of the Track Database the Researcher belongs to."/>
-        <TextBox Grid.Column="0" Text="{Binding Path=DatabaseName, UpdateSourceTrigger=PropertyChanged}"/>
-        <l:HelpLabel MainContent="Researcher ID:" HelpContent="The ID of the Researcher which us used for database authentication."/>
-        <l:HelpLabel HelpContent="The entered ID cannot possibly be valid as it must be a positive integer." HelpIsVisible="{Binding Path=ResearcherIdIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
-            <TextBox Grid.Column="0" Text="{Binding Path=ResearcherIdText, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ResearcherIdIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
-        </l:HelpLabel>
+        <l:IfContent Condition="{Binding Path=TrackDatabaseNameIsUsedAsUserNameInstead}">
+            <l:IfContent.TrueContent>
+                <l:HelpLabel MainContent="User Name:" HelpContent="The MySQL User Name which us used for database authentication."/>
+            </l:IfContent.TrueContent>
+            <l:IfContent.FalseContent>
+                <l:HelpLabel MainContent="Track Database Name:" HelpContent="The Name of the Track Database you want to manage."/>
+            </l:IfContent.FalseContent>
+        </l:IfContent>
+        <TextBox Grid.Column="0" Text="{Binding Path=DatabaseNameOrUserName, UpdateSourceTrigger=PropertyChanged}"/>
+        <l:IfContent Condition="{Binding Path=ShowResearcherIdInput}" FalseContent="{x:Null}">
+            <l:IfContent.TrueContent>
+                <StackPanel>
+                    <l:HelpLabel MainContent="Researcher ID:" HelpContent="The ID of the Researcher which us used for database authentication."/>
+                    <l:HelpLabel HelpContent="The entered ID cannot possibly be valid as it must be a positive integer." HelpIsVisible="{Binding Path=ResearcherIdIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
+                        <TextBox Grid.Column="0" Text="{Binding Path=ResearcherIdText, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=ResearcherIdIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                    </l:HelpLabel>
+                </StackPanel>
+            </l:IfContent.TrueContent>
+        </l:IfContent>
         <l:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
         <o:BindablePasswordBox Password="{Binding Path=Password}"/>
     </StackPanel>

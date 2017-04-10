@@ -21,28 +21,41 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <StackPanel.Resources>
-                <Style TargetType="TextBlock">
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                </Style>
-            </StackPanel.Resources>
-            <Button Grid.Column="0" Click="OpenTrack" Padding="6,3">
-                Open Track
-            </Button>
-            <CommonUI.Controls:IfContent Condition="{Binding Path=TrackIsLoaded}" Margin="4,0">
-                <CommonUI.Controls:IfContent.TrueContent>
-                    <TextBlock>
+        <CommonUI.Controls:HelpLabel>
+            <CommonUI.Controls:HelpLabel.HelpContent>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="4"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Background="{StaticResource ResourceKey=RetweetMarkerBrush}" Padding="8,2">Retweet</TextBlock>
+                    <TextBlock Grid.Column="2" Background="{StaticResource ResourceKey=NonRetweetMarkerBrush}" Padding="8,2">Non-Retweet</TextBlock>
+                </Grid>
+            </CommonUI.Controls:HelpLabel.HelpContent>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button Grid.Column="0" Click="OpenTrack" Padding="6,3">
+                    Open Track
+                </Button>
+                <CommonUI.Controls:IfContent Condition="{Binding Path=TrackIsLoaded}" Margin="4,0">
+                    <CommonUI.Controls:IfContent.TrueContent>
+                        <TextBlock>
                         <Run Text="{Binding Path=TotalNumberOfTweets, Mode=OneWay}"/> Tweets, <Run Text="{Binding Path=NumberOfTweetsWithCoordinates, Mode=OneWay}"/> with coordinates
-                    </TextBlock>
-                </CommonUI.Controls:IfContent.TrueContent>
-                <CommonUI.Controls:IfContent.FalseContent>
-                    <TextBlock>
+                        </TextBlock>
+                    </CommonUI.Controls:IfContent.TrueContent>
+                    <CommonUI.Controls:IfContent.FalseContent>
+                        <TextBlock>
                         No track opened.
-                    </TextBlock>
-                </CommonUI.Controls:IfContent.FalseContent>
-            </CommonUI.Controls:IfContent>
-        </StackPanel>
+                        </TextBlock>
+                    </CommonUI.Controls:IfContent.FalseContent>
+                </CommonUI.Controls:IfContent>
+            </StackPanel>
+        </CommonUI.Controls:HelpLabel>
         <gmap:GMapControl
             Grid.Row="1"
             x:Name="MapControl"

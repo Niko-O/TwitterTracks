@@ -3,11 +3,14 @@ Namespace UI
 
     Public Class Resources
 
+        Public Shared ReadOnly RetweetMarkerBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#80ff0000"), SolidColorBrush)
+        Public Shared ReadOnly NonRetweetMarkerBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#800000ff"), SolidColorBrush)
+
         Public Shared ReadOnly ErrorBackgroundBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#ffaaaa"), SolidColorBrush)
         Public Shared ReadOnly WarningBackgroundBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#ffccaa"), SolidColorBrush)
         Public Shared ReadOnly SuccessBackgroundBrush As SolidColorBrush = DirectCast(TypeDescriptor.GetConverter(GetType(SolidColorBrush)).ConvertFromString("#aaffaa"), SolidColorBrush)
 
-#Const EnableDebugData = True
+#Const EnableDebugData = False
 
         Public Class DebugConstants
 #If EnableDebugData Then
@@ -16,8 +19,8 @@ Namespace UI
 
             Public Const DatabaseHost As String = "localhost"
             Public Const DatabaseUserName As String = "root" '"TestDatabase01_1_Researcher"
-            Public Const DatabaseResearcherIdText As String = "1"
-            Public Const DatabaseResearcherId As Int64 = 1
+            Public Const DatabaseResearcherIdText As String = "5"
+            Public Const DatabaseResearcherId As Int64 = 5
             Public Const DatabasePassword As String = ""
             Public Const TrackDatabaseName As String = "BobsDatabase"
             Public Const ResearcherPassword As String = "Password1"

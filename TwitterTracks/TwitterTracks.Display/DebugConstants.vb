@@ -1,5 +1,5 @@
 ﻿
-#Const UseDebugValues = (Config = "Debug")
+#Const UseDebugValues = False
 
 Public Class DebugConstants
 

@@ -8,6 +8,7 @@
         With DateTime.Now
             Helpers.DebugPrint("------------------------- New Instance  {0}:{1}:{2};   GUI Thread ID: {3} ----------------------------", .Hour, .Minute, .Second, System.Threading.Thread.CurrentThread.ManagedThreadId)
         End With
+        Tweetinvi.ExceptionHandler.SwallowWebExceptions = False
         TwitterTracks.DatabaseAccess.DatabaseBase.DebugPrintQueries = False
     End Sub
 

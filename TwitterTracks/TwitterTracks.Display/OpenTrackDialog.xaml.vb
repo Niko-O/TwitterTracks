@@ -18,7 +18,7 @@
 
     Private Sub CloseOk(sender As System.Object, e As System.Windows.RoutedEventArgs)
         Dim Host = ViewModel.DatabaseConnectionVM.DatabaseHost
-        Dim DatabaseName = New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.DatabaseConnectionVM.DatabaseName)
+        Dim DatabaseName = New TwitterTracks.DatabaseAccess.VerbatimIdentifier(ViewModel.DatabaseConnectionVM.DatabaseNameOrUserName)
         Dim TrackEntityId = New TwitterTracks.DatabaseAccess.EntityId(Int64.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText))
         Dim UserName = TwitterTracks.DatabaseAccess.Relations.UserNames.ResearcherUserName(DatabaseName, TrackEntityId)
         Dim Password = ViewModel.DatabaseConnectionVM.Password
@@ -59,7 +59,7 @@
         End If
 
         Result.Database.Host = ViewModel.DatabaseConnectionVM.DatabaseHost
-        Result.Database.Name = ViewModel.DatabaseConnectionVM.DatabaseName
+        Result.Database.Name = ViewModel.DatabaseConnectionVM.DatabaseNameOrUserName
         Result.Database.ResearcherId = If(ViewModel.DatabaseConnectionVM.ResearcherIdIsValid, Integer.Parse(ViewModel.DatabaseConnectionVM.ResearcherIdText), -1)
         Result.Database.Password = ViewModel.DatabaseConnectionVM.Password
         Result.Database.Connection = Connection

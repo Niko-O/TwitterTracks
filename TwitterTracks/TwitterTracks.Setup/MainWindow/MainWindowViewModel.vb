@@ -1,14 +1,6 @@
 ﻿Public Class MainWindowViewModel
     Inherits ViewModelBase
 
-    Dim _ConnectionVM As New MainWindowViewModel_Connection
-    Public ReadOnly Property ConnectionVM As MainWindowViewModel_Connection
-        <DebuggerStepThrough()>
-        Get
-            Return _ConnectionVM
-        End Get
-    End Property
-
     Dim _RootToolsVM As New MainWindowViewModel_RootTools
     Public ReadOnly Property RootToolsVM As MainWindowViewModel_RootTools
         <DebuggerStepThrough()>
@@ -41,37 +33,10 @@
         End Get
         Set(value As Boolean)
             ExtendedChangeIfDifferent(_IsBusy, value, "IsBusy")
+            RootToolsVM.Owner_IsBusy = value
+            AdministratorToolsVM.Owner_IsBusy = value
+            ResearcherToolsVM.Owner_IsBusy = value
         End Set
-    End Property
-
-    Dim _IsConnectedToDatabase As Boolean = DebugConstants.MainWindowIsConnected
-    Public Property IsConnectedToDatabase As Boolean
-        <DebuggerStepThrough()>
-        Get
-            Return _IsConnectedToDatabase
-        End Get
-        Set(value As Boolean)
-            ExtendedChangeIfDifferent(_IsConnectedToDatabase, value, "IsConnectedToDatabase")
-            ConnectionVM.OpenConnectionVM.Owner_IsConnectedToDatabase = value
-            AdministratorToolsVM.Owner_IsConnectedToDatabase = value
-        End Set
-    End Property
-
-    <Dependency("IsConnectedToDatabase", "IsBusy")>
-    Public ReadOnly Property ShowToolsBusyOverlay As Boolean
-        Get
-            Return Not IsConnectedToDatabase OrElse IsBusy
-        End Get
-    End Property
-
-    <Dependency("IsConnectedToDatabase")>
-    Public ReadOnly Property ToolsBusyOverlayText As String
-        Get
-            If Not IsConnectedToDatabase Then
-                Return "Please connect to a database first."
-            End If
-            Return "Loading..."
-        End Get
     End Property
 
 End Class

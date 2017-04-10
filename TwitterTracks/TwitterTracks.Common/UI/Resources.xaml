@@ -5,6 +5,9 @@
     xmlns:o="clr-namespace:OnUtils.Wpf;assembly=OnUtils"
     xmlns:c="clr-namespace:OnUtils.Wpf.Converters;assembly=OnUtils"
 >
+    <SolidColorBrush x:Key="RetweetMarkerBrush" Color="#80ff0000"/>
+    <SolidColorBrush x:Key="NonRetweetMarkerBrush" Color="#800000ff"/>
+    
     <SolidColorBrush x:Key="ErrorBrush" Color="#ffaaaa"/>
     <c:BooleanToBrushConverter x:Key="ErrorBrushConverter" TrueBrush="White" FalseBrush="#ffaaaa"/>
     <c:BooleanToBrushConverter x:Key="ReverseErrorBrushConverter" TrueBrush="#ffaaaa" FalseBrush="White"/>

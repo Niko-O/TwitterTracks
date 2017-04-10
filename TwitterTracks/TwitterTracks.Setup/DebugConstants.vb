@@ -1,5 +1,5 @@
 ﻿
-#Const UseDebugValues = True Or (Config = "Debug")
+#Const UseDebugValues = False
 
 Public Class DebugConstants
 
@@ -8,9 +8,9 @@ Public Class DebugConstants
     Public Const MainWindowIsBusy As Boolean = False
     Public Shared ReadOnly MainWindowIsConnected As Boolean = ViewModelBase.IsInDesignMode
 #Else
-    Public Shared ReadOnly AdministratorDatabaseIsSelected As Boolean = ViewModelBase.IsInDesignMode
+    Public Const AdministratorDatabaseIsSelected As Boolean = False
     Public Const MainWindowIsBusy As Boolean = False
-    Public Shared ReadOnly MainWindowIsConnected As Boolean = ViewModelBase.IsInDesignMode
+    Public Const MainWindowIsConnected As Boolean = False
 #End If
 
 End Class

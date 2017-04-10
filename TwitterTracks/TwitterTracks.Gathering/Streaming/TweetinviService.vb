@@ -15,10 +15,6 @@ Namespace Streaming
             Return Tweetinvi.Core.Extensions.StringExtension.TweetLength(TweetText, False)
         End Function
 
-        Public Function ValidateAuthenticationToken(Token As Tweetinvi.Models.TwitterCredentials) As ValidationResult
-            Return ValidationResult.Success
-        End Function
-
         Public Event TweetReceived As EventHandler(Of TweetReceivedEventArgs)
         Public Event StreamStarted As EventHandler
         Public Event StreamStopped As EventHandler(Of StreamStoppedEventArgs)

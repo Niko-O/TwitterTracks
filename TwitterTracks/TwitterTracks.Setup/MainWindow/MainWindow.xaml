@@ -8,7 +8,7 @@
     xmlns:CommonUI.Controls="clr-namespace:TwitterTracks.Common.UI.Controls;assembly=TwitterTracks.Common"
     Title="MainWindow"
     Width="449"
-    Height="570"
+    Height="748"
 >
     <Window.DataContext>
         <l:MainWindowViewModel/>
@@ -20,207 +20,285 @@
                 <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             </Style>
+            <Style x:Key="MainGroupBoxStyle" TargetType="{x:Type GroupBox}">
+                <Setter Property="Margin" Value="0,8"/>
+            </Style>
         </TabControl.Resources>
-        <!-- Connection -->
-        <TabItem Header="Connection">
-            <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=IsBusy}">
-                <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
-                    <StackPanel>
-                        <TextBlock TextWrapping="Wrap">
-                            Enter your MySQL User credentials. The setup program cannot check whether you have sufficient rights beforehand. It will fail when you try to perform actions you have no permission for.
-                        </TextBlock>
-                        <StackPanel IsEnabled="{Binding Path=IsConnectedToDatabase, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
-                            <CommonUI.Controls:HelpLabel MainContent="Database address:" HelpContent="The IP-adress of the database to connect to. This may also be a domain name which points to the database (e.g. localhost)."/>
-                            <TextBox Grid.Column="0" Text="{Binding Path=ConnectionVM.OpenConnectionVM.DatabaseHost, UpdateSourceTrigger=PropertyChanged}" o:DefaultSelectedBehavior.IsDefaultSelected="True"/>
-                            <CommonUI.Controls:HelpLabel MainContent="User Name:" HelpContent="The MySQL User Name which us used for database authentication."/>
-                            <TextBox Grid.Column="0" Text="{Binding Path=ConnectionVM.OpenConnectionVM.UserName, UpdateSourceTrigger=PropertyChanged}"/>
-                            <CommonUI.Controls:HelpLabel MainContent="Password:" HelpContent="The MySQL Password which us used for database authentication."/>
-                            <o:BindablePasswordBox Password="{Binding Path=ConnectionVM.OpenConnectionVM.Password}"/>
-                        </StackPanel>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" Click="ConnectToDatabaseOrCloseConnection" Content="{Binding Path=ConnectionVM.OpenConnectionVM.ToggleConnectionButtonText}"/>
-                            <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=ConnectionVM.OpenConnectionVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=ConnectionVM.OpenConnectionVM.StatusMessageVM.StatusMessageBackground}"/>
-                        </Grid>
-                    </StackPanel>
-                </ScrollViewer>
-            </CommonUI.Controls:BusyOverlay>
-        </TabItem>
         <!-- Root -->
         <TabItem Header="Root">
-            <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">    
-                <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
-                    <StackPanel>
-                        <!-- Databases -->
-                        <GroupBox Header="Databases">
-                            <StackPanel>
-                                <CommonUI.Controls:HelpLabel ButtonContent=" ! ">
-                                    <CommonUI.Controls:HelpLabel.HelpContent>
-                                        <TextBlock>
-                                            This is a list of all databases you have access to.<LineBreak/>
-                                            This could also include databases which do not contain Tracks!<LineBreak/>
-                                            Since you are the root user you probably have privileges to wreak havoc<LineBreak/>
-                                            if you are not careful, which could make a lot of people very angry.<LineBreak/>
-                                            <Run FontSize="16" Foreground="Red">Act responsibly!</Run>
-                                        </TextBlock>
-                                    </CommonUI.Controls:HelpLabel.HelpContent>
-                                    <Button HorizontalAlignment="Left" Padding="4" Click="RefreshDatabaseList">Refresh</Button>
-                                </CommonUI.Controls:HelpLabel>
-                                <o:AutoScrollingListBox
-                                    MaxHeight="150"
-                                    ScrollMode="ScrollIntoView"
-                                    ItemsSource="{Binding Path=RootToolsVM.DatabasesVM.AvailableDatabases}"
-                                    SelectedItem="{Binding Path=RootToolsVM.DatabasesVM.SelectedAvailableDatabase}"
-                                />
-                                <GroupBox>
-                                    <GroupBox.Header>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Padding="0,0,4,0" Text="Selected Database:"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Path=RootToolsVM.DatabasesVM.SelectedAvailableDatabase}"/>
-                                        </Grid>
-                                    </GroupBox.Header>
-                                    <StackPanel Orientation="Horizontal" IsEnabled="{Binding Path=RootToolsVM.DatabasesVM.SelectedAvailableDatabase, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
-                                        <Button Padding="15,10" Click="DeleteSelectedDatabase">Delete</Button>
-                                    </StackPanel>
-                                </GroupBox>
-                                <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessageVisibility}" Text="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessageBackground}"/>
-                            </StackPanel>
-                        </GroupBox>
-                        <!-- Create Database -->
-                        <GroupBox Header="Create Database">
-                            <StackPanel>
-                                <!-- -->
-                                <CommonUI.Controls:HelpLabel MainContent="Database Name:" HelpContent="The name of the new database. Even though pretty much all kinds of special characters are allowed you should stick to basic letters and numbers and avoid spaces."/>
-                                <CommonUI.Controls:HelpLabel HelpContent="This name is not valid." HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
-                                    <CommonUI.Controls:HelpLabel.MainContent>
-                                        <TextBox Text="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseName, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
-                                    </CommonUI.Controls:HelpLabel.MainContent>
-                                </CommonUI.Controls:HelpLabel>
-                                <!-- -->
-                                <CommonUI.Controls:HelpLabel MainContent="Administrator Password:" HelpContent="The MySQL Password which will be used by the new Administrator for database authentication."/>
-                                <o:BindablePasswordBox Password="{Binding Path=RootToolsVM.CreateDatabaseVM.Password}"/>
-                                <!-- -->
-                                <CommonUI.Controls:HelpLabel MainContent="Administrator Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Administrator User's password again."/>
-                                <CommonUI.Controls:HelpLabel HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
-                                    <o:BindablePasswordBox Password="{Binding Path=RootToolsVM.CreateDatabaseVM.RetypePassword}"/>
-                                </CommonUI.Controls:HelpLabel>
-                                <!-- -->
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=RootToolsVM.CreateDatabaseVM.CanCreateDatabase}" Click="CreateDatabase">Create database</Button>
-                                    <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessageBackground}"/>
-                                </Grid>
-                            </StackPanel>
-                        </GroupBox>
-                    </StackPanel>
-                </CommonUI.Controls:BusyOverlay>
+            <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Connect to database as Root">
+                        <StackPanel Grid.Row="0">
+                            <TextBlock TextWrapping="Wrap">
+                                Enter your MySQL User credentials. The setup program cannot check whether you have sufficient rights beforehand. It will fail when you try to perform actions you have no permission for.
+                            </TextBlock>
+                            <CommonUI.Controls:TrackSelectionInput DataContext="{Binding Path=RootToolsVM.DatabaseConnectionVM}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=RootToolsVM.ToggleConnectionButtonIsEnabled}" Click="RootTools_ToggleConnection" Content="{Binding Path=RootToolsVM.ToggleConnectionButtonText}"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=RootToolsVM.DatabaseConnectionStatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.DatabaseConnectionStatusMessageVM.StatusMessageBackground}"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+                    <CommonUI.Controls:BusyOverlay Grid.Row="1"  ShowOverlay="{Binding Path=RootToolsVM.ShowBusyOverlay}" OverlayText="{Binding Path=RootToolsVM.BusyOverlayText}">
+                        <StackPanel>
+                            <!-- Databases -->
+                            <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Databases">
+                                <StackPanel>
+                                    <CommonUI.Controls:HelpLabel ButtonContent=" ! ">
+                                        <CommonUI.Controls:HelpLabel.HelpContent>
+                                            <TextBlock>
+                                                This is a list of all databases you have access to.<LineBreak/>
+                                                This could also include databases which do not contain Tracks!<LineBreak/>
+                                                Since you are the root user you probably have privileges to wreak havoc<LineBreak/>
+                                                if you are not careful, which could make a lot of people very angry.<LineBreak/>
+                                                <Run FontSize="16" Foreground="Red">Act responsibly!</Run>
+                                            </TextBlock>
+                                        </CommonUI.Controls:HelpLabel.HelpContent>
+                                        <Button HorizontalAlignment="Left" Padding="4" Click="RefreshDatabaseList">Refresh</Button>
+                                    </CommonUI.Controls:HelpLabel>
+                                    <o:AutoScrollingListBox
+                                        MaxHeight="150"
+                                        ScrollMode="ScrollIntoView"
+                                        ItemsSource="{Binding Path=RootToolsVM.DatabasesVM.AvailableDatabases}"
+                                        SelectedItem="{Binding Path=RootToolsVM.DatabasesVM.SelectedAvailableDatabase}"
+                                    />
+                                    <GroupBox>
+                                        <GroupBox.Header>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Padding="0,0,4,0" Text="Selected Database:"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Path=RootToolsVM.DatabasesVM.SelectedAvailableDatabase}"/>
+                                            </Grid>
+                                        </GroupBox.Header>
+                                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding Path=RootToolsVM.DatabasesVM.SelectedAvailableDatabase, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
+                                            <Button Padding="15,10" Click="DeleteSelectedDatabase">Delete</Button>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessageVisibility}" Text="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.DatabasesVM.StatusMessageVM.StatusMessageBackground}"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <!-- Create Database -->
+                            <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Create Database">
+                                <StackPanel>
+                                    <!-- -->
+                                    <CommonUI.Controls:HelpLabel MainContent="Database Name:" HelpContent="The name of the new database. Even though pretty much all kinds of special characters are allowed you should stick to basic letters and numbers and avoid spaces."/>
+                                    <CommonUI.Controls:HelpLabel HelpContent="This name is not valid." HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}">
+                                        <CommonUI.Controls:HelpLabel.MainContent>
+                                            <TextBox Text="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseName, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.DatabaseNameIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                                        </CommonUI.Controls:HelpLabel.MainContent>
+                                    </CommonUI.Controls:HelpLabel>
+                                    <!-- -->
+                                    <CommonUI.Controls:HelpLabel MainContent="Administrator Password:" HelpContent="The MySQL Password which will be used by the new Administrator for database authentication."/>
+                                    <o:BindablePasswordBox Password="{Binding Path=RootToolsVM.CreateDatabaseVM.Password}"/>
+                                    <!-- -->
+                                    <CommonUI.Controls:HelpLabel MainContent="Administrator Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Administrator User's password again."/>
+                                    <CommonUI.Controls:HelpLabel HelpIsVisible="{Binding Path=RootToolsVM.CreateDatabaseVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
+                                        <o:BindablePasswordBox Password="{Binding Path=RootToolsVM.CreateDatabaseVM.RetypePassword}"/>
+                                    </CommonUI.Controls:HelpLabel>
+                                    <!-- -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=RootToolsVM.CreateDatabaseVM.CanCreateDatabase}" Click="CreateDatabase">Create database</Button>
+                                        <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=RootToolsVM.CreateDatabaseVM.StatusMessageVM.StatusMessageBackground}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </CommonUI.Controls:BusyOverlay>
+                </Grid>
             </ScrollViewer>
         </TabItem>
         <!-- Administrator -->
         <TabItem Header="Administrator">
             <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
-                <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
-                    <StackPanel>
-                        <!-- Select Database -->
-                        <GroupBox Header="Select a database">
-                            <StackPanel>
-                                <CommonUI.Controls:HelpLabel MainContent="Database Name:" HelpContent="The name of the database you are the Administrator of."/>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" IsEnabled="{Binding Path=AdministratorToolsVM.DatabaseIsSelected, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Text="{Binding Path=AdministratorToolsVM.DatabaseName, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Button Grid.Column="1" Content="{Binding Path=AdministratorToolsVM.ToggleDatabaseSelectionButtonText}" Click="ToggleSelectedAdministratorDatabase"/>
-                                </Grid>
-                                <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.SelectionStatusMessageVM.StatusMessageBackground}"/>
-                            </StackPanel>
-                        </GroupBox>
-                        <CommonUI.Controls:BusyOverlay OverlayText="Please select a database first." ShowOverlay="{Binding Path=AdministratorToolsVM.ShowInnerBusyOverlay}">
-                            <StackPanel>
-                                <!-- Tracks -->
-                                <GroupBox Header="Tracks">
-                                    <StackPanel Grid.IsSharedSizeScope="True">
-                                        <Button HorizontalAlignment="Left" Padding="4" Click="RefreshTrackList">Refresh</Button>
-                                        <o:AutoScrollingListBox
-                                            MaxHeight="150"
-                                            ScrollMode="ScrollIntoView"
-                                            ItemsSource="{Binding Path=AdministratorToolsVM.TracksVM.AvailableTracks}"
-                                            SelectedItem="{Binding Path=AdministratorToolsVM.TracksVM.SelectedAvailableTrack}"
-                                        >
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Path=EntityId.RawId}"/>
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </o:AutoScrollingListBox>
-                                        <GroupBox>
-                                            <GroupBox.Header>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Padding="0,0,4,0" Text="Selected Track:"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Path=AdministratorToolsVM.TracksVM.SelectedAvailableTrack.EntityId.RawId}"/>
-                                                </Grid>
-                                            </GroupBox.Header>
-                                            <StackPanel Orientation="Horizontal" IsEnabled="{Binding Path=AdministratorToolsVM.TracksVM.SelectedAvailableTrack, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
-                                                <Button Padding="15,10" Click="DeleteSelectedTrack">Delete</Button>
-                                            </StackPanel>
-                                        </GroupBox>
-                                        <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessageBackground}"/>
-                                    </StackPanel>
-                                </GroupBox>
-                                <!-- Create Track -->
-                                <GroupBox Header="Create Track">
-                                    <StackPanel>
-                                        <!-- -->
-                                        <!--<CommonUI.Controls:HelpLabel MainContent="Track Name:" HelpContent="The name of the new Track."/>
-                                        <TextBox Text="{Binding Path=AdministratorToolsVM.CreateTrackVM.TrackName, UpdateSourceTrigger=PropertyChanged}"/>-->
-                                        <!-- -->
-                                        <CommonUI.Controls:HelpLabel MainContent="Researcher Password:" HelpContent="The MySQL Password which will be used by the new Researcher for database authentication."/>
-                                        <o:BindablePasswordBox Password="{Binding Path=AdministratorToolsVM.CreateTrackVM.Password}"/>
-                                        <!-- -->
-                                        <CommonUI.Controls:HelpLabel MainContent="Researcher Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Researcher User's password again."/>
-                                        <CommonUI.Controls:HelpLabel HelpIsVisible="{Binding Path=AdministratorToolsVM.CreateTrackVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
-                                            <o:BindablePasswordBox Password="{Binding Path=AdministratorToolsVM.CreateTrackVM.RetypePassword}"/>
-                                        </CommonUI.Controls:HelpLabel>
-                                        <!-- -->
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=AdministratorToolsVM.CreateTrackVM.CanCreateTrack}" Click="CreateTrack">Create Track</Button>
-                                            <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessageBackground}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </GroupBox>
-                            </StackPanel>
-                        </CommonUI.Controls:BusyOverlay>
-                    </StackPanel>
-                </CommonUI.Controls:BusyOverlay>
+                <StackPanel>
+                    <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Connect to database as Administrator">
+                        <StackPanel Grid.Row="0">
+                            <TextBlock TextWrapping="Wrap">
+                                Enter your MySQL User credentials. The setup program cannot check whether you have sufficient rights beforehand. It will fail when you try to perform actions you have no permission for.
+                            </TextBlock>
+                            <CommonUI.Controls:TrackSelectionInput DataContext="{Binding Path=AdministratorToolsVM.DatabaseConnectionVM}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Padding="10,10" IsEnabled="{Binding Path=AdministratorToolsVM.ToggleConnectionButtonIsEnabled}" Click="AdministratorTools_ToggleConnection" Content="{Binding Path=AdministratorToolsVM.ToggleConnectionButtonText}"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=AdministratorToolsVM.DatabaseConnectionStatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.DatabaseConnectionStatusMessageVM.StatusMessageBackground}"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+                    <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=AdministratorToolsVM.ShowBusyOverlay}" OverlayText="{Binding Path=AdministratorToolsVM.BusyOverlayText}">
+                        <StackPanel>
+                            <!-- Twitter Application Keys -->
+                            <GroupBox Header="Twitter Application Keys">
+                                <StackPanel>
+                                    <GroupBox Header="Stored in Database">
+                                        <CommonUI.Controls:IfContent Condition="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.IsStoredInDatabase}">
+                                            <CommonUI.Controls:IfContent.TrueContent>
+                                                <StackPanel>
+                                                    <TextBlock>Consumer Key:</TextBlock>
+                                                    <TextBlock Text="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.ConsumerKeyInDatabase}"/>
+                                                    <TextBlock>Consumer Secret:</TextBlock>
+                                                    <TextBlock Text="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.ConsumerSecretInDatabase}"/>
+                                                    <Button HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.IsStoredInDatabase}" Click="DeleteApplicationKeys">Delete</Button>
+                                                </StackPanel>
+                                            </CommonUI.Controls:IfContent.TrueContent>
+                                            <CommonUI.Controls:IfContent.FalseContent>
+                                                <TextBlock Background="{StaticResource ResourceKey=ErrorBrush}">Nothing</TextBlock>
+                                            </CommonUI.Controls:IfContent.FalseContent>
+                                        </CommonUI.Controls:IfContent>
+                                    </GroupBox>
+                                    <GroupBox Header="Set">
+                                        <StackPanel>
+                                            <TextBlock>Consumer Key:</TextBlock>
+                                            <TextBox Text="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.ConsumerKeyToSet, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.ConsumerKeyToSetIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                                            <TextBlock>Consumer Secret:</TextBlock>
+                                            <TextBox Text="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.ConsumerSecretToSet, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.ConsumerSecretToSetIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
+                                            <Grid>
+                                                <Button HorizontalAlignment="Left" Padding="20,10" IsEnabled="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.CanSave}" Click="SaveApplicationKeys">Save</Button>
+                                                <Button HorizontalAlignment="Right" Padding="10,10" Click="OpenTwitterAppsPage">
+                                                    <TextBlock>
+                                                        Open Twitter Apps Page<LineBreak/>
+                                                        (Opens a browser window)
+                                                    </TextBlock>
+                                                </Button>
+                                            </Grid>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.ApplicationTokenVM.StatusMessageBackground}"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <!-- Tracks -->
+                            <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Tracks">
+                                <StackPanel Grid.IsSharedSizeScope="True">
+                                    <Button HorizontalAlignment="Left" Padding="4" Click="RefreshTrackList">Refresh</Button>
+                                    <o:AutoScrollingListBox
+                                        MaxHeight="150"
+                                        ScrollMode="ScrollIntoView"
+                                        ItemsSource="{Binding Path=AdministratorToolsVM.TracksVM.AvailableTracks}"
+                                        SelectedItem="{Binding Path=AdministratorToolsVM.TracksVM.SelectedAvailableTrack}"
+                                    >
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Path=EntityId.RawId}"/>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </o:AutoScrollingListBox>
+                                    <GroupBox>
+                                        <GroupBox.Header>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Padding="0,0,4,0" Text="Selected Track:"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Path=AdministratorToolsVM.TracksVM.SelectedAvailableTrack.EntityId.RawId}"/>
+                                            </Grid>
+                                        </GroupBox.Header>
+                                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding Path=AdministratorToolsVM.TracksVM.SelectedAvailableTrack, Converter={StaticResource ResourceKey=ObjectToBooleanConverter}}">
+                                            <Button Padding="15,10" Click="DeleteSelectedTrack">Delete</Button>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <TextBlock Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Visibility="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage, Converter={StaticResource ResourceKey=ObjectToVisibilityConverter}}" Text="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.TracksVM.StatusMessageVM.StatusMessageBackground}"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <!-- Create Track -->
+                            <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Create Track">
+                                <StackPanel>
+                                    <!-- -->
+                                    <!--<CommonUI.Controls:HelpLabel MainContent="Track Name:" HelpContent="The name of the new Track."/>
+                                    <TextBox Text="{Binding Path=AdministratorToolsVM.CreateTrackVM.TrackName, UpdateSourceTrigger=PropertyChanged}"/>-->
+                                    <!-- -->
+                                    <CommonUI.Controls:HelpLabel MainContent="Researcher Password:" HelpContent="The MySQL Password which will be used by the new Researcher for database authentication."/>
+                                    <o:BindablePasswordBox Password="{Binding Path=AdministratorToolsVM.CreateTrackVM.Password}"/>
+                                    <!-- -->
+                                    <CommonUI.Controls:HelpLabel MainContent="Researcher Password (retype):" HelpContent="To avoid spelling mistakes, please enter the new Researcher User's password again."/>
+                                    <CommonUI.Controls:HelpLabel HelpIsVisible="{Binding Path=AdministratorToolsVM.CreateTrackVM.PasswordsMatch, Converter={StaticResource ResourceKey=BooleanNotConverter}}" HelpContent="This Password does not match the Password entered above.">
+                                        <o:BindablePasswordBox Password="{Binding Path=AdministratorToolsVM.CreateTrackVM.RetypePassword}"/>
+                                    </CommonUI.Controls:HelpLabel>
+                                    <!-- -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=AdministratorToolsVM.CreateTrackVM.CanCreateTrack}" Click="CreateTrack">Create Track</Button>
+                                        <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessage}" Background="{Binding Path=AdministratorToolsVM.CreateTrackVM.StatusMessageVM.StatusMessageBackground}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </CommonUI.Controls:BusyOverlay>
+                </StackPanel>
             </ScrollViewer>
         </TabItem>
         <!-- Researcher -->
         <TabItem Header="Researcher">
             <ScrollViewer Style="{StaticResource ResourceKey=TabScrollViewerStyle}">
-                <CommonUI.Controls:BusyOverlay ShowOverlay="{Binding Path=ShowToolsBusyOverlay}" OverlayText="{Binding Path=ToolsBusyOverlayText}">
-                    <StackPanel>
-
-                    </StackPanel>
-                </CommonUI.Controls:BusyOverlay>
+                <StackPanel>
+                    <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Connect to database as Researcher">
+                        <StackPanel Grid.Row="0">
+                            <TextBlock TextWrapping="Wrap">
+                                Enter your MySQL User credentials. The setup program cannot check whether you have sufficient rights beforehand. It will fail when you try to perform actions you have no permission for.
+                            </TextBlock>
+                            <CommonUI.Controls:TrackSelectionInput DataContext="{Binding Path=ResearcherToolsVM.DatabaseConnectionVM}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=ResearcherToolsVM.ToggleConnectionButtonIsEnabled}" Click="ResearcherTools_ToggleConnection" Content="{Binding Path=ResearcherToolsVM.ToggleConnectionButtonText}"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource ResourceKey=StatusMessageTextBlockStyle}" Text="{Binding Path=ResearcherToolsVM.DatabaseConnectionStatusMessageVM.StatusMessage}" Background="{Binding Path=ResearcherToolsVM.DatabaseConnectionStatusMessageVM.StatusMessageBackground}"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+                    <CommonUI.Controls:BusyOverlay Grid.Row="1" ShowOverlay="{Binding Path=ResearcherToolsVM.ShowBusyOverlay}" OverlayText="{Binding Path=ResearcherToolsVM.BusyOverlayText}">
+                        <StackPanel>
+                            <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Delete initial Tweet">
+                                <StackPanel>
+                                    <Button HorizontalAlignment="Left" Padding="10,10" Click="UpdateTrackMetadata">Refresh</Button>
+                                    <CommonUI.Controls:IfContent Condition="{Binding Path=ResearcherToolsVM.DeleteMetadataVM.HasMetadata}">
+                                        <CommonUI.Controls:IfContent.TrueContent>
+                                            <StackPanel>
+                                                <Button Padding="10,10" Click="UnpublishInitialTweet" IsEnabled="{Binding Path=ResearcherToolsVM.DeleteMetadataVM.IsPublished}">Just unpublish the initial Tweet</Button>
+                                                <Button Padding="10,5" Click="DeleteAllMetadata">
+                                                    <TextBlock>
+                                                        Unpublish the initial Tweet and delete<LineBreak/>
+                                                        text, files, keywords and authentication token
+                                                    </TextBlock>
+                                                </Button>
+                                            </StackPanel>
+                                        </CommonUI.Controls:IfContent.TrueContent>
+                                        <CommonUI.Controls:IfContent.FalseContent>
+                                            <TextBlock>The database does not contain any metadata.</TextBlock>
+                                        </CommonUI.Controls:IfContent.FalseContent>
+                                    </CommonUI.Controls:IfContent>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Style="{StaticResource ResourceKey=MainGroupBoxStyle}" Header="Delete tracked Tweets">
+                                <Button HorizontalAlignment="Left" Padding="10,10" Click="DeleteAllTweets">
+                                    Delete all Tweets in this Track
+                                </Button>
+                            </GroupBox>
+                        </StackPanel>
+                    </CommonUI.Controls:BusyOverlay>
+                </StackPanel>
             </ScrollViewer>
         </TabItem>
     </TabControl>

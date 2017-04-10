@@ -43,16 +43,15 @@ Namespace Streaming
 
         Public Sub Start()
             If Stream Is Nothing Then
-                Dim KeywordsString = String.Join(" ", RelevantKeywords)
                 DebugPrint("Stream.Start (new):")
                 DebugPrint("    OriginalTweetId             : " & InitialTweetId)
                 DebugPrint("    OriginalTweetCreatedByUserId: " & InitialTweetCreatedByUserId)
-                DebugPrint("    RelevantKeywords            : " & KeywordsString)
+                DebugPrint("    RelevantKeywords            : " & String.Join(" ", RelevantKeywords))
                 Stream = Tweetinvi.Stream.CreateFilteredStream(AuthenticationToken)
                 Stream.AddFollow(InitialTweetCreatedByUserId, Nothing)
-                If RelevantKeywords.Count <> 0 Then
-                    Stream.AddTrack(KeywordsString, AddressOf TweetReceivedByKeywordsCallback)
-                End If
+                For Each i In RelevantKeywords
+                    Stream.AddTrack(i, AddressOf TweetReceivedByKeywordCallback)
+                Next
                 Stream.StartStreamMatchingAnyConditionAsync()
             Else
                 DebugPrint("Stream.Start (resumed)")
@@ -66,8 +65,8 @@ Namespace Streaming
             Stream = Nothing
         End Sub
 
-        Private Sub TweetReceivedByKeywordsCallback(Tweet As Tweetinvi.Models.ITweet)
-            DebugPrint("Stream.TweetReceivedByKeywordsCallback: " & Tweet.Id)
+        Private Sub TweetReceivedByKeywordCallback(Tweet As Tweetinvi.Models.ITweet)
+            DebugPrint("Stream.TweetReceivedByKeywordCallback: " & Tweet.Id)
             OnTweetReceived(Tweet, Tweetinvi.Streaming.MatchOn.None, False)
         End Sub
 

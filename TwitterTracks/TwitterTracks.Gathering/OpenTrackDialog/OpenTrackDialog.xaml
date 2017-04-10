@@ -30,6 +30,46 @@
                 <TabItem Header="Database Connection">
                     <CommonUI.Controls:TrackSelectionInput DataContext="{Binding Path=DatabaseConnectionVM}"/>
                 </TabItem>
+                <TabItem Header="Twitter Connection">
+                    <StackPanel>
+                        <GroupBox Header="Step 1">
+                            <StackPanel>
+                                <TextBlock TextWrapping="Wrap">
+                                    Open the Twitter authentication website where Twitter will prompt you to authorize the application your Administrator has registered. When you authorize the application, you will receive a PIN you should enter in Step 2 below.
+                                </TextBlock>
+                                <Button HorizontalAlignment="Left" Padding="10,10" IsEnabled="{Binding Path=PinIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Click="OpenAuthenticationPage">
+                                    <TextBlock>
+                                        Open authentication page<LineBreak/>
+                                        (Opens a browser window)
+                                    </TextBlock>
+                                </Button>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Step 2">
+                            <StackPanel>
+                                <TextBlock TextWrapping="Wrap">Enter the PIN which is displayed on the confirmation page.</TextBlock>
+                                <TextBox Text="{Binding Path=TwitterConnectionVM.AuthorizationPin}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Padding="10,10" IsEnabled="{Binding Path=PinIsValid, Converter={StaticResource ResourceKey=BooleanNotConverter}}" Click="ValidatePin">
+                                        Confirm PIN
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Summary">
+                            <StackPanel>
+                                <TextBlock>Access Token:</TextBlock>
+                                <TextBlock Text="{Binding Path=TwitterConnectionVM.AccessToken}"/>
+                                <TextBlock>Access Token Secret:</TextBlock>
+                                <TextBlock Text="{Binding Path=TwitterConnectionVM.AccessTokenSecret}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </TabItem>
                 <TabItem Header="Tweet Data">
                     <StackPanel>
                         <CommonUI.Controls:HelpLabel MainContent="Tweet Text:" HelpContent="The main text of the Tweet. Can contain @Mentions, #Hashtags, https://links and any other normal text, up to 140 characters. The counting rules are funky and not straight forward."/>
@@ -121,31 +161,6 @@
                         </TextBlock>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Twitter Connection">
-                    <StackPanel>
-                        <CommonUI.Controls:HelpLabel MainContent="Twitter Authentication Token:" HelpContent="The authentication token data used to connect to the Twitter API."/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Column="0" Grid.Row="0">Consumer Key:</TextBlock>
-                            <TextBlock Grid.Column="0" Grid.Row="1">Consumer Secret:</TextBlock>
-                            <TextBlock Grid.Column="0" Grid.Row="2">Access Token:</TextBlock>
-                            <TextBlock Grid.Column="0" Grid.Row="3">Access Token Secret:</TextBlock>
-                            <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=TwitterConnectionVM.ConsumerKey, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=TwitterConnectionVM.ConsumerKeyIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
-                            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Path=TwitterConnectionVM.ConsumerSecret, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=TwitterConnectionVM.ConsumerSecretIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
-                            <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Path=TwitterConnectionVM.AccessToken, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=TwitterConnectionVM.AccessTokenIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
-                            <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding Path=TwitterConnectionVM.AccessTokenSecret, UpdateSourceTrigger=PropertyChanged}" Background="{Binding Path=TwitterConnectionVM.AccessTokenSecretIsValid, Converter={StaticResource ResourceKey=ErrorBrushConverter}}"/>
-                        </Grid>
-                    </StackPanel>
-                </TabItem>
                 <TabItem Header="Summary">
                     <StackPanel>
                         <TextBlock FontSize="16">Summary:</TextBlock>
@@ -172,7 +187,7 @@
                             <CommonUI.Controls:IfContent.FalseContent>
                                 <StackPanel>
                                     <TextBlock>Not yet published.</TextBlock>
-                                    <TextBlock>Clicking OK now will <Run FontWeight="Bold">not</Run> publish the tweet now.</TextBlock>
+                                    <TextBlock>Clicking OK now will <Run FontWeight="Bold">not</Run> publish the Tweet now.</TextBlock>
                                 </StackPanel>
                             </CommonUI.Controls:IfContent.FalseContent>
                         </CommonUI.Controls:IfContent>
