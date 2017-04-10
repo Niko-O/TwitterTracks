@@ -37,8 +37,6 @@ Public Class TrackDatabase
                 "    `TweetText`           TEXT NOT NULL, " & _
                 "    `RelevantKeywords`    TEXT NOT NULL, " & _
                 "    `MediaFilePathsToAdd` TEXT NOT NULL, " & _
-                "    `ConsumerKey`         TEXT NOT NULL, " & _
-                "    `ConsumerSecret`      TEXT NOT NULL, " & _
                 "    `AccessToken`         TEXT NOT NULL, " & _
                 "    `AccessTokenSecret`   TEXT NOT NULL  " & _
                 ") ENGINE = InnoDB;                       ", MetadataTableIdentifier))
@@ -54,8 +52,6 @@ Public Class TrackDatabase
                 "    `UserRegion`         TEXT       NULL,                " & _
                 "    `Latitude`           DOUBLE     NULL,                " & _
                 "    `Longitude`          DOUBLE     NULL,                " & _
-                "    `Debug_TweetId`      INT8       NULL,                " & _
-                "    `Debug_TweetContent` TEXT       NULL,                " & _
                 "    INDEX `Idx_PublishDateTime` (`PublishDateTime` ASC), " & _
                 "    INDEX `Idx_LocationType`    (`LocationType`    ASC), " & _
                 "    INDEX `Idx_Latitude`        (`Latitude`        ASC), " & _

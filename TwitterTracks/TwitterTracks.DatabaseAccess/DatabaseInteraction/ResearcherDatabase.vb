@@ -66,9 +66,7 @@ Public Class ResearcherDatabase
                          TweetLocation.ParseDatabaseValue(DirectCast(Reader.GetInt32("LocationType"), TweetLocationType), _
                                                           Reader.GetNullableString("UserRegion"), _
                                                           Reader.GetNullableDouble("Latitude"), _
-                                                          Reader.GetNullableDouble("Longitude")), _
-                         Reader.GetNullableInt64("Debug_TweetId"), _
-                         Reader.GetNullableString("Debug_TweetContent"))
+                                                          Reader.GetNullableDouble("Longitude")))
     End Function
 
 #End Region
@@ -98,8 +96,6 @@ Public Class ResearcherDatabase
                     "    `TweetText`,              " & _
                     "    `RelevantKeywords`,       " & _
                     "    `MediaFilePathsToAdd`,    " & _
-                    "    `ConsumerKey`,            " & _
-                    "    `ConsumerSecret`,         " & _
                     "    `AccessToken`,            " & _
                     "    `AccessTokenSecret`)      " & _
                     "VALUES (@TweetId,             " & _
@@ -107,8 +103,6 @@ Public Class ResearcherDatabase
                     "        @TweetText,           " & _
                     "        @RelevantKeywords,    " & _
                     "        @MediaFilePathsToAdd, " & _
-                    "        @ConsumerKey,         " & _
-                    "        @ConsumerSecret,      " & _
                     "        @AccessToken,         " & _
                     "        @AccessTokenSecret)   ", MetadataTableIdentifier)
             Else
@@ -119,8 +113,6 @@ Public Class ResearcherDatabase
                     "    `TweetText`           = @TweetText,            " & _
                     "    `RelevantKeywords`    = @RelevantKeywords,     " & _
                     "    `MediaFilePathsToAdd` = @MediaFilePathsToAdd,  " & _
-                    "    `ConsumerKey`         = @ConsumerKey,          " & _
-                    "    `ConsumerSecret`      = @ConsumerSecret,       " & _
                     "    `AccessToken`         = @AccessToken,          " & _
                     "    `AccessTokenSecret`   = @AccessTokenSecret     ", MetadataTableIdentifier)
             End If
@@ -130,8 +122,6 @@ Public Class ResearcherDatabase
                             New CommandParameter("@TweetText", Metadata.TweetText), _
                             New CommandParameter("@RelevantKeywords", String.Join(" ", Metadata.RelevantKeywords)), _
                             New CommandParameter("@MediaFilePathsToAdd", String.Join("|", Metadata.MediaFilePathsToAdd)), _
-                            New CommandParameter("@ConsumerKey", Metadata.ConsumerKey), _
-                            New CommandParameter("@ConsumerSecret", Metadata.ConsumerSecret), _
                             New CommandParameter("@AccessToken", Metadata.AccessToken), _
                             New CommandParameter("@AccessTokenSecret", Metadata.AccessTokenSecret))
 
@@ -151,20 +141,18 @@ Public Class ResearcherDatabase
         Return ExecuteScalar(Of Int64)(FormatSqlIdentifiers("SELECT COUNT(*) FROM {0}", TweetTableIdentifier))
     End Function
 
-    Public Sub CreateTweet(IsRetweet As Boolean, MatchingKeywords As IEnumerable(Of String), PublishDateTime As DateTime, Location As TweetLocation, Debug_TweetId As Int64?, Debug_TweetContent As String)
+    Public Sub CreateTweet(IsRetweet As Boolean, MatchingKeywords As IEnumerable(Of String), PublishDateTime As DateTime, Location As TweetLocation)
         Dim TweetTableIdentifier = GetTweetTableIdentifier()
         ExecuteNonQuery(FormatSqlIdentifiers("INSERT INTO {0} " & _
-                                             "(`IsRetweet`, `MatchingKeywords`, `PublishDateTime`, `LocationType`, `UserRegion`, `Latitude`, `Longitude`, `Debug_TweetId`, `Debug_TweetContent`) " & _
-                                             "VALUES (@IsRetweet, @MatchingKeywords, @PublishDateTime, @LocationType, @UserRegion, @Latitude, @Longitude, @Debug_TweetId, @Debug_TweetContent)", TweetTableIdentifier), _
+                                             "(`IsRetweet`, `MatchingKeywords`, `PublishDateTime`, `LocationType`, `UserRegion`, `Latitude`, `Longitude`) " & _
+                                             "VALUES (@IsRetweet, @MatchingKeywords, @PublishDateTime, @LocationType, @UserRegion, @Latitude, @Longitude)", TweetTableIdentifier), _
                         New CommandParameter("@IsRetweet", IsRetweet), _
                         New CommandParameter("@MatchingKeywords", String.Join(" ", MatchingKeywords)), _
                         New CommandParameter("@PublishDateTime", PublishDateTime.ToUnixTimestamp), _
                         New CommandParameter("@LocationType", Location.LocationType), _
                         New CommandParameter("@UserRegion", Location.UserRegion), _
                         New CommandParameter("@Latitude", Location.GetDatabaseValueLatitude), _
-                        New CommandParameter("@Longitude", Location.GetDatabaseValueLongitude), _
-                        New CommandParameter("@Debug_TweetId", Debug_TweetId), _
-                        New CommandParameter("@Debug_TweetContent", Debug_TweetContent))
+                        New CommandParameter("@Longitude", Location.GetDatabaseValueLongitude))
     End Sub
 
     Public Function TryUpdateTweetUserRegionWithCoordinates(Id As EntityId, Latitude As Double, Longitude As Double) As Boolean

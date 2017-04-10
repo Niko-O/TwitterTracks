@@ -43,30 +43,12 @@ Public Structure Tweet
         End Get
     End Property
 
-    Dim _Debug_TweetId As Int64?
-    Public ReadOnly Property Debug_TweetId As Int64?
-        <DebuggerStepThrough()>
-        Get
-            Return _Debug_TweetId
-        End Get
-    End Property
-
-    Dim _Debug_TweetContent As String
-    Public ReadOnly Property Debug_TweetContent As String
-        <DebuggerStepThrough()>
-        Get
-            Return _Debug_TweetContent
-        End Get
-    End Property
-
-    Public Sub New(NewEntityId As EntityId, NewIsRetweet As Boolean, NewMatchingKeywords As IEnumerable(Of String), NewPublishDateTime As DateTime, NewLocation As TweetLocation, NewDebug_TweetId As Int64?, NewDebug_TweetContent As String)
+    Public Sub New(NewEntityId As EntityId, NewIsRetweet As Boolean, NewMatchingKeywords As IEnumerable(Of String), NewPublishDateTime As DateTime, NewLocation As TweetLocation)
         _EntityId = NewEntityId
         _IsRetweet = NewIsRetweet
         _MatchingKeywords = New ReadOnlyCollection(Of String)(NewMatchingKeywords.ToList)
         _PublishDateTime = NewPublishDateTime
         _Location = NewLocation
-        _Debug_TweetId = NewDebug_TweetId
-        _Debug_TweetContent = NewDebug_TweetContent
     End Sub
 
 End Structure
