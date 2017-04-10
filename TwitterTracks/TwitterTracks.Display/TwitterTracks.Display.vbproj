@@ -54,6 +54,10 @@
     <Reference Include="GMap.NET.WindowsPresentation">
       <HintPath>..\..\..\..\..\Nicht meine\GMap\greatmaps_a0085f541997\GMap.NET.WindowsPresentation\bin\Release\GMap.NET.WindowsPresentation.dll</HintPath>
     </Reference>
+    <Reference Include="OnUtils, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\_Libs\OnUtils.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -66,7 +70,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="C:\Projects\VB\_Libs\OnUtils\OnUtils\bin\Release\OnUtils.dll" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="Application.xaml">
@@ -100,6 +103,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Import Include="OnUtils" />
+    <Import Include="OnUtils.Extensions" />
+    <Import Include="OnUtils.Wpf" />
     <Import Include="System.Linq" />
     <Import Include="System.Xml.Linq" />
     <Import Include="System" />
@@ -116,10 +122,6 @@
     <Import Include="System.Windows.Media" />
     <Import Include="System.Windows.Media.Imaging" />
     <Import Include="System.Windows.Navigation" />
-    <Import Include="OnUtils" />
-    <Import Include="OnUtils.Extensions" />
-    <Import Include="OnUtils.Streams" />
-    <Import Include="OnUtils.Wpf" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="My Project\AssemblyInfo.vb">

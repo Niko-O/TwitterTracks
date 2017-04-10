@@ -3,6 +3,7 @@
 #      This extension is used for a file which contains my Twitter Authentication Data. I do not want to upload it, of course.
 #
 *.DonutUpload
+!_Libs/
 
 # IntelliJ Files
 **/.idea/workspace.xml
